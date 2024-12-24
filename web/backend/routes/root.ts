@@ -13,9 +13,6 @@ declare module 'fastify' {
 export default async function (fastify: FastifyInstance, opts: FastifyPluginOptions) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
   const api = new RuntimeApiClient()
-  fastify.get('/example', async (request, reply) => {
-    return { hello: fastify.example }
-  })
 
   typedFastify.get('/runtimes', {
     schema: {

@@ -3,7 +3,7 @@
 ## Project setup
 
 ```
-npm install
+npm install && cp .env.sample .env
 ```
 
 ### Build
@@ -37,7 +37,6 @@ npm run dev
 
 1. run the server
 2. open the browser and go to `http://localhost:3042/`
-3. click on "OpenAPI Documentation" link
-4. call the `/runtimes` endpoint
-5. call the `/metrics/{id}` endpoint
-
+3. click on "OpenAPI Documentation" link (`http://localhost:3042/documentation/json`)
+4. call the `/api/runtimes` endpoint
+5. call the `/api/runtimes/{id}/metrics` endpoint
