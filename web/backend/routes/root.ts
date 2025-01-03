@@ -41,8 +41,7 @@ export default async function (fastify: FastifyInstance, opts: FastifyPluginOpti
       params: { type: 'object', properties: { pid: { type: 'number' }, serviceId: { type: 'string' } }, required: ['pid', 'serviceId'] }
     }
   }, async ({ params: { pid, serviceId } }, reply) => {
-    // TODO: add more strict types into `@platformatic/control` to avoid casting to `any`
-    return typedFastify.mappedMetrics[pid]?.filter((value: any) => value.serviceId === serviceId)
+    return typedFastify.mappedMetrics[pid]?.filter((value) => value.serviceId === serviceId)
   })
 
   typedFastify.get('/runtimes/:pid/services', {

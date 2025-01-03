@@ -12,6 +12,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@platformatic/composer": "^2.30.1"
+    "@platformatic/composer": "^2.30.2"
   }
 }
