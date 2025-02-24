@@ -1,7 +1,7 @@
 import { subtractSecondsFromDate } from './utilities/dates'
 
 // FIXME: once the codebase will be migrated to TypeScript, we should leverage auto-generated clients through `@platformatic/client-cli`
-const host = 'http://127.0.0.1:3042/api'
+const host = '/api'
 
 /* APPLICATIONS */
 export const getApiApplication = async () => {
