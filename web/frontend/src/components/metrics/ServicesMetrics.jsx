@@ -34,7 +34,6 @@ const ServicesMetrics = React.forwardRef(({
 
   useInterval(async () => {
     try {
-      setInitialLoading(true)
       setAllData(await getApiMetricsPod(runtimePid))
       setServiceData(await getApiMetricsPodService(runtimePid, serviceId))
       setLatestRefreshDate(new Date())

@@ -17,7 +17,7 @@ import colorSetLatency from '~/components/metrics/latency.module.css'
 function NodeJSMetric ({
   title = '',
   metricURL = '',
-  initialLoading = true,
+  initialLoading = false,
   dataValues = [],
   unit = '',
   options = [{ label: '', internalKey: '', unit: '' }],
@@ -35,33 +35,31 @@ function NodeJSMetric ({
   const colorStyles = metricURL === 'mem' ? colorSetMem : metricURL === 'cpu' ? colorSetCpu : colorSetLatency
 
   useEffect(() => {
-    if (!initialLoading) {
-      setBorderexBoxClassName(`${styles.borderexBoxContainer}`)
-      let newValues = []
-      let lowerMaxY = 0
-      if (dataValues.length > 0) {
-        if (metricURL === 'latency') {
-          newValues = dataValues.map(({ date, ...rest }) => ({
-            time: new Date(date),
-            ...rest
-          }))
-        } else {
-          dataValues.forEach(dataValue => {
-            newValues.push({
-              time: new Date(dataValue.date),
-              values: [...options.map(option => dataValue[option.internalKey])]
-            })
-            lowerMaxY = Math.max(lowerMaxY, ...options.map(option => dataValue[option.internalKey]))
-          })
-        }
-        setSeriesValues([...newValues])
-        setShowNoResult(false)
-        setLowerMaxY(lowerMaxY)
+    setBorderexBoxClassName(`${styles.borderexBoxContainer}`)
+    let newValues = []
+    let lowerMaxY = 0
+    if (dataValues.length > 0) {
+      if (metricURL === 'latency') {
+        newValues = dataValues.map(({ date, ...rest }) => ({
+          time: new Date(date),
+          ...rest
+        }))
       } else {
-        setShowNoResult(true)
+        dataValues.forEach(dataValue => {
+          newValues.push({
+            time: new Date(dataValue.date),
+            values: [...options.map(option => dataValue[option.internalKey])]
+          })
+          lowerMaxY = Math.max(lowerMaxY, ...options.map(option => dataValue[option.internalKey]))
+        })
       }
+      setSeriesValues([...newValues])
+      setShowNoResult(false)
+      setLowerMaxY(lowerMaxY)
+    } else {
+      setShowNoResult(true)
     }
-  }, [initialLoading])
+  }, [])
 
   const generateLegend = () => {
     return (

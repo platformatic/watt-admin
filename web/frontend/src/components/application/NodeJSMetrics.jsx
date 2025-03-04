@@ -26,7 +26,6 @@ function NodeJSMetrics ({
 
   useInterval(async () => {
     try {
-      setInitialLoading(true)
       const data = await getApiMetricsPod(runtimePid)
       setAllData(data)
       setLatestRefreshDate(new Date())

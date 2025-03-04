@@ -129,12 +129,12 @@ const NodeJSMetricChart = ({
           .attr('class', `${styles.line} ${colorStyles[`color-${i}`]}`)
           .datum(latestData)
           .attr('d', d3.line()
-            .x(p => {
-              return x(p.time)
-            })
+            .x(p => x(p.time))
             .y((p) => y(p.values[i]))
             .curve(d3.curveBasis)
           )
+          .transition()
+          .duration(1000)
           .node()
         )
 

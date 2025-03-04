@@ -130,6 +130,8 @@ const LatencyChart = ({
           .attr('y', d => y(d[percentile] || 0))
           .attr('width', barWidth)
           .attr('height', d => h - marginOnY - y(d[percentile] || 0))
+          .transition()
+          .duration(1000)
       })
 
       // Tooltip
