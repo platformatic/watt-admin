@@ -20,11 +20,11 @@ export const getApiApplication = async () => {
 let latest = ''
 export const isWattpmVersionOutdated = async (currentVersion) => {
   if (!latest) {
-    const result = await fetch('https://registry.npmjs.org/wattpm')
+    const result = await fetch('https://registry.npmjs.org/@platformatic/control')
     const data = await result.json()
     latest = data['dist-tags'].latest
   }
-  console.log('last stable wattpm version', latest)
+  console.log('last stable @platformatic/control version', latest)
   return latest !== currentVersion
 }
 
