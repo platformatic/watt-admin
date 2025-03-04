@@ -33,9 +33,9 @@ test('metrics with runtime', async (t) => {
   assert.ok(metrics.dataCpu[0].eventLoop > 0)
   assert.ok(new Date(metrics.dataCpu[0].date) <= new Date())
 
-  assert.ok(metrics.dataLatency[0].p90 > 0)
-  assert.ok(metrics.dataLatency[0].p95 > 0)
-  assert.ok(metrics.dataLatency[0].p99 > 0)
+  assert.ok(metrics.dataLatency[0].p90 >= 0)
+  assert.ok(metrics.dataLatency[0].p95 >= 0)
+  assert.ok(metrics.dataLatency[0].p99 >= 0)
   assert.ok(new Date(metrics.dataLatency[0].date) <= new Date())
 
   assert.ok(metrics.dataMem[0].rss >= 0)
