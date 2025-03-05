@@ -31,7 +31,7 @@ export interface MetricsResponse {
   dataLatency: LatencyDataPoint[];
 }
 
-const bytesToGB = (bytes: number) => Number((bytes / (1024 * 1024 * 1024)).toFixed(2))
+const bytesToMB = (bytes: number) => Number((bytes / (1024 * 1024)).toFixed(2))
 
 export default async function (fastify: FastifyInstance) {
   const calculateMetrics = async () => {
@@ -68,6 +68,8 @@ export default async function (fastify: FastifyInstance) {
         let aggregatedSumP90 = 0
         let aggregatedSumP95 = 0
         let aggregatedSumP99 = 0
+        let aggregatedRss = 0
+
         const runtimeMetrics = await api.getRuntimeMetrics(pid, { format: 'json' })
         if (!fastify.mappedMetrics[pid]) {
           fastify.mappedMetrics[pid] = { services: {}, aggregated: { dataCpu: [], dataLatency: [], dataMem: [] } }
@@ -108,30 +110,28 @@ export default async function (fastify: FastifyInstance) {
           for (const metric of runtimeMetrics) {
             if (metric.values.length > 0) {
               const [{ value, labels }] = metric.values
+              if (metric.name === 'process_resident_memory_bytes') {
+                aggregatedRss = bytesToMB(value)
+              }
 
               if (serviceId === labels.serviceId) {
-                if (metric.name === 'process_resident_memory_bytes') {
-                  serviceMemData.rss = bytesToGB(value)
-                  aggregatedMemData.rss += serviceMemData.rss
-                }
-
                 if (metric.name === 'nodejs_heap_size_total_bytes') {
-                  serviceMemData.totalHeap = bytesToGB(value)
+                  serviceMemData.totalHeap = bytesToMB(value)
                   aggregatedMemData.totalHeap += serviceMemData.totalHeap
                 }
 
                 if (metric.name === 'nodejs_heap_size_used_bytes') {
-                  serviceMemData.usedHeap = bytesToGB(value)
+                  serviceMemData.usedHeap = bytesToMB(value)
                   aggregatedMemData.usedHeap += serviceMemData.usedHeap
                 }
 
                 if (metric.name === 'nodejs_heap_space_size_used_bytes') {
                   metric.values.forEach(val => {
                     if (val.labels?.space === 'new') {
-                      serviceMemData.newSpace = bytesToGB(val.value)
+                      serviceMemData.newSpace = bytesToMB(val.value)
                       aggregatedMemData.newSpace += serviceMemData.newSpace
                     } else if (val.labels?.space === 'old') {
-                      serviceMemData.oldSpace = bytesToGB(val.value)
+                      serviceMemData.oldSpace = bytesToMB(val.value)
                       aggregatedMemData.oldSpace += serviceMemData.oldSpace
                     }
                   })
@@ -186,6 +186,8 @@ export default async function (fastify: FastifyInstance) {
             }
           }
 
+          serviceMemData.rss = aggregatedRss
+          aggregatedMemData.rss = aggregatedRss
           if (fastify.mappedMetrics[pid].services[serviceId].dataMem.length >= MAX_STORED_METRICS) {
             fastify.mappedMetrics[pid].services[serviceId].dataMem.shift()
           }

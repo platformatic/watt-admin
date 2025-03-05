@@ -53,4 +53,6 @@ test('metrics with runtime', async (t) => {
   assert.ok('dataCpu' in response)
   assert.ok('dataLatency' in response)
   assert.ok('dataMem' in response)
+
+  assert.equal(metrics.dataMem[0].rss, response.dataMem[0].rss)
 })
