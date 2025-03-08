@@ -9,7 +9,7 @@ import tooltipStyles from '~/styles/TooltipStyles.module.css'
 function Log ({ log, onClickArrow }) {
   const [displayJson, setDisplayJson] = useState(false)
   const [logContainerClassName, setLogContainerClassName] = useState(normalClassName())
-  const { level, time, pid, name, msg, reqId, req, hostname, responseTime, ...rest } = JSON.parse(log)
+  const { level, time, pid, name, msg, reqId, req, hostname, responseTime, ...rest } = log
   const levelDisplayed = getLevel(level)
   let msgClassName = `${styles.msg} `
   msgClassName += styles[`text${level}`]

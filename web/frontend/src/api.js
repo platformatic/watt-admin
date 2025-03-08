@@ -36,8 +36,8 @@ export const getServices = async (id) => {
 
 export const getLogs = async (id) => {
   const result = await fetch(`${host}/runtimes/${id}/logs`)
-  const logs = await result.text()
-  return logs.trim().split('\n')
+  const data = await result.json()
+  return data
 }
 
 export const getApiMetricsPod = async (id) => {

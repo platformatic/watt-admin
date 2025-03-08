@@ -56,7 +56,37 @@ export default async function (fastify: FastifyInstance) {
     schema: {
       params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] }
     }
-  }, async (request) => api.getRuntimeAllLogsStream(request.params.pid))
+  }, async (request) => {
+    const readable = await api.getRuntimeAllLogsStream(request.params.pid)
+
+    // Similar to what have been done on `metrics.ts`, this is the current fix to avoid a potential infinite array of data (and therefore a memory leak).
+    const MAX_LOGS = 1000
+    const result = []
+    let currentLine = ''
+    for await (const chunk of readable) {
+      const text = chunk.toString()
+      for (const char of text) {
+        if (char !== '\n') {
+          currentLine += char
+        } else {
+          let value
+          try {
+            value = JSON.parse(currentLine)
+          } catch (err) {
+            fastify.log.warn({ err, currentLine, text }, 'Unable to parse log line to JSON from text')
+          }
+          if (value) {
+            if (result.length > MAX_LOGS) {
+              result.shift()
+            }
+            result.push(value)
+          }
+          currentLine = ''
+        }
+      }
+    }
+    return result
+  })
 
   typedFastify.get('/runtimes/:pid/openapi/:serviceId', {
     schema: {

@@ -92,10 +92,10 @@ const AppLogs = ({ filteredServices }) => {
       if (filterLogsByLevel || filteredServices.length >= 0) {
         let founds = [...applicationLogs]
         if (filterLogsByLevel) {
-          founds = founds.filter(log => JSON.parse(log).level >= filterLogsByLevel)
+          founds = founds.filter(log => log.level >= filterLogsByLevel)
         }
         if (filteredServices.length >= 0) {
-          founds = founds.filter(log => filteredServices.includes(JSON.parse(log).name))
+          founds = founds.filter(log => filteredServices.includes(log.name))
         }
         setFilteredLogs(founds)
       } else {

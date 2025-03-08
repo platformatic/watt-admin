@@ -112,11 +112,11 @@ test('runtime is running', async (t) => {
   })
   assert.strictEqual(logs.statusCode, 200)
 
-  const [starting, listening, started, platformatic] = logs.body.trim().split('\n').filter(val => !val.includes('Loading envfile'))
-  assert.ok(starting.includes('Starting the service \\"backend\\"'))
-  assert.ok(listening.includes('Started the service \\"backend\\"'))
-  assert.ok(started.includes('Starting the service \\"frontend\\"'))
-  assert.ok(platformatic.includes('Started the service \\"frontend\\"'))
+  const result = logs.json<{ msg: string }[]>()
+  assert.ok(result.some(({ msg }) => msg.includes('Starting the service')))
+  assert.ok(result.some(({ msg }) => msg.includes('Started the service')))
+  assert.ok(result.some(({ msg }) => msg.includes('Server listening at')))
+  assert.ok(result.some(({ msg }) => msg.includes('Platformatic is now listening')))
 })
 
 test('runtime restart', async (t) => {
