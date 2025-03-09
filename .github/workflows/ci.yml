@@ -1,0 +1,40 @@
+name: run tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@releases/v4.0.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: npm ci
+        uses: nick-fields/retry@v3.0.0
+        with:
+          max_attempts: 10
+          timeout_minutes: 15
+          retry_on: error
+          command: npm ci
+      - name: Run build
+        run: npm run build
+      - name: Run frontend tests
+        run: cd web/frontend && npm run test
+      - name: Run backend tests
+        run: cd web/backend && npm run test

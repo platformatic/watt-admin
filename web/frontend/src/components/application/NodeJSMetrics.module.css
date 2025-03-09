@@ -1,0 +1,3 @@
+.metricsContainer {
+  @apply flex flex-col w-full gap-4; 
+}

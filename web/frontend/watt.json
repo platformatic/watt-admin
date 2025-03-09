@@ -1,6 +1,7 @@
 {
-  "$schema": "https://schemas.platformatic.dev/@platformatic/vite/2.26.1.json",
-  "application": {
-    "basePath": "/"
+  "$schema": "https://schemas.platformatic.dev/@platformatic/vite/2.52.0.json",
+  "application": { "basePath": "/" },
+  "vite": {
+    "ssr": false
   }
 }

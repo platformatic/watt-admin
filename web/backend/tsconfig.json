@@ -1,15 +1,12 @@
 {
+  "extends": "fastify-tsconfig",
   "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es2020",
     "sourceMap": true,
     "pretty": true,
     "noEmitOnError": true,
     "incremental": true,
-    "strict": false,
     "outDir": "dist",
-    "skipLibCheck": true
+    "noUnusedParameters": true
   },
   "watchOptions": {
     "watchFile": "fixedPollingInterval",
