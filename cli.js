@@ -14,27 +14,28 @@ async function main() {
       const runtimes = await client.getRuntimes()
       
       if (runtimes.length === 0) {
-        console.error('No runtimes available.')
-        process.exit(1)
+        console.log('No runtimes available. Please start a Platformatic runtime first.')
+        return null
       } else if (runtimes.length === 1) {
         // Only one runtime, no need to prompt
         const runtime = runtimes[0]
-        console.log(`Using runtime: ${runtime.packageName} (PID: ${runtime.pid})`)
+        console.log(`Using runtime: ${runtime.packageName || 'unnamed'} (PID: ${runtime.pid})`)
         return runtime
       } else {
         // Multiple runtimes, prompt user to select one
         const choices = runtimes.map(runtime => ({
-          name: `${runtime.packageName} (PID: ${runtime.pid})`,
+          name: `${runtime.packageName || 'unnamed'} (PID: ${runtime.pid})`,
           value: runtime,
-          description: `Started at ${new Date(runtime.startTime).toLocaleString()}`
+          description: runtime.startTime ? `Started at ${new Date(runtime.startTime).toLocaleString()}` : ''
         }))
         
+        // Prompt the user to select a runtime
         const selectedRuntime = await select({
           message: 'Select a runtime:',
           choices
         })
         
-        console.log(`Selected runtime: ${selectedRuntime.packageName} (PID: ${selectedRuntime.pid})`)
+        console.log(`Selected runtime: ${selectedRuntime.packageName || 'unnamed'} (PID: ${selectedRuntime.pid})`)
         return selectedRuntime
       }
     } finally {
@@ -43,7 +44,7 @@ async function main() {
     }
   } catch (error) {
     console.error('Error:', error.message)
-    process.exit(1)
+    return null
   }
 }
 
