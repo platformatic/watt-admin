@@ -7,8 +7,9 @@ export const getApiApplication = async () => {
   const result = await fetch(`${host}/runtimes`)
   const data = await result.json()
 
-  if (data?.length > 0) {
-    const [{ platformaticVersion: pltVersion, packageName: name, pid: id, uptimeSeconds, url }] = data
+  for (const runtime of data) {
+    const { platformaticVersion: pltVersion, packageName: name, pid: id, uptimeSeconds, url, selected } = runtime
+    if (!selected) continue
     const lastStarted = subtractSecondsFromDate(new Date(), uptimeSeconds)
     return { id, url, name, pltVersion, lastStarted }
   }

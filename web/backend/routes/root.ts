@@ -31,11 +31,21 @@ export default async function (fastify: FastifyInstance) {
   }, async (request) => {
     let runtimes = await api.getRuntimes()
 
+    type SelectableRuntime = typeof runtimes[0] & { selected?: boolean }
+
+    let selectableRuntimes: SelectableRuntime[] = runtimes
+
     if (!request.query.includeAdmin) {
-      runtimes = runtimes.filter((runtime) => runtime.packageName !== 'watt-admin')
+      selectableRuntimes = selectableRuntimes.filter((runtime) => runtime.packageName !== 'watt-admin')
     }
 
-    return runtimes
+    for (const runtime of selectableRuntimes) {
+      if (process.env.SELECTED_RUNTIME === runtime.pid.toString()) {
+        runtime.selected = true
+      }
+    }
+
+    return selectableRuntimes
   })
 
   typedFastify.get('/runtimes/:pid/metrics', {

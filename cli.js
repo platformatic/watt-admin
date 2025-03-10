@@ -4,6 +4,7 @@
 
 const { RuntimeApiClient } = require('@platformatic/control')
 const { select } = require('@inquirer/prompts')
+const { start } = require('./lib/start')
 
 async function getLocationDetails(client, runtime) {
   try {
@@ -143,7 +144,9 @@ async function main() {
 
 // Execute the main function if this script is run directly
 if (require.main === module) {
-  main().catch(error => {
+  main().then((selectedRuntime) => {
+    return start(selectedRuntime.pid)
+  }).catch(error => {
     console.error('Fatal error:', error)
     process.exit(1)
   })
