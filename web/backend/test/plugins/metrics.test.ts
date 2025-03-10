@@ -1,9 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert'
-import { getServer, startWatt } from '../helper'
+import { getServer, startWatt, wait } from '../helper'
 import { MetricsResponse } from '../../plugins/metrics'
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 test('metrics without runtime', async (t) => {
   const server = await getServer(t)
