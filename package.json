@@ -19,5 +19,8 @@
   "workspaces": [
     "web/*",
     "external/*"
-  ]
+  ],
+  "bin": {
+    "watt-runtime": "./cli.js"
+  }
 }
