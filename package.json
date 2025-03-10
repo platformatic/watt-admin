@@ -7,6 +7,7 @@
     "start": "wattpm start"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.3.3",
     "@platformatic/composer": "^2.52.0",
     "@platformatic/runtime": "^2.52.0",
     "split2": "4.2.0",
