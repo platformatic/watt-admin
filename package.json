@@ -5,7 +5,9 @@
     "dev": "wattpm dev",
     "build": "wattpm build",
     "start": "wattpm start",
-    "test": "node --test 'test/*'"
+    "test": "node --test test/cli.test.js test/start.test.js test/cli-integration.test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.3.3",
@@ -17,7 +19,9 @@
   },
   "devDependencies": {
     "@inquirer/testing": "^2.1.45",
-    "@types/split2": "4.2.3"
+    "@types/split2": "4.2.3",
+    "eslint": "^9.22.0",
+    "neostandard": "^0.12.1"
   },
   "workspaces": [
     "web/*",

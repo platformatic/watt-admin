@@ -22,41 +22,41 @@ describe('CLI Integration', () => {
       argv: ['node', 'server2.js']
     }
   ]
-  
+
   // Setup for test
   let consoleOutput = []
   const originalConsoleLog = console.log
-  
+
   beforeEach(() => {
     consoleOutput = []
     console.log = (...args) => {
       consoleOutput.push(args.join(' '))
     }
   })
-  
+
   afterEach(() => {
     console.log = originalConsoleLog
   })
-  
+
   it('should correctly select a runtime from multiple options', async () => {
     // Mock modules for the test
     const mockedCli = proxyquire.noCallThru().load('../cli.js', {
       '@platformatic/control': {
         RuntimeApiClient: class {
-          constructor() {}
-          async getRuntimes() { return mockRuntimes }
-          async getRuntimeConfig() { return { path: '/test/config.json' } }
-          async close() {}
+          // No constructor needed since we only have empty implementation
+          async getRuntimes () { return mockRuntimes }
+          async getRuntimeConfig () { return { path: '/test/config.json' } }
+          async close () {}
         }
       },
       '@inquirer/prompts': {
         select: async () => mockRuntimes[1] // Always select the second runtime
       }
     })
-    
+
     // Call the main function
     const result = await mockedCli()
-    
+
     // Verify result
     assert.deepStrictEqual(result, mockRuntimes[1])
     assert.ok(consoleOutput.some(output => output.includes('app-2')))
