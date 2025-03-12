@@ -1,6 +1,7 @@
 import { RuntimeApiClient } from '@platformatic/control'
 import { FastifyInstance } from 'fastify'
 import os from 'os'
+import { bytesToMB } from '../utils/calc'
 
 interface CommonMetricData {
   date: Date;
@@ -30,8 +31,6 @@ export interface MetricsResponse {
   dataCpu: CpuDataPoint[];
   dataLatency: LatencyDataPoint[];
 }
-
-const bytesToMB = (bytes: number) => Number((bytes / (1024 * 1024)).toFixed(2))
 
 export default async function (fastify: FastifyInstance) {
   const calculateMetrics = async () => {

@@ -8,8 +8,7 @@ import useAdminStore from '~/useAdminStore'
 import { getApiApplication } from '../../api'
 
 const AppDetails = () => {
-  const [showErrorComponent, setShowErrorComponent] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState('')
   const [apiApplication, setApiApplication] = useState({})
   const { setRuntimePid } = useAdminStore()
 
@@ -17,17 +16,20 @@ const AppDetails = () => {
     const fetchData = async () => {
       try {
         const response = await getApiApplication()
-        setApiApplication(response)
-        setRuntimePid(response.id)
+        if (response.id) {
+          setApiApplication(response)
+          setRuntimePid(response.id)
+          setError('')
+        }
       } catch (error) {
-        console.error('Error getting api application:', error)
+        setError(error)
       }
     }
     fetchData()
   }, [])
 
-  if (showErrorComponent) {
-    return <ErrorComponent error={error} message={error.message} onClickDismiss={() => setShowErrorComponent(false)} />
+  if (error) {
+    return <ErrorComponent error={error} message={error?.message} onClickDismiss={() => setError('')} />
   }
 
   return (
@@ -36,10 +38,7 @@ const AppDetails = () => {
         <div className={styles.content}>
           <div className={styles.leftSection}>
             <AppNameBox
-              onErrorOccurred={(error) => {
-                setError(error)
-                setShowErrorComponent(true)
-              }}
+              onErrorOccurred={setError}
               apiApplication={apiApplication}
             />
             <NodeJSMetrics />

@@ -44,7 +44,7 @@ function ServicesMetrics ({
   }
 
   useInterval(() => { getData() }, REFRESH_INTERVAL_METRICS)
-  useEffect(() => { getData() }, [serviceId])
+  useEffect(() => { getData() }, [serviceId, showAggregatedMetrics])
 
   return (
     <div className={`${styles.container} ${styles.content} ${commonStyles.smallFlexBlock} ${commonStyles.fullWidth} ${styles.flexGrow}`}>

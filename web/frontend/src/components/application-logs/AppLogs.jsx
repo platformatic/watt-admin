@@ -4,7 +4,8 @@ import { RICH_BLACK, WHITE, TRANSPARENT, MARGIN_0, OPACITY_15 } from '@platforma
 import styles from './AppLogs.module.css'
 import typographyStyles from '~/styles/Typography.module.css'
 import commonStyles from '~/styles/CommonStyles.module.css'
-import { BorderedBox, Button, HorizontalSeparator } from '@platformatic/ui-components'
+import loadingSpinnerStyles from '~/styles/LoadingSpinnerStyles.module.css'
+import { BorderedBox, Button, HorizontalSeparator, LoadingSpinnerV2 } from '@platformatic/ui-components'
 import ErrorComponent from '~/components/errors/ErrorComponent'
 import Log from './Log'
 import {
@@ -26,6 +27,7 @@ import { getLogs } from '../../api'
 const AppLogs = ({ filteredServices }) => {
   const { runtimePid } = useAdminStore()
   const [displayLog, setDisplayLog] = useState(PRETTY)
+  const [loading, setLoading] = useState(true)
   const [filterLogsByLevel, setFilterLogsByLevel] = useState('')
   const [scrollDirection, setScrollDirection] = useState(DIRECTION_TAIL)
   const [applicationLogs, setApplicationLogs] = useState([])
@@ -38,8 +40,7 @@ const AppLogs = ({ filteredServices }) => {
   const [filteredLogsLengthAtPause, setFilteredLogsLengthAtPause] = useState(0)
   const bottomRef = useRef()
   const isBottomOnScreen = useOnScreen(bottomRef)
-  const [showErrorComponent, setShowErrorComponent] = useState(false)
-  const [error] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (logContentRef.current && scrollDirection === DIRECTION_TAIL && filteredLogs.length > 0) {
@@ -114,9 +115,12 @@ const AppLogs = ({ filteredServices }) => {
       if (runtimePid) {
         const logs = await getLogs(runtimePid)
         setApplicationLogs(logs)
+        setError('')
       }
     } catch (error) {
-      console.error('Failed to fetch logs:', error)
+      setError(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -182,8 +186,22 @@ const AppLogs = ({ filteredServices }) => {
     setLastScrollTop(st <= 0 ? 0 : st)
   }
 
-  if (showErrorComponent) {
-    return <ErrorComponent error={error} onClickDismiss={() => setShowErrorComponent(false)} />
+  if (error) {
+    return <ErrorComponent error={error} onClickDismiss={() => setError('')} />
+  }
+
+  if (loading) {
+    return (
+      <LoadingSpinnerV2
+        loading
+        applySentences={{
+          containerClassName: `${commonStyles.mediumFlexBlock} ${commonStyles.itemsCenter}`,
+          sentences: []
+        }}
+        containerClassName={loadingSpinnerStyles.loadingSpinner}
+        spinnerProps={{ size: 40, thickness: 3 }}
+      />
+    )
   }
 
   return (

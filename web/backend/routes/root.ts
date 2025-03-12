@@ -1,16 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import { RuntimeApiClient, Runtime } from '@platformatic/control'
-import split2 from 'split2'
-import { pipeline } from 'node:stream/promises'
-
-export type Log = {
-  level: number,
-  time: number,
-  pid: number,
-  hostname: string,
-  msg: string
-}
+import { getLogsFromReadable } from '../utils/log'
 
 export default async function (fastify: FastifyInstance) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
@@ -76,33 +67,8 @@ export default async function (fastify: FastifyInstance) {
     schema: {
       params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] }
     }
-  }, async (request) => {
-    const readable = await api.getRuntimeAllLogsStream(request.params.pid)
-
-    const MAX_LOGS = 1000
-    const result: Log[] = []
-
-    await pipeline(
-      readable,
-      split2(),
-      async function * (source) {
-        for await (const line of source) {
-          try {
-            const parsedObject = JSON.parse(line)
-            result.push(parsedObject)
-
-            if (result.length > MAX_LOGS) {
-              result.shift()
-            }
-          } catch (err) {
-            fastify.log.warn({ line }, 'Invalid JSON line found:')
-          }
-        }
-      }
-    )
-
-    return result
-  })
+  }, async ({ params: { pid }, log }) =>
+    getLogsFromReadable(await api.getRuntimeAllLogsStream(pid), log))
 
   typedFastify.get('/runtimes/:pid/openapi/:serviceId', {
     schema: {

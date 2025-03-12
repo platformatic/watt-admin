@@ -7,6 +7,8 @@ import { spawn } from 'node:child_process'
 type testfn = Parameters<typeof test>[0]
 type TestContext = Parameters<Exclude<testfn, undefined>>[0]
 
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export async function getServer (t: TestContext) {
   // We go up two folder because this files executes in the dist folder
   const config = JSON.parse(await readFile(join(__dirname, '..', '..', 'platformatic.json'), 'utf8'))
