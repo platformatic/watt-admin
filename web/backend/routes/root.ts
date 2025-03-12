@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
-import { RuntimeApiClient } from '@platformatic/control'
+import { RuntimeApiClient, Runtime } from '@platformatic/control'
 import split2 from 'split2'
 import { pipeline } from 'node:stream/promises'
 
