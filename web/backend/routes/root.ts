@@ -31,7 +31,7 @@ export default async function (fastify: FastifyInstance) {
   }, async (request) => {
     const runtimes = await api.getRuntimes()
 
-    type SelectableRuntime = typeof runtimes[0] & { selected?: boolean }
+    type SelectableRuntime = Runtime & { selected?: boolean }
 
     let selectableRuntimes: SelectableRuntime[] = runtimes
 
