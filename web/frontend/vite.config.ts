@@ -7,16 +7,10 @@ const envDir = join(__dirname, '..', '..')
 export default defineConfig({
   envDir,
   plugins: [react()],
-  resolve: {
-    alias: {
-      '~': resolve(__dirname, 'src')
-    }
-  },
   build: {
     sourcemap: true
   },
   server: {
-    allowedHosts: 'frontend.plt.local',
     host: '127.0.0.1'
   }
 })

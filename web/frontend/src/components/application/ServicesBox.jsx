@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { OPACITY_100, OPACITY_15, RICH_BLACK, WHITE, TRANSPARENT, MEDIUM, SMALL, BLACK_RUSSIAN } from '@platformatic/ui-components/src/components/constants'
 import styles from './ServicesBox.module.css'
-import typographyStyles from '~/styles/Typography.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
+import commonStyles from '../../styles/CommonStyles.module.css'
 import { BorderedBox } from '@platformatic/ui-components'
 import Icons from '@platformatic/ui-components/src/components/icons'
-import useAdminStore from '~/useAdminStore'
+import useAdminStore from '../../useAdminStore'
 import { getServices } from '../../api'
 
 function Service ({ id, entrypoint, type }) {

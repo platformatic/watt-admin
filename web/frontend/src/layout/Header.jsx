@@ -1,12 +1,12 @@
 import styles from './Header.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
+import commonStyles from '../styles/CommonStyles.module.css'
 import { HorizontalSeparator } from '@platformatic/ui-components'
 import { WHITE, MARGIN_0, OPACITY_15 } from '@platformatic/ui-components/src/components/constants'
-import Navigation from '~/layout/Navigation'
+import Navigation from '../layout/Navigation'
 import { useNavigate } from 'react-router-dom'
-import { HOME_PATH } from '~/ui-constants'
-import useAdminStore from '~/useAdminStore'
-import Logo from '~/components/ui/Logo'
+import { HOME_PATH } from '../ui-constants'
+import useAdminStore from '../useAdminStore'
+import Logo from '../components/ui/Logo'
 
 function Header () {
   const navigate = useNavigate()

@@ -1,6 +1,9 @@
-import React from 'react'
+interface LogoProps {
+  width: number;
+  height: number;
+}
 
-export default function Logo ({ width = 214, height = 148 }) {
+export default function Logo({ width, height }: LogoProps): React.ReactElement {
   return (
     <svg width={width} height={height} viewBox='0 0 214 148' fill='none' xmlns='http://www.w3.org/2000/svg'>
       <path d='M42.5549 89.8883V124.373' stroke='#21FA90' strokeWidth='7.54051' strokeLinecap='round' strokeLinejoin='round' />

@@ -3,10 +3,10 @@ import {
   HOME_PATH,
   POD_SERVICES_PATH,
   POD_LOGS_PATH
-} from '~/ui-constants'
+} from '../ui-constants'
 import styles from './HomeContainer.module.css'
-import SideBar from '~/components/ui/SideBar'
-import useAdminStore from '~/useAdminStore'
+import SideBar from '../components/ui/SideBar'
+import useAdminStore from '../useAdminStore'
 import { useNavigate } from 'react-router-dom'
 
 function ApplicationContainer ({ children }) {

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { useInterval } from '~/hooks/useInterval'
+import { useInterval } from '../../hooks/useInterval'
 import { WHITE, MEDIUM, BLACK_RUSSIAN, TRANSPARENT, RICH_BLACK } from '@platformatic/ui-components/src/components/constants'
 import styles from './NodeJSMetrics.module.css'
-import typographyStyles from '~/styles/Typography.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
+import commonStyles from '../../styles/CommonStyles.module.css'
 import { BorderedBox } from '@platformatic/ui-components'
 import Icons from '@platformatic/ui-components/src/components/icons'
 import NodeJSMetric from './NodeJSMetric'
-import { REFRESH_INTERVAL_METRICS, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS } from '~/ui-constants'
-import { getApiMetricsPod } from '~/api'
-import useAdminStore from '~/useAdminStore'
+import { REFRESH_INTERVAL_METRICS, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS } from '../../ui-constants'
+import { getApiMetricsPod } from '../../api'
+import useAdminStore from '../../useAdminStore'
 
 function NodeJSMetrics () {
   const [initialLoading, setInitialLoading] = useState(true)

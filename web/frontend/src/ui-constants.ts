@@ -1,6 +1,4 @@
 export const HOME_PATH = '/'
-export const NOT_FOUND_PATH = '/notfound'
-export const ERROR_PAGE_PATH = '/errorpage'
 export const POD_SERVICES_PATH = '/services'
 export const POD_LOGS_PATH = '/logs'
 

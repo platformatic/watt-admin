@@ -19,7 +19,7 @@ export const getApiApplication = async () => {
 
 // This is to avoid calling npm registry every time we run the method below
 let latest = ''
-export const isWattpmVersionOutdated = async (currentVersion) => {
+export const isWattpmVersionOutdated = async (currentVersion: string) => {
   if (!latest) {
     const result = await fetch('https://registry.npmjs.org/@platformatic/control')
     const data = await result.json()
@@ -29,32 +29,32 @@ export const isWattpmVersionOutdated = async (currentVersion) => {
   return latest !== currentVersion
 }
 
-export const getServices = async (id) => {
+export const getServices = async (id: number) => {
   const result = await fetch(`${host}/runtimes/${id}/services`)
   const data = await result.json()
   return data.services
 }
 
-export const getLogs = async (id) => {
+export const getLogs = async (id: number) => {
   const result = await fetch(`${host}/runtimes/${id}/logs`)
   const data = await result.json()
   return data
 }
 
-export const getApiMetricsPod = async (id) => {
+export const getApiMetricsPod = async (id: number) => {
   const response = await fetch(`${host}/runtimes/${id}/metrics`)
   const data = await response.json()
   return data
 }
 
-export const getApiMetricsPodService = async (podId, serviceId) => {
-  const response = await fetch(`${host}/runtimes/${podId}/metrics/${serviceId}`)
+export const getApiMetricsPodService = async (id: number, serviceId: string) => {
+  const response = await fetch(`${host}/runtimes/${id}/metrics/${serviceId}`)
   const data = await response.json()
   return data
 }
 
-export const restartApiApplication = async (applicationId) => {
-  const result = await fetch(`${host}/runtimes/${applicationId}/restart`, { method: 'POST' })
+export const restartApiApplication = async (id: number) => {
+  const result = await fetch(`${host}/runtimes/${id}/restart`, { method: 'POST' })
   console.log('restart api application status', result.status)
   return {}
 }

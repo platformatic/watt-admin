@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
-import NotFound from '~/pages/NotFound'
-import PrivateRouteContainer from '~/layout/PrivateRouteContainer'
-import ErrorPage from '~/pages/ErrorPage'
+import RouteContainer from './layout/RouteContainer'
 import {
-  ERROR_PAGE_PATH,
   HOME_PATH,
-  NOT_FOUND_PATH,
   POD_SERVICES_PATH,
   POD_LOGS_PATH
-} from '~/ui-constants'
+} from './ui-constants'
 import { LoadingSpinnerV2 } from '@platformatic/ui-components'
-import loadingSpinnerStyles from '~/styles/LoadingSpinnerStyles.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
-import typographyStyles from '~/styles/Typography.module.css'
-import useAdminStore from '~/useAdminStore'
+import loadingSpinnerStyles from './styles/LoadingSpinnerStyles.module.css'
+import commonStyles from './styles/CommonStyles.module.css'
+import typographyStyles from './styles/Typography.module.css'
+import useAdminStore from './useAdminStore'
 import useErrorBoundary from 'use-error-boundary'
-import ErrorComponent from '~/components/errors/ErrorComponent'
-import ApplicationContainer from '~/layout/ApplicationContainer'
-import AppDetails from '~/components/application/AppDetails'
-import ServicesLogs from '~/components/services/ServicesLogs'
-import ServicesCharts from '~/components/services/ServicesCharts'
+import ErrorComponent from './components/errors/ErrorComponent'
+import ApplicationContainer from './layout/ApplicationContainer'
+import AppDetails from './components/application/AppDetails'
+import ServicesLogs from './components/services/ServicesLogs'
+import ServicesCharts from './components/services/ServicesCharts'
 
 export default function App () {
   const globalState = useAdminStore()
@@ -85,7 +81,6 @@ export default function App () {
     return (
       <ErrorComponent
         error={error}
-        message={error?.message || ''}
         onClickDismiss={() => handleDismiss()}
       />
     )
@@ -96,41 +91,33 @@ export default function App () {
       <HashRouter>
         <Routes>
           <Route
-            path={NOT_FOUND_PATH}
-            element={<NotFound />}
-          />
-          <Route
-            path={ERROR_PAGE_PATH}
-            element={<ErrorPage />}
-          />
-          <Route
             path={HOME_PATH}
             element={
-              <PrivateRouteContainer>
+              <RouteContainer>
                 <ApplicationContainer>
                   <AppDetails />
                 </ApplicationContainer>
-              </PrivateRouteContainer>
+              </RouteContainer>
             }
           />
           <Route
             path={POD_SERVICES_PATH}
             element={
-              <PrivateRouteContainer>
+              <RouteContainer>
                 <ApplicationContainer>
                   <ServicesCharts />
                 </ApplicationContainer>
-              </PrivateRouteContainer>
+              </RouteContainer>
             }
           />
           <Route
             path={POD_LOGS_PATH}
             element={
-              <PrivateRouteContainer>
+              <RouteContainer>
                 <ApplicationContainer>
                   <ServicesLogs />
                 </ApplicationContainer>
-              </PrivateRouteContainer>
+              </RouteContainer>
             }
           />
         </Routes>

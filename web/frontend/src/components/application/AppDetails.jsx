@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import styles from './AppDetails.module.css'
 import AppNameBox from './AppNameBox'
 import ServicesBox from './ServicesBox'
-import ErrorComponent from '~/components/errors/ErrorComponent'
+import ErrorComponent from '../errors/ErrorComponent'
 import NodeJSMetrics from './NodeJSMetrics'
-import useAdminStore from '~/useAdminStore'
+import useAdminStore from '../../useAdminStore'
 import { getApiApplication } from '../../api'
 
 const AppDetails = () => {
@@ -29,7 +29,7 @@ const AppDetails = () => {
   }, [])
 
   if (error) {
-    return <ErrorComponent error={error} message={error?.message} onClickDismiss={() => setError('')} />
+    return <ErrorComponent error={error} onClickDismiss={() => setError('')} />
   }
 
   return (

@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useInterval } from '~/hooks/useInterval'
+import React, { useState, useEffect, useRef, ReactNode } from 'react'
+import { useInterval } from '../../hooks/useInterval'
 import { RICH_BLACK, WHITE, TRANSPARENT, MARGIN_0, OPACITY_15 } from '@platformatic/ui-components/src/components/constants'
 import styles from './AppLogs.module.css'
-import typographyStyles from '~/styles/Typography.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
-import loadingSpinnerStyles from '~/styles/LoadingSpinnerStyles.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
+import commonStyles from '../../styles/CommonStyles.module.css'
+import loadingSpinnerStyles from '../../styles/LoadingSpinnerStyles.module.css'
 import { BorderedBox, Button, HorizontalSeparator, LoadingSpinnerV2 } from '@platformatic/ui-components'
-import ErrorComponent from '~/components/errors/ErrorComponent'
+import ErrorComponent from '../errors/ErrorComponent'
 import Log from './Log'
 import {
   PRETTY,
@@ -18,29 +18,38 @@ import {
   STATUS_PAUSED_LOGS,
   STATUS_RESUMED_LOGS,
   REFRESH_INTERVAL_LOGS
-} from '~/ui-constants'
+} from '../../ui-constants'
 import LogFilterSelector from './LogFilterSelector'
-import useOnScreen from '~/hooks/useOnScreen'
-import useAdminStore from '~/useAdminStore'
+import useAdminStore from '../../useAdminStore'
 import { getLogs } from '../../api'
 
-const AppLogs = ({ filteredServices }) => {
+interface AppLogsProps {
+  filteredServices: string[];
+}
+
+interface LogEntry {
+  level: number;
+  time: string | number | Date;
+  name: string;
+  msg: string;
+  [key: string]: any;
+}
+
+const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   const { runtimePid } = useAdminStore()
   const [displayLog, setDisplayLog] = useState(PRETTY)
   const [loading, setLoading] = useState(true)
-  const [filterLogsByLevel, setFilterLogsByLevel] = useState('')
+  const [filterLogsByLevel, setFilterLogsByLevel] = useState<number | ''>('')
   const [scrollDirection, setScrollDirection] = useState(DIRECTION_TAIL)
-  const [applicationLogs, setApplicationLogs] = useState([])
-  const [filteredLogs, setFilteredLogs] = useState([])
+  const [applicationLogs, setApplicationLogs] = useState<LogEntry[]>([])
+  const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([])
   const [filtersInitialized, setFiltersInitialized] = useState(false)
-  const logContentRef = useRef()
+  const logContentRef = useRef<HTMLDivElement>(null)
   const [lastScrollTop, setLastScrollTop] = useState(0)
   const [displayGoToBottom, setDisplayGoToBottom] = useState(false)
   const [statusPausedLogs, setStatusPausedLogs] = useState('')
   const [filteredLogsLengthAtPause, setFilteredLogsLengthAtPause] = useState(0)
-  const bottomRef = useRef()
-  const isBottomOnScreen = useOnScreen(bottomRef)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | Error>('')
 
   useEffect(() => {
     if (logContentRef.current && scrollDirection === DIRECTION_TAIL && filteredLogs.length > 0) {
@@ -78,12 +87,6 @@ const AppLogs = ({ filteredServices }) => {
   }, [statusPausedLogs])
 
   useEffect(() => {
-    if (isBottomOnScreen && scrollDirection === DIRECTION_DOWN) {
-      resumeScrolling()
-    }
-  }, [isBottomOnScreen, scrollDirection])
-
-  useEffect(() => {
     if (applicationLogs.length > 0) {
       if (!filtersInitialized) {
         setFilterLogsByLevel(30)
@@ -110,7 +113,7 @@ const AppLogs = ({ filteredServices }) => {
     filteredServices
   ])
 
-  const getData = async () => {
+  const getData = async (): Promise<void> => {
     try {
       if (runtimePid) {
         const logs = await getLogs(runtimePid)
@@ -118,7 +121,7 @@ const AppLogs = ({ filteredServices }) => {
         setError('')
       }
     } catch (error) {
-      setError(error)
+      setError(error as Error)
     } finally {
       setLoading(false)
     }
@@ -133,13 +136,13 @@ const AppLogs = ({ filteredServices }) => {
     }
   }, [scrollDirection, filteredLogs.length, filteredLogsLengthAtPause])
 
-  function resumeScrolling () {
+  function resumeScrolling(): void {
     setScrollDirection(DIRECTION_TAIL)
     setDisplayGoToBottom(false)
     setFilteredLogsLengthAtPause(0)
   }
 
-  function saveLogs () {
+  function saveLogs(): void {
     let fileData = ''
     applicationLogs.forEach(log => {
       fileData += `${log}
@@ -155,24 +158,24 @@ const AppLogs = ({ filteredServices }) => {
     link.click()
   }
 
-  function handlingClickArrow () {
+  function handlingClickArrow(): void {
     setScrollDirection(DIRECTION_STILL)
     setFilteredLogsLengthAtPause(filteredLogs.length)
   }
 
-  function renderLogs () {
+  function renderLogs(): React.ReactNode {
     if (displayLog === PRETTY) {
-      return filteredLogs.map((log, index) => <Log key={`${index}-${filterLogsByLevel}`} log={log} display={displayLog} onClickArrow={() => handlingClickArrow()} />)
+      return filteredLogs.map((log, index) => <Log key={`${index}-${filterLogsByLevel}`} log={log} onClickArrow={() => handlingClickArrow()} />)
     }
 
     return (
       <span className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite}`}>
-        {filteredLogs}
+        {filteredLogs as ReactNode}
       </span>
     )
   }
 
-  function handleScroll (event) {
+  function handleScroll(event: React.UIEvent<HTMLDivElement>): void {
     const st = event.currentTarget.scrollTop // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
     if (st > lastScrollTop) {
       // downscroll code
@@ -243,7 +246,7 @@ const AppLogs = ({ filteredServices }) => {
                   {renderLogs()}
                 </>
               )}
-              <div ref={bottomRef} className={styles.logDividerBottom} />
+              <div className={styles.logDividerBottom} />
             </div>
             <HorizontalSeparator marginTop={MARGIN_0} color={WHITE} opacity={OPACITY_15} />
             <div className={`${commonStyles.tinyFlexRow} ${commonStyles.itemsCenter} ${commonStyles.justifyBetween} ${styles.lateralPadding} ${styles.bottom}`}>

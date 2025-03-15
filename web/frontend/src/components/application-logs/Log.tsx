@@ -1,12 +1,32 @@
 import React, { useEffect, useState } from 'react'
-import typographyStyles from '~/styles/Typography.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
 import styles from './Log.module.css'
 import { CopyAndPaste, PlatformaticIcon } from '@platformatic/ui-components'
 import { WHITE, SMALL, POSITION_END } from '@platformatic/ui-components/src/components/constants'
-import { getFormattedLogTimestamp } from '~/utilities/dates'
-import tooltipStyles from '~/styles/TooltipStyles.module.css'
+import { getFormattedLogTimestamp } from '../../utilities/dates'
+import tooltipStyles from '../../styles/TooltipStyles.module.css'
 
-function Log ({ log, onClickArrow }) {
+interface LogProps {
+  log: {
+    level: number;
+    time: string | number | Date;
+    pid?: number;
+    name: string;
+    msg: string;
+    reqId?: string;
+    req?: {
+      method?: string;
+      url?: string;
+      [key: string]: any;
+    };
+    hostname?: string;
+    responseTime?: number;
+    [key: string]: any;
+  };
+  onClickArrow: () => void;
+}
+
+function Log({ log, onClickArrow }: LogProps): React.ReactElement {
   const [displayJson, setDisplayJson] = useState(false)
   const [logContainerClassName, setLogContainerClassName] = useState(normalClassName())
   const { level, time, pid, name, msg, reqId, req, hostname, responseTime, ...rest } = log
@@ -14,7 +34,7 @@ function Log ({ log, onClickArrow }) {
   let msgClassName = `${styles.msg} `
   msgClassName += styles[`text${level}`]
 
-  function getLevel (level) {
+  function getLevel(level: number): string {
     return {
       10: 'TRACE',
       20: 'DEBUG',
@@ -22,7 +42,7 @@ function Log ({ log, onClickArrow }) {
       40: 'WARN',
       50: 'ERROR',
       60: 'FATAL'
-    }[level]
+    }[level] || ''
   }
 
   const logClassName = `${styles.log} ` + styles[`log${level}`]
@@ -35,36 +55,36 @@ function Log ({ log, onClickArrow }) {
     }
   }, [displayJson])
 
-  function handleChangeDisplayView () {
+  function handleChangeDisplayView(): void {
     setDisplayJson(!displayJson)
     onClickArrow()
   }
 
-  function normalClassName () {
+  function normalClassName(): string {
     return `${styles.logContainerClassNameInactive} ${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} `
   }
 
-  function activeClassName () {
+  function activeClassName(): string {
     return `${styles.logContainerClassNameActive} ${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ` + styles[`logContainerClassNameActive${level}`]
   }
 
-  function cleanElement (element) {
+  function cleanElement(element: string): string {
     return element.replace(/[{}\n]/g, '').replace('"', '').replace('"', '')
   }
 
-  function cleanJson (element) {
+  function cleanJson(element: string): string {
     return element.replace(/(^{\n|}$)/g, '').replace('"', '').replace('"', '')
   }
 
-  function checkDisabledArrow () {
+  function checkDisabledArrow(): boolean {
     return !(reqId || (req && Object.keys(req)?.length > 0) || (rest && Object.keys(rest)?.length > 0))
   }
 
-  function displayRest () {
-    if (!rest) return (<></>)
-    let variable = ''
-    const content = []
-    let tmp = {}
+  function displayRest(): React.ReactElement[] {
+    if (!rest) return []
+    let variable: any
+    const content: React.ReactElement[] = []
+    let tmp: Record<string, any> = {}
 
     Object.keys(rest).forEach(k => {
       variable = rest[k]
@@ -73,13 +93,13 @@ function Log ({ log, onClickArrow }) {
 
       if (typeof variable === 'object' && variable !== null) {
         content.push(
-          <div className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`}>
+          <div key={k} className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`}>
             <pre>{cleanJson(JSON.stringify(tmp, null, 2))}</pre>
           </div>
         )
       } else {
         content.push(
-          <div className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`}>
+          <div key={k} className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`}>
             <pre>{cleanElement(JSON.stringify(tmp, null, 2))}</pre>
           </div>
         )
@@ -99,7 +119,7 @@ function Log ({ log, onClickArrow }) {
         {reqId &&
           <>
             <span>-</span>
-            <span>“..{reqId.substr(-4)}”</span>
+            <span>"..{reqId.substr(-4)}"</span>
           </>}
         {req &&
           <>
@@ -114,11 +134,11 @@ function Log ({ log, onClickArrow }) {
             <CopyAndPaste value={log} tooltipLabel='Log copied!' color={WHITE} size={SMALL} tooltipClassName={tooltipStyles.tooltipDarkStyle} position={POSITION_END} />
           </div>
           <div className={styles.displayedElements}>
-            <div className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`} key=''>
+            <div className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`} key='reqId'>
               <pre>{cleanElement(JSON.stringify({ reqId }, null, 2))}</pre>
             </div>
             {req && (
-              <div className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`} key=''>
+              <div className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ${styles.textLog}`} key='req'>
                 <pre>{cleanJson(JSON.stringify({ req }, null, 2))}</pre>
               </div>)}
             {displayRest()}

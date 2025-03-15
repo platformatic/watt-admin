@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import styles from './LogFilterSelector.module.css'
-import typographyStyles from '~/styles/Typography.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
 
-function LogButton ({
+interface LogButtonProps {
+  level?: number;
+  levelName?: string;
+  levelSelected?: number;
+  onClickLevel?: () => void;
+}
+
+function LogButton({
   level = 10,
   levelName = '',
   levelSelected = 10,
   onClickLevel = () => {}
-}) {
+}: LogButtonProps): React.ReactElement {
   const [hover, setHover] = useState(false)
   const [classNamePoint, setClassNamePoint] = useState(styles.point + ' ' + styles[`${levelName}Point`])
   const [classNameContainer, setClassNameContainer] = useState(`${styles.buttonLevel} ${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite}`)
@@ -37,19 +44,24 @@ function LogButton ({
   )
 }
 
-function LogFilterSelector ({
+interface LogFilterSelectorProps {
+  defaultLevelSelected?: number;
+  onChangeLevelSelected?: (level: number) => void;
+}
+
+function LogFilterSelector({
   defaultLevelSelected = 10,
   onChangeLevelSelected = () => {}
-}) {
-  const levels = {
+}: LogFilterSelectorProps): React.ReactElement {
+  const levels: Record<number, string> = {
     50: 'ERROR',
     40: 'WARN',
     30: 'INFO',
     20: 'DEBUG',
     10: 'TRACE'
   }
-  const levelOrdered = [50, 40, 30, 20, 10]
-  const barLevels = {
+  const levelOrdered: number[] = [50, 40, 30, 20, 10]
+  const barLevels: Record<number, string> = {
     50: '0%',
     40: 'calc(25% - 4px)',
     30: 'calc(50% - 4px)',
@@ -59,7 +71,7 @@ function LogFilterSelector ({
   const [barValue, setBarValue] = useState(barLevels[defaultLevelSelected])
   const [levelSelected, setLevelSeleted] = useState(defaultLevelSelected)
 
-  function handleChangeLevelSelected (level) {
+  function handleChangeLevelSelected(level: number): void {
     setLevelSeleted(level)
     setBarValue(barLevels[level])
     onChangeLevelSelected(level)

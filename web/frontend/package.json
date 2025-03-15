@@ -6,17 +6,17 @@
     "lint": "standard . | snazzy",
     "fix": "standard --fix .",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.node.tsbuildinfo vite.config.js",
     "preview": "vite preview",
     "start": "platformatic start",
-    "test": "npm run lint && borp --ignore='./src/**/*test.js'"
+    "test": "npm run lint && vitest run"
   },
   "type": "module",
   "devDependencies": {
     "@platformatic/ui-components": "^0.13.1",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
-    "borp": "^0.17.0",
     "d3": "~7.9.0",
     "dayjs": "^1.11.13",
     "react": "^19.0.0",
@@ -28,6 +28,7 @@
     "tailwindcss": "^3.4.15",
     "use-error-boundary": "^2.0.6",
     "vite": "^5.4.11",
+    "vitest": "^3.0.8",
     "zustand": "^5.0.2"
   },
   "dependencies": {

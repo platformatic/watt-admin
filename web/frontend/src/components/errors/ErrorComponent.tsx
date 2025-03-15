@@ -1,24 +1,28 @@
 import React, { useState } from 'react'
-import typographyStyles from '~/styles/Typography.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
+import commonStyles from '../../styles/CommonStyles.module.css'
 import styles from './ErrorComponent.module.css'
 import Icons from '@platformatic/ui-components/src/components/icons'
 import { ANTI_FLASH_WHITE, DULLS_BACKGROUND_COLOR, ERROR_RED, LARGE, SMALL, RICH_BLACK, WHITE, TRANSPARENT, OPACITY_30, MARGIN_0 } from '@platformatic/ui-components/src/components/constants'
 import { BorderedBox, Button, HorizontalSeparator, Tooltip } from '@platformatic/ui-components'
-import tooltipStyles from '~/styles/TooltipStyles.module.css'
+import tooltipStyles from '../../styles/TooltipStyles.module.css'
 
-// eslint-disable-next-line no-unused-vars
-function ErrorComponent ({
+interface ErrorComponentProps {
+  error?: Error | string | any;
+  onClickDismiss?: () => void;
+  containerClassName?: string;
+}
+
+function ErrorComponent({
   error = () => {},
-  message = '',
   onClickDismiss = () => {},
   containerClassName = ''
-}) {
+}: ErrorComponentProps): React.ReactElement {
   const [showLogs, setShowLogs] = useState(false)
   const [logsCopied, setLogsCopied] = useState(false)
   const [errorStack] = useState(error?.stack?.split('\n') || [])
 
-  function copyLogs () {
+  function copyLogs(): void {
     setLogsCopied(true)
     navigator.clipboard.writeText(error.stack)
     setTimeout(() => {
@@ -26,7 +30,7 @@ function ErrorComponent ({
     }, 1000)
   }
 
-  function getButtonCopyIcon () {
+  function getButtonCopyIcon(): { iconName: string; size: string; color: string } {
     if (logsCopied) {
       return { iconName: 'CircleCheckMarkIcon', size: SMALL, color: WHITE }
     }
@@ -95,7 +99,7 @@ function ErrorComponent ({
           </div>
           <HorizontalSeparator marginTop={MARGIN_0} marginBottom={MARGIN_0} color={WHITE} opacity={OPACITY_30} />
           <div className={`${styles.logContainer} ${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite}`}>
-            {errorStack.map((s, index) => <p key={index}>{s}</p>)}
+            {errorStack.map((s: string, index: number) => <p key={index}>{s}</p>)}
           </div>
         </BorderedBox>
       )}

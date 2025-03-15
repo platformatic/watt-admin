@@ -3,7 +3,29 @@ import styles from './ButtonSidebar.module.css'
 import { PlatformaticIcon } from '@platformatic/ui-components'
 import { BOX_SHADOW, UNDERLINE, MAIN_DARK_BLUE, LARGE, MEDIUM, TRANSPARENT } from '@platformatic/ui-components/src/components/constants'
 
-function ButtonSidebar ({
+interface PlatformaticIconProps {
+  iconName: string;
+  color: string;
+  size?: string;
+}
+
+interface ButtonSidebarProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  textClass?: string;
+  paddingClass?: string;
+  altLabel?: string;
+  color?: string;
+  backgroundColor?: string;
+  size?: string;
+  disabled?: boolean;
+  bordered?: boolean;
+  fullWidth?: boolean;
+  hoverEffect?: string;
+  platformaticIcon?: PlatformaticIconProps | null;
+  selected?: boolean;
+  fullRounded?: boolean;
+}
+
+function ButtonSidebar({
   textClass = '',
   paddingClass = '',
   altLabel = '',
@@ -18,7 +40,7 @@ function ButtonSidebar ({
   selected = false,
   fullRounded = false,
   ...rest
-}) {
+}: ButtonSidebarProps): React.ReactElement {
   let contentClassName = `${styles.content} `
   if (paddingClass) {
     contentClassName += `${paddingClass} `
@@ -37,7 +59,7 @@ function ButtonSidebar ({
   if (selected) baseButtonClassName += ' ' + styles[`selected-background-color-${color}`]
   const [hover, setHover] = useState(false)
   const [backgroundClassName, setBackgroundClassName] = useState(restClassName())
-  const [buttonClassName, setButtonClassName] = useState(disabled ? buttonRestClassName : buttonActiveClassName())
+  const [buttonClassName, setButtonClassName] = useState(disabled ? buttonRestClassName() : buttonActiveClassName())
 
   useEffect(() => {
     if (!disabled && !selected) {
@@ -66,22 +88,22 @@ function ButtonSidebar ({
     }
   }, [disabled])
 
-  function restClassName () {
+  function restClassName(): string {
     return `${styles['background-color-' + backgroundColor]} `
   }
 
-  function buttonRestClassName () {
+  function buttonRestClassName(): string {
     if (!bordered) return ` ${styles['no-border']}`
     return styles[`bordered--${color}-30`]
   }
 
-  function buttonActiveClassName () {
+  function buttonActiveClassName(): string {
     if (!bordered) return ` ${styles['no-border']}`
     return styles[`bordered--${color}-100`]
   }
 
   return (
-    <button className={`${baseButtonClassName} ${buttonClassName} ${restClassName()}`} disabled={disabled} alt={altLabel} {...rest} onMouseLeave={() => setHover(false)} onMouseOver={() => setHover(true)}>
+    <button className={`${baseButtonClassName} ${buttonClassName} ${restClassName()}`} disabled={disabled} title={altLabel} {...rest} onMouseLeave={() => setHover(false)} onMouseOver={() => setHover(true)}>
       <div className={`${contentClassName} ${backgroundClassName}`}>
         {platformaticIcon ? <PlatformaticIcon iconName={platformaticIcon.iconName} color={platformaticIcon.color} data-testid='button-icon' size={platformaticIcon?.size ?? MEDIUM} onClick={null} disabled={disabled} inactive={(selected || disabled) ? false : !hover} /> : null}
       </div>

@@ -1,12 +1,30 @@
 import React from 'react'
-import typographyStyles from '~/styles/Typography.module.css'
-import commonStyles from '~/styles/CommonStyles.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
+import commonStyles from '../../styles/CommonStyles.module.css'
 import styles from './SideBar.module.css'
-import ButtonSidebar from '~/components/ui/ButtonSidebar'
+import ButtonSidebar from '../../components/ui/ButtonSidebar'
 import { DIRECTION_RIGHT, MEDIUM, POSITION_CENTER, TRANSPARENT, WHITE } from '@platformatic/ui-components/src/components/constants'
 import { TooltipAbsolute } from '@platformatic/ui-components'
 
-function renderButton (item, selected) {
+interface SideBarItem {
+  name: string;
+  label: string;
+  iconName: string;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
+interface ItemProps {
+  item: SideBarItem;
+}
+
+interface SideBarProps {
+  selected?: string;
+  topItems?: SideBarItem[];
+  bottomItems?: SideBarItem[];
+}
+
+function renderButton(item: SideBarItem, selected: string): React.ReactNode {
   return (
     <div
       className={`${commonStyles.tinyFlexBlock} ${commonStyles.itemsCenter} ${styles.item} ${typographyStyles.desktopBodySmallest} ${typographyStyles.textWhite} ${typographyStyles.textCenter}`}
@@ -24,18 +42,18 @@ function renderButton (item, selected) {
         fullRounded
       />
     </div>
-
   )
 }
-function SideBar ({
+
+function SideBar({
   selected = '',
   topItems = [],
   bottomItems = []
-}) {
-  function Item ({ item }) {
+}: SideBarProps) {
+  function Item({ item }: ItemProps): React.ReactElement {
     if (item.disabled) {
       return (
-        renderButton(item, selected)
+        <>{renderButton(item, selected)}</>
       )
     }
 

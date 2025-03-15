@@ -1,8 +1,8 @@
-import useAdminStore from '~/useAdminStore'
+import useAdminStore from '../useAdminStore'
 import styles from './Navigation.module.css'
 import { PlatformaticIcon } from '@platformatic/ui-components'
 import { TINY, WHITE } from '@platformatic/ui-components/src/components/constants'
-import typographyStyles from '~/styles/Typography.module.css'
+import typographyStyles from '../styles/Typography.module.css'
 
 export default function Navigation () {
   const globalState = useAdminStore()

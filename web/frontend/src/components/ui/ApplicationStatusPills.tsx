@@ -1,11 +1,15 @@
 import React from 'react'
-import typographyStyles from '~/styles/Typography.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
 import { MAIN_GREEN, SMALL, WHITE } from '@platformatic/ui-components/src/components/constants'
 import { Icons } from '@platformatic/ui-components'
-import { STATUS_STARTED, STATUS_STOPPED, STATUS_RUNNING } from '~/ui-constants'
+import { STATUS_STARTED, STATUS_STOPPED, STATUS_RUNNING } from '../../ui-constants'
 import styles from './ApplicationStatusPills.module.css'
 
-function ApplicationStatusPills ({ status = STATUS_STOPPED }) {
+interface ApplicationStatusPillsProps {
+  status?: string;
+}
+
+function ApplicationStatusPills({ status = STATUS_STOPPED }: ApplicationStatusPillsProps): React.ReactElement {
   if (status === STATUS_STOPPED) {
     return (
       <div className={styles.stoppedPills}>

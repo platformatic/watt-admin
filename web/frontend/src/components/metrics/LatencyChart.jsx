@@ -1,12 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react'
-import commonStyles from '~/styles/CommonStyles.module.css'
-import typographyStyles from '~/styles/Typography.module.css'
+import commonStyles from '../../styles/CommonStyles.module.css'
+import typographyStyles from '../../styles/Typography.module.css'
 import styles from './NodeJSMetricChart.module.css'
 import * as d3 from 'd3'
-import { xMargin, yMargin, yMarginWithoutXAxis } from './chart_constants.js'
+import { xMargin, yMargin, yMarginWithoutXAxis } from './chart_constants'
 import colorSetLatency from './latency.module.css'
-import { getTicks } from './utils.js'
-import { POSITION_ABSOLUTE, POSITION_FIXED } from '~/ui-constants'
+import { getTicks } from './utils'
+import { POSITION_ABSOLUTE, POSITION_FIXED } from '../../ui-constants'
 
 // FIXME: unify this with NodeJSMetricChart
 const LatencyChart = ({
