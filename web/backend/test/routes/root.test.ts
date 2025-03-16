@@ -139,30 +139,3 @@ test('runtime restart', async (t) => {
   })
   assert.strictEqual(restart.statusCode, 200)
 })
-
-test('runtime stop', async (t) => {
-  await startWatt(t)
-  const server = await getServer(t)
-  const res = await server.inject({
-    url: '/runtimes?includeAdmin=true'
-  })
-  const [{ pid }] = res.json()
-  assert.ok(pid > 0)
-
-  const { statusCode } = await server.inject({
-    method: 'POST',
-    url: `/runtimes/${pid}/stop`
-  })
-  assert.strictEqual(statusCode, 200, 'runtime has been properly stopped')
-
-  const stop = await server.inject({
-    method: 'POST',
-    url: `/runtimes/${pid}/stop`
-  })
-  assert.strictEqual(stop.statusCode, 500, 'trying to run stop command to a closed runtime')
-
-  const runtimes = await server.inject({
-    url: '/runtimes?includeAdmin=true'
-  })
-  assert.deepEqual(runtimes.json(), [], 'no runtime running')
-})

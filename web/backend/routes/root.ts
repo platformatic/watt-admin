@@ -90,12 +90,4 @@ export default async function (fastify: FastifyInstance) {
       fastify.log.warn({ err }, 'Issue restarting the runtime')
     }
   })
-
-  typedFastify.post('/runtimes/:pid/stop', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] }
-    }
-  }, async (request) => {
-    return api.stopRuntime(request.params.pid)
-  })
 }
