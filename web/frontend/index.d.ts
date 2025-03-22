@@ -1,6 +1,11 @@
-// FIXME: add types directly on the plt module
+declare module '*.module.css' {
+  const classes: { [key: string]: string }
+  export default classes
+}
+
+// FIXME: add following types directly on the `@platformatic/ui-components` package
 declare module '@platformatic/ui-components' {
-  import { ReactElement, ComponentType } from 'react';
+  import { ComponentType } from 'react'
 
   export interface VerticalSeparatorProps {
     color?: string;
@@ -11,14 +16,14 @@ declare module '@platformatic/ui-components' {
     marginLeft?: string;
     marginRight?: string;
   }
-  export const Checkbox: ComponentType<CheckboxProps>;
-  export const BorderedBox: ComponentType<BorderedBoxProps>;
-  export const Button: ComponentType<ButtonProps>;
-  export const HorizontalSeparator: ComponentType<HorizontalSeparatorProps>;
-  export const LoadingSpinnerV2: ComponentType<LoadingSpinnerV2Props>;
-  export const Tooltip: ComponentType<TooltipProps>;
-  export const VerticalSeparator: ComponentType<VerticalSeparatorProps>;
-  export const TooltipAbsolute: ComponentType<TooltipProps>;
+  export const Checkbox: ComponentType<CheckboxProps>
+  export const BorderedBox: ComponentType<BorderedBoxProps>
+  export const Button: ComponentType<ButtonProps>
+  export const HorizontalSeparator: ComponentType<HorizontalSeparatorProps>
+  export const LoadingSpinnerV2: ComponentType<LoadingSpinnerV2Props>
+  export const Tooltip: ComponentType<TooltipProps>
+  export const VerticalSeparator: ComponentType<VerticalSeparatorProps>
+  export const TooltipAbsolute: ComponentType<TooltipProps>
 
   export interface PlatformaticIconProps {
     iconName: string;
@@ -43,16 +48,17 @@ declare module '@platformatic/ui-components' {
   export interface IconsType {
     CircleStopIcon: ComponentType<IconProps>;
     RunningIcon: ComponentType<IconProps>;
+    [key: string]: string;
   }
 
-  export const PlatformaticIcon: ComponentType<PlatformaticIconProps>;
-  export const CopyAndPaste: ComponentType<CopyAndPasteProps>;
-  export const Icons: IconsType;
+  export const PlatformaticIcon: ComponentType<PlatformaticIconProps>
+  export const CopyAndPaste: ComponentType<CopyAndPasteProps>
+  export const Icons: IconsType
 }
 
 declare module '@platformatic/ui-components/src/components/icons' {
-  import { ComponentType } from 'react';
-  
+  import { ComponentType } from 'react'
+
   interface IconProps {
     size?: string;
     color?: string;
@@ -60,12 +66,12 @@ declare module '@platformatic/ui-components/src/components/icons' {
     className?: string;
   }
 
-  const AlertIcon: ComponentType<IconProps>;
-  const ArrowUpIcon: ComponentType<IconProps>;
-  const ArrowDownIcon: ComponentType<IconProps>;
-  const CircleCheckMarkIcon: ComponentType<IconProps>;
-  const CLIIcon: ComponentType<IconProps>;
-  
+  const AlertIcon: ComponentType<IconProps>
+  const ArrowUpIcon: ComponentType<IconProps>
+  const ArrowDownIcon: ComponentType<IconProps>
+  const CircleCheckMarkIcon: ComponentType<IconProps>
+  const CLIIcon: ComponentType<IconProps>
+
   const Icons: {
     AlertIcon: ComponentType<IconProps>;
     ArrowUpIcon: ComponentType<IconProps>;
@@ -73,40 +79,40 @@ declare module '@platformatic/ui-components/src/components/icons' {
     CircleCheckMarkIcon: ComponentType<IconProps>;
     CLIIcon: ComponentType<IconProps>;
     [key: string]: ComponentType<IconProps>;
-  };
-  
-  export default Icons;
+  }
+
+  export default Icons
 }
 
 declare module '@platformatic/ui-components/src/components/constants' {
-  export const WHITE: string;
-  export const SMALL: string;
-  export const POSITION_END: string;
-  export const RICH_BLACK: string;
-  export const BLACK_RUSSIAN: string;
-  export const TRANSPARENT: string;
-  export const MARGIN_0: string;
-  export const OPACITY_15: string;
-  export const OPACITY_30: string;
-  export const OPACITY_100: string;
-  export const WARNING_YELLOW: string;
-  export const ANTI_FLASH_WHITE: string;
-  export const DULLS_BACKGROUND_COLOR: string;
-  export const ERROR_RED: string;
-  export const LARGE: string;
-  export const MEDIUM: string;
-  export const MAIN_GREEN: string;
-  export const BOX_SHADOW: string;
-  export const UNDERLINE: string;
-  export const MAIN_DARK_BLUE: string;
-  export const DIRECTION_RIGHT: string;
-  export const POSITION_CENTER: string;
-  export const TINY: string;
+  export const WHITE: string
+  export const SMALL: string
+  export const POSITION_END: string
+  export const RICH_BLACK: string
+  export const BLACK_RUSSIAN: string
+  export const TRANSPARENT: string
+  export const MARGIN_0: string
+  export const OPACITY_15: string
+  export const OPACITY_30: string
+  export const OPACITY_100: string
+  export const WARNING_YELLOW: string
+  export const ANTI_FLASH_WHITE: string
+  export const DULLS_BACKGROUND_COLOR: string
+  export const ERROR_RED: string
+  export const LARGE: string
+  export const MEDIUM: string
+  export const MAIN_GREEN: string
+  export const BOX_SHADOW: string
+  export const UNDERLINE: string
+  export const MAIN_DARK_BLUE: string
+  export const DIRECTION_RIGHT: string
+  export const POSITION_CENTER: string
+  export const TINY: string
 }
 
 declare module '@platformatic/ui-components/src/components/forms' {
-  import { ComponentType } from 'react';
-  
+  import { ComponentType } from 'react'
+
   interface ToggleSwitchProps {
     label?: string;
     labelClassName?: string;
@@ -115,7 +121,7 @@ declare module '@platformatic/ui-components/src/components/forms' {
     checked: boolean;
     size?: string;
   }
-  
+
   interface InputProps {
     label?: string;
     placeholder?: string;
@@ -127,7 +133,7 @@ declare module '@platformatic/ui-components/src/components/forms' {
     className?: string;
     disabled?: boolean;
   }
-  
+
   interface SelectProps {
     label?: string;
     options: Array<{ label: string; value: string }>;
@@ -139,7 +145,7 @@ declare module '@platformatic/ui-components/src/components/forms' {
     className?: string;
     disabled?: boolean;
   }
-  
+
   interface CheckboxProps {
     label: string;
     checked: boolean;
@@ -147,7 +153,7 @@ declare module '@platformatic/ui-components/src/components/forms' {
     name: string;
     disabled?: boolean;
   }
-  
+
   interface RadioButtonProps {
     label: string;
     value: string;
@@ -156,14 +162,14 @@ declare module '@platformatic/ui-components/src/components/forms' {
     name: string;
     disabled?: boolean;
   }
-  
+
   const Forms: {
     ToggleSwitch: ComponentType<ToggleSwitchProps>;
     Input: ComponentType<InputProps>;
     Select: ComponentType<SelectProps>;
     Checkbox: ComponentType<CheckboxProps>;
     RadioButton: ComponentType<RadioButtonProps>;
-  };
-  
-  export default Forms;
+  }
+
+  export default Forms
 }

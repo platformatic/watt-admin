@@ -10,11 +10,14 @@ import { xMargin, yMargin, yMarginWithoutXAxis, radiusDotsTooltip } from './char
 import { getTicks } from './utils'
 import { POSITION_ABSOLUTE, POSITION_FIXED } from '../../ui-constants'
 import { findY } from './chart_utils'
+import { MetricType } from '../application/NodeJSMetric'
 
-interface DataPoint {
+type Point = Date | number[] | number
+
+export interface DataPoint {
   time: Date;
-  values?: number[];
-  [key: string]: any;
+  values: number[];
+  [key: string]: Point
 }
 
 interface LabelObject {
@@ -26,40 +29,40 @@ interface D3Event extends MouseEvent {
   clientX: number;
 }
 
-type Label = string | LabelObject;
+type Label = string | LabelObject
 
 interface MetricChartProps {
   data: DataPoint[];
   unit: string;
-  timeline?: boolean;
-  labels?: Label[];
-  colorSet?: 'mem' | 'cpu' | 'latency';
-  percentiles?: Record<string, string> | null;
-  lowerMaxY?: number;
-  yMin?: number;
-  tooltipPosition?: string;
+  timeline: boolean;
+  labels: Label[];
+  colorSet: MetricType;
+  percentiles?: Record<string, string>;
+  lowerMaxY: number;
+  tooltipPosition: string;
 }
 
-type D3Selection<T extends d3.BaseType, D = unknown> = d3.Selection<T, D, null, undefined>;
-type D3SVGSelection = D3Selection<SVGSVGElement>;
-type D3SVGPathElement = SVGPathElement & { getTotalLength(): number };
-type D3SVGCircleSelection = D3Selection<SVGCircleElement>;
+type D3Selection<T extends d3.BaseType, D = unknown> = d3.Selection<T, D, null, undefined>
+type D3SVGSelection = D3Selection<SVGSVGElement>
+type D3SVGPathElement = SVGPathElement & { getTotalLength(): number }
+type D3SVGCircleSelection = D3Selection<SVGCircleElement>
+
+const getNum = (point: Point) => typeof point === 'number' ? point : 0
 
 const MetricChart: React.FC<MetricChartProps> = ({
   data,
   unit,
   timeline,
-  labels = [],
-  colorSet = 'mem',
-  percentiles = null,
-  lowerMaxY = 10,
-  yMin = 0,
-  tooltipPosition = POSITION_ABSOLUTE
+  labels,
+  colorSet,
+  percentiles,
+  lowerMaxY,
+  tooltipPosition
 }: MetricChartProps) => {
+  const yMin = 0
   const svgRef = useRef<SVGSVGElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const keyForCheckMax = 'p99'
-  const isBarChart = percentiles !== null
 
   const colorStyles = colorSet === 'mem' ? colorSetMem : colorSet === 'cpu' ? colorSetCpu : colorSetLatency
   const numberOfLines = labels.length
@@ -91,17 +94,18 @@ const MetricChart: React.FC<MetricChartProps> = ({
       const lastTime = lastDatum.time
       x.domain([firstTime, lastTime])
 
-      if (isBarChart) {
+      if (percentiles) {
         latestData.shift()
       }
 
       // We need to get the max y for all values to correctly set the y domain
       let allCurrentValues: number[] = []
-      if (isBarChart) {
+      if (percentiles) {
         allCurrentValues = [100]
         for (let i = 0; i < latestData.length; i++) {
-          if (latestData[i][keyForCheckMax] !== null && latestData[i][keyForCheckMax] !== undefined) {
-            allCurrentValues.push(latestData[i][keyForCheckMax])
+          const val = latestData[i][keyForCheckMax]
+          if (typeof val === 'number') {
+            allCurrentValues.push(val)
           }
         }
       } else {
@@ -156,11 +160,11 @@ const MetricChart: React.FC<MetricChartProps> = ({
           .tickValues(tickValues)
           .tickFormat(d3.timeFormat('%H:%M:%S'))
           .tickSizeOuter(0)
-          
+
         const $xAxis = svg
           .append('g')
           .attr('transform', `translate(5, ${h - yMargin})`)
-          
+
         $xAxis
           .call(xAxis)
           .call(g => g.select('.domain').remove())
@@ -174,7 +178,7 @@ const MetricChart: React.FC<MetricChartProps> = ({
       const paths: D3SVGPathElement[] = []
       const tooltipDots: D3SVGCircleSelection[] = []
 
-      if (isBarChart) {
+      if (percentiles) {
         const chart = svg.selectAll<SVGElement, DataPoint>('.chart')
           .data(latestData)
           .enter()
@@ -187,9 +191,9 @@ const MetricChart: React.FC<MetricChartProps> = ({
             chart.append('rect')
               .attr('fill', percentiles[percentile])
               .attr('x', d => x(d.time) + barOffset)
-              .attr('y', d => y(d[percentile] || 0))
+              .attr('y', d => y(getNum(d[percentile])))
               .attr('width', barWidth)
-              .attr('height', d => h - marginOnY - y(d[percentile] || 0))
+              .attr('height', d => h - marginOnY - y(getNum(d[percentile])))
               .transition()
               .duration(1000)
           })
@@ -207,11 +211,11 @@ const MetricChart: React.FC<MetricChartProps> = ({
             )
             .transition()
             .duration(1000)
-            .node();
-            
+            .node()
+
           // Only add the path if it exists
           if (pathNode) {
-            paths.push(pathNode as D3SVGPathElement)
+            paths.push(pathNode)
           }
 
           tooltipDots.push(svg
@@ -226,7 +230,7 @@ const MetricChart: React.FC<MetricChartProps> = ({
         }
       }
 
-      if (isBarChart) {
+      if (percentiles) {
         svg.on('mouseover pointermove', showBarTooltip)
           .on('pointerleave', hideBarTooltip)
         showBarTooltip()
@@ -236,7 +240,7 @@ const MetricChart: React.FC<MetricChartProps> = ({
         showCircles()
       }
 
-      function showCircles(event?: MouseEvent) {
+      function showCircles (event?: MouseEvent) {
         let xPos: number, yPos: number
         if (event) {
           [xPos, yPos] = d3.pointer(event)
@@ -278,7 +282,7 @@ const MetricChart: React.FC<MetricChartProps> = ({
         const timeString = d3.timeFormat('%H:%M:%S.%L %p')(dataPoint.time)
         const valuesData = (dataPoint.values || []).map((v, i) => {
           return {
-            label: typeof labels[i] === 'string' ? labels[i] : (labels[i] as LabelObject).name,
+            label: typeof labels[i] === 'string' ? labels[i] : (labels[i]).name,
             value: Math.round((v || 0) * 100) / 100,
             colorSeparator: colorStyles[`background-color-${i}`]
           }
@@ -310,22 +314,22 @@ const MetricChart: React.FC<MetricChartProps> = ({
         let maxY = 0
         if (dataPoint.values && dataPoint.values.length > 0) {
           const filteredValues = dataPoint.values.filter(v => v !== undefined && v !== null)
-          maxY = filteredValues.length > 0 ? 
-            y(Math.max(...filteredValues)) : 
-            0
+          maxY = filteredValues.length > 0
+            ? y(Math.max(...filteredValues))
+            : 0
         }
-        
-        displayTooltip(xPos, maxY, valuesData.length, event as D3Event)
+
+        displayTooltip(xPos, maxY, valuesData.length, event)
       }
 
-      function hideCircles() {
+      function hideCircles () {
         tooltipDots.forEach(t => t.style('opacity', 0))
         mousePosition.x = 0
         mousePosition.y = 0
         tooltip.style('opacity', 0)
       }
 
-      function showBarTooltip(event?: MouseEvent) {
+      function showBarTooltip (event?: MouseEvent) {
         let xPos: number, yPos: number
         if (event) {
           [xPos, yPos] = d3.pointer(event)
@@ -347,12 +351,13 @@ const MetricChart: React.FC<MetricChartProps> = ({
 
         // Prepare the tooltip
         const timeString = d3.timeFormat('%H:%M:%S.%L %p')(dataPoint.time)
-        
-        const typedLabels = labels as LabelObject[];
+
+        const typedLabels = labels
         const valuesData = typedLabels.map((label, i) => {
+          const name = typeof label === 'string' ? label : label.value
           return {
-            name: label.name,
-            value: Math.round((dataPoint[label.value] || 0) * 100) / 100,
+            name,
+            value: Math.round(getNum(dataPoint[name]) * 100) / 100,
             colorSeparator: colorSetLatency[`background-color-${i}`]
           }
         })
@@ -380,17 +385,17 @@ const MetricChart: React.FC<MetricChartProps> = ({
           </div>
         </div>`)
 
-        const maxY = y(dataPoint[keyForCheckMax] || 0)
-        displayTooltip(xPos, maxY, valuesData.length, event as D3Event)
+        const maxY = y(getNum(dataPoint[keyForCheckMax]))
+        displayTooltip(xPos, maxY, valuesData.length, event)
       }
 
-      function hideBarTooltip() {
+      function hideBarTooltip () {
         mousePosition.x = 0
         mousePosition.y = 0
         tooltip.style('opacity', 0)
       }
 
-      function displayTooltip(xPos: number, maxY: number, itemsCount: number, event?: D3Event) {
+      function displayTooltip (xPos: number, maxY: number, itemsCount: number, event?: D3Event) {
         const tooltipWidth = 160
         const tooltipHeight = itemsCount * 15
         let tx = xPos + tooltipWidth < w ? xPos : w - tooltipWidth
@@ -410,7 +415,7 @@ const MetricChart: React.FC<MetricChartProps> = ({
         }
       }
     }
-  }, [svgRef, tooltipRef, data, isBarChart, colorSet, labels, lowerMaxY, numberOfLines, percentiles, timeline, tooltipPosition, unit, yMin])
+  }, [svgRef, tooltipRef, data, percentiles, colorSet, labels, lowerMaxY, numberOfLines, percentiles, timeline, tooltipPosition, unit, yMin])
 
   return (
     <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth}`}>

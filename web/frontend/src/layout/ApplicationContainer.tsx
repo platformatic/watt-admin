@@ -13,7 +13,7 @@ interface ApplicationContainerProps {
   children?: ReactNode;
 }
 
-function ApplicationContainer({ children }: ApplicationContainerProps): React.ReactElement {
+function ApplicationContainer ({ children }: ApplicationContainerProps): React.ReactElement {
   const globalState = useAdminStore()
   const {
     setNavigation,
@@ -26,7 +26,7 @@ function ApplicationContainer({ children }: ApplicationContainerProps): React.Re
     handleNavigation('Overview', HOME_PATH)
   }, [])
 
-  function handleNavigation(label: string, page: string): void {
+  function handleNavigation (label: string, page: string): void {
     navigate(page)
     setCurrentPage(page)
     setNavigation({ label, key: page, page })

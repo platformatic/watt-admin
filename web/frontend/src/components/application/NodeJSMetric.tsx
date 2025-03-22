@@ -6,7 +6,7 @@ import commonStyles from '../../styles/CommonStyles.module.css'
 import { BorderedBox, LoadingSpinnerV2, VerticalSeparator } from '@platformatic/ui-components'
 import loadingSpinnerStyles from '../../styles/LoadingSpinnerStyles.module.css'
 import NoDataAvailable from '../ui/NoDataAvailable'
-import MetricChart from '../metrics/MetricChart'
+import MetricChart, { DataPoint } from '../metrics/MetricChart'
 import { POSITION_ABSOLUTE } from '../../ui-constants'
 import colorSetMem from '../metrics/memory.module.css'
 import colorSetCpu from '../metrics/cpu.module.css'
@@ -18,16 +18,16 @@ interface MetricOption {
   unit: string;
 }
 
-interface TimeValue { time: Date; values?: number[] }
+export type DataValue = {
+  date: Date;
+  values: number[];
+} & { [key: string]: number }
 
-export interface DataValue {
-  date: string | Date;
-  [key: string]: string | Date | number;
-}
+export type MetricType = 'mem' | 'cpu' | 'latency'
 
 interface NodeJSMetricProps {
   title?: string;
-  metricURL?: 'mem' | 'cpu' | 'latency';
+  metricURL: MetricType;
   initialLoading?: boolean;
   dataValues?: DataValue[];
   unit?: string;
@@ -59,7 +59,7 @@ export const generateLegend = (options: string[], colorStyles: Record<string, st
   )
 }
 
-function NodeJSMetric({
+function NodeJSMetric ({
   title = '',
   metricURL,
   initialLoading = false,
@@ -73,7 +73,7 @@ function NodeJSMetric({
   slimCss = false
 }: NodeJSMetricProps): React.ReactElement {
   const [showNoResult, setShowNoResult] = useState(false)
-  const [seriesValues, setSeriesValues] = useState<Array<TimeValue>>([])
+  const [seriesValues, setSeriesValues] = useState<DataPoint[]>([])
   const styleCss = slimCss ? `${styles.borderexBoxSlim}` : `${styles.borderexBoxContainer} ${styles.borderedBoxHeigthLoading}`
   const [borderexBoxClassName, setBorderexBoxClassName] = useState(`${styleCss}`)
   const [lowerMaxY, setLowerMaxY] = useState(10)
@@ -82,7 +82,7 @@ function NodeJSMetric({
 
   useEffect(() => {
     setBorderexBoxClassName(`${styles.borderexBoxContainer}`)
-    let newValues: Array<TimeValue> = []
+    let newValues: DataPoint[] = []
     let lowerMaxY = 0
     if (dataValues.length > 0) {
       if (metricURL === 'latency') {
@@ -105,7 +105,7 @@ function NodeJSMetric({
     }
   }, [dataValues])
 
-  function renderComponent(): React.ReactNode {
+  function renderComponent (): React.ReactNode {
     if (initialLoading) {
       return (
         <LoadingSpinnerV2

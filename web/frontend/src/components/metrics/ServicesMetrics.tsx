@@ -23,7 +23,7 @@ interface ServicesMetricsProps {
   showAggregatedMetrics: boolean;
 }
 
-function ServicesMetrics({
+function ServicesMetrics ({
   serviceId,
   showAggregatedMetrics
 }: ServicesMetricsProps): React.ReactElement {

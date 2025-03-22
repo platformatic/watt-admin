@@ -38,7 +38,7 @@ describe('getTicks', () => {
     for (let i = 1; i < result.length; i++) {
       differences.push(result[i] - result[i - 1])
     }
-    
+
     const firstDiff = differences[0]
     differences.forEach(diff => {
       expect(diff).toBeCloseTo(firstDiff, 10)

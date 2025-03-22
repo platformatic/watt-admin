@@ -15,7 +15,7 @@ interface ServiceProps {
   type?: string;
 }
 
-function Service({ id, entrypoint, type }: ServiceProps): React.ReactElement {
+function Service ({ id, entrypoint, type }: ServiceProps): React.ReactElement {
   return (
     <div className={`${commonStyles.tinyFlexRow} ${commonStyles.fullWidth} ${commonStyles.flexGrow}`}>
       <BorderedBox
@@ -56,7 +56,7 @@ function Service({ id, entrypoint, type }: ServiceProps): React.ReactElement {
   )
 }
 
-function ServicesBox(): React.ReactElement {
+function ServicesBox (): React.ReactElement {
   const [services, setServices] = useState<ServiceData[]>([])
   const { runtimePid } = useAdminStore()
 

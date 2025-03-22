@@ -6,10 +6,6 @@ export const STATUS_RUNNING = 'running'
 export const STATUS_STARTED = 'started'
 export const STATUS_STOPPED = 'stopped'
 
-export const UP = 'up'
-export const DOWN = 'down'
-export const STALE = 'stale'
-
 export const RAW = 'raw'
 export const PRETTY = 'pretty'
 

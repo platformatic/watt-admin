@@ -8,8 +8,8 @@ import useAdminStore from '../../useAdminStore'
 import { getApiApplication } from '../../api'
 
 const AppDetails: React.FC = () => {
-  const [error, setError] = useState<string | Error>('')
-  const [apiApplication, setApiApplication] = useState<ApiApplication>({} as ApiApplication)
+  const [error, setError] = useState<unknown>(undefined)
+  const [apiApplication, setApiApplication] = useState<ApiApplication>({ id: 0, lastStarted: '', name: '', url: '' })
   const { setRuntimePid } = useAdminStore()
 
   useEffect(() => {
@@ -17,19 +17,19 @@ const AppDetails: React.FC = () => {
       try {
         const response = await getApiApplication()
         if (response.id) {
-          setApiApplication(response as ApiApplication)
+          setApiApplication(response)
           setRuntimePid(response.id)
-          setError('')
+          setError(undefined)
         }
       } catch (error) {
-        setError(error as Error)
+        setError(error)
       }
     }
     fetchData()
   }, [])
 
   if (error) {
-    return <ErrorComponent error={error} onClickDismiss={() => setError('')} />
+    return <ErrorComponent error={error} onClickDismiss={() => setError(undefined)} />
   }
 
   return (

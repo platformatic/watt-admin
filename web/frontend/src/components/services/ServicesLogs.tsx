@@ -41,7 +41,7 @@ const ServicesLogs: React.FC = () => {
     fetchData()
   }, [runtimePid])
 
-  function handleChangeService(serviceUpdated: ServiceData): void {
+  function handleChangeService (serviceUpdated: ServiceData): void {
     const newServices = services.map(service => {
       if (serviceUpdated.id === service.id) {
         return { ...service, selected: !service.selected }
@@ -60,7 +60,7 @@ const ServicesLogs: React.FC = () => {
     setServices(newServices)
   }
 
-  function handleChangeAllService(): void {
+  function handleChangeAllService (): void {
     setSelectAllServices(!selectAllServices)
     setServices(services.map(service => ({ ...service, selected: !selectAllServices })))
   }

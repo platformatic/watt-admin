@@ -5,7 +5,7 @@ import { PlatformaticIcon } from '@platformatic/ui-components'
 import { TINY, WHITE } from '@platformatic/ui-components/src/components/constants'
 import typographyStyles from '../styles/Typography.module.css'
 
-export default function Navigation(): React.ReactElement {
+export default function Navigation (): React.ReactElement {
   const globalState = useAdminStore()
   const { breadCrumbs } = globalState
 

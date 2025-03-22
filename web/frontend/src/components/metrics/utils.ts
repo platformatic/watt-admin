@@ -1,19 +1,19 @@
-export function getTicks(
+export function getTicks (
   min: number,
   max: number,
   count: number,
   excludeMax: boolean
 ): number[] {
-  const step = (max - min) / count;
-  const retValue: number[] = [min];
-  
+  const step = (max - min) / count
+  const retValue: number[] = [min]
+
   for (let i = 1; i < count; i++) {
-    retValue.push(min + (i * step));
+    retValue.push(min + (i * step))
   }
-  
+
   if (!excludeMax) {
-    retValue.push(max);
+    retValue.push(max)
   }
-  
-  return retValue;
+
+  return retValue
 }

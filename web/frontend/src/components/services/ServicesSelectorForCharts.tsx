@@ -15,7 +15,7 @@ interface ServiceProps {
   onClickService?: () => void;
 }
 
-function Service({ id, entrypoint, isSelected, onClickService = () => {} }: ServiceProps): React.ReactElement {
+function Service ({ id, entrypoint, isSelected, onClickService = () => {} }: ServiceProps): React.ReactElement {
   const [selected] = useState(isSelected)
 
   return (
@@ -52,7 +52,7 @@ interface ServicesSelectorForChartsProps {
   serviceSelected: ServiceData;
 }
 
-function ServicesSelectorForCharts({
+function ServicesSelectorForCharts ({
   services,
   handleClickService = () => {},
   showAggregatedMetrics = true,
@@ -76,7 +76,7 @@ function ServicesSelectorForCharts({
           {...service}
           isSelected={serviceSelected.id === service.id}
           onClickService={() => handleClickService(service)}
-        />)}
+                                 />)}
       </div>
     </div>
   )

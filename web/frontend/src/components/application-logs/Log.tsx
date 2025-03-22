@@ -25,7 +25,7 @@ interface LogProps {
   onClickArrow: () => void;
 }
 
-function Log({ log, onClickArrow }: LogProps): React.ReactElement {
+function Log ({ log, onClickArrow }: LogProps): React.ReactElement {
   const [displayJson, setDisplayJson] = useState(false)
   const [logContainerClassName, setLogContainerClassName] = useState(normalClassName())
   const { level, time, pid, name, msg, reqId, req, hostname, responseTime, ...rest } = log
@@ -33,7 +33,7 @@ function Log({ log, onClickArrow }: LogProps): React.ReactElement {
   let msgClassName = `${styles.msg} `
   msgClassName += styles[`text${level}`]
 
-  function getLevel(level: number): string {
+  function getLevel (level: number): string {
     return {
       10: 'TRACE',
       20: 'DEBUG',
@@ -54,32 +54,32 @@ function Log({ log, onClickArrow }: LogProps): React.ReactElement {
     }
   }, [displayJson])
 
-  function handleChangeDisplayView(): void {
+  function handleChangeDisplayView (): void {
     setDisplayJson(!displayJson)
     onClickArrow()
   }
 
-  function normalClassName(): string {
+  function normalClassName (): string {
     return `${styles.logContainerClassNameInactive} ${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} `
   }
 
-  function activeClassName(): string {
+  function activeClassName (): string {
     return `${styles.logContainerClassNameActive} ${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite} ` + styles[`logContainerClassNameActive${level}`]
   }
 
-  function cleanElement(element: string): string {
+  function cleanElement (element: string): string {
     return element.replace(/[{}\n]/g, '').replace('"', '').replace('"', '')
   }
 
-  function cleanJson(element: string): string {
+  function cleanJson (element: string): string {
     return element.replace(/(^{\n|}$)/g, '').replace('"', '').replace('"', '')
   }
 
-  function checkDisabledArrow(): boolean {
+  function checkDisabledArrow (): boolean {
     return !(reqId || (req && Object.keys(req)?.length > 0) || (rest && Object.keys(rest)?.length > 0))
   }
 
-  function displayRest(): React.ReactElement[] {
+  function displayRest (): React.ReactElement[] {
     if (!rest) return []
     let variable: unknown
     const content: React.ReactElement[] = []

@@ -17,7 +17,7 @@ interface MetricsData {
   dataLatency: Array<DataValue>;
 }
 
-function NodeJSMetrics(): React.ReactElement {
+function NodeJSMetrics (): React.ReactElement {
   const [initialLoading, setInitialLoading] = useState(true)
   const [allData, setAllData] = useState<MetricsData>({
     dataMem: [],

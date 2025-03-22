@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, ReactNode } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useInterval } from '../../hooks/useInterval'
 import { RICH_BLACK, WHITE, TRANSPARENT, MARGIN_0, OPACITY_15 } from '@platformatic/ui-components/src/components/constants'
 import styles from './AppLogs.module.css'
@@ -49,7 +49,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   const [displayGoToBottom, setDisplayGoToBottom] = useState(false)
   const [statusPausedLogs, setStatusPausedLogs] = useState('')
   const [filteredLogsLengthAtPause, setFilteredLogsLengthAtPause] = useState(0)
-  const [error, setError] = useState<string | Error>('')
+  const [error, setError] = useState<unknown>(undefined)
 
   useEffect(() => {
     if (logContentRef.current && scrollDirection === DIRECTION_TAIL && filteredLogs.length > 0) {
@@ -118,10 +118,10 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
       if (runtimePid) {
         const logs = await getLogs(runtimePid)
         setApplicationLogs(logs)
-        setError('')
+        setError(undefined)
       }
     } catch (error) {
-      setError(error as Error)
+      setError(error)
     } finally {
       setLoading(false)
     }
@@ -136,13 +136,13 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
     }
   }, [scrollDirection, filteredLogs.length, filteredLogsLengthAtPause])
 
-  function resumeScrolling(): void {
+  function resumeScrolling (): void {
     setScrollDirection(DIRECTION_TAIL)
     setDisplayGoToBottom(false)
     setFilteredLogsLengthAtPause(0)
   }
 
-  function saveLogs(): void {
+  function saveLogs (): void {
     let fileData = ''
     applicationLogs.forEach(log => {
       fileData += `${log}
@@ -158,24 +158,24 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
     link.click()
   }
 
-  function handlingClickArrow(): void {
+  function handlingClickArrow (): void {
     setScrollDirection(DIRECTION_STILL)
     setFilteredLogsLengthAtPause(filteredLogs.length)
   }
 
-  function renderLogs(): React.ReactNode {
+  function renderLogs (): React.ReactNode {
     if (displayLog === PRETTY) {
       return filteredLogs.map((log, index) => <Log key={`${index}-${filterLogsByLevel}`} log={log} onClickArrow={() => handlingClickArrow()} />)
     }
 
     return (
       <span className={`${typographyStyles.desktopOtherCliTerminalSmall} ${typographyStyles.textWhite}`}>
-        {filteredLogs as ReactNode}
+        {JSON.stringify(filteredLogs)}
       </span>
     )
   }
 
-  function handleScroll(event: React.UIEvent<HTMLDivElement>): void {
+  function handleScroll (event: React.UIEvent<HTMLDivElement>): void {
     const st = event.currentTarget.scrollTop // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
     if (st > lastScrollTop) {
       // downscroll code
@@ -190,7 +190,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   }
 
   if (error) {
-    return <ErrorComponent error={error} onClickDismiss={() => setError('')} />
+    return <ErrorComponent error={error} onClickDismiss={() => setError(undefined)} />
   }
 
   if (loading) {

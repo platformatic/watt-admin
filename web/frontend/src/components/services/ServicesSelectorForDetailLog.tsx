@@ -15,7 +15,7 @@ interface ServiceProps {
   onChangeService?: () => void;
 }
 
-function Service({ id, entrypoint, isSelected, onChangeService = () => {} }: ServiceProps): React.ReactElement {
+function Service ({ id, entrypoint, isSelected, onChangeService = () => {} }: ServiceProps): React.ReactElement {
   const [selected] = useState(isSelected)
 
   return (
@@ -50,11 +50,11 @@ interface ServicesSelectorForDetailLogProps {
   handleChangeAllServices?: () => void;
 }
 
-function ServicesSelectorForDetailLog({ 
-  services, 
-  handleChangeService = () => {}, 
-  selectAllServices = true, 
-  handleChangeAllServices = () => {} 
+function ServicesSelectorForDetailLog ({
+  services,
+  handleChangeService = () => {},
+  selectAllServices = true,
+  handleChangeAllServices = () => {}
 }: ServicesSelectorForDetailLogProps): React.ReactElement {
   return (
     <div className={`${commonStyles.smallFlexBlock} ${commonStyles.fullWidth} ${styles.servicesContainer}`}>

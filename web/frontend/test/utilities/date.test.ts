@@ -27,7 +27,7 @@ describe('getFormattedDate', () => {
 describe('getFormattedLogTimestamp', () => {
   test('should print \'-\' for invalid date types', () => {
     for (let i = 0; i < invalidDates.length; i++) {
-      expect(getFormattedLogTimestamp(invalidDates[i]), ).toEqual('-')
+      expect(getFormattedLogTimestamp(invalidDates[i])).toEqual('-')
     }
   })
   test('should print formatted time', () => {

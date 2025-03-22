@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface NavigationType {
   label: string;
@@ -24,7 +24,7 @@ const initialState = {
   runtimePid: undefined,
   applicationSelected: null,
   currentWindowWidth: 0
-};
+}
 
 const useAdminStore = create<AdminState>((set) => ({
   ...initialState,
@@ -33,35 +33,35 @@ const useAdminStore = create<AdminState>((set) => ({
       return {
         ...state,
         runtimePid
-      };
-    });
+      }
+    })
   },
   setNavigation: (item) => {
     set((state) => {
-      const currentBreadcrumbs = state.breadCrumbs.slice(0, 0);
-      currentBreadcrumbs.push(item);
+      const currentBreadcrumbs = state.breadCrumbs.slice(0, 0)
+      currentBreadcrumbs.push(item)
       return {
         ...state,
         breadCrumbs: currentBreadcrumbs
-      };
-    });
+      }
+    })
   },
   setCurrentPage: (page: string): void => {
     set((state) => {
       return {
         ...state,
         currentPage: page
-      };
-    });
+      }
+    })
   },
   setCurrentWindowWidth: (width: number): void => {
     set((state) => {
       return {
         ...state,
         currentWindowWidth: width
-      };
-    });
+      }
+    })
   }
-}));
+}))
 
-export default useAdminStore;
+export default useAdminStore
