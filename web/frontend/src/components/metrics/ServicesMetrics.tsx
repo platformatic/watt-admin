@@ -6,16 +6,18 @@ import { BorderedBox } from '@platformatic/ui-components'
 import { getApiMetricsPodService, getApiMetricsPod } from '../../api'
 import { useInterval } from '../../hooks/useInterval'
 import useAdminStore from '../../useAdminStore'
-import { REFRESH_INTERVAL_METRICS, POSITION_FIXED, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS } from '../../ui-constants'
+import { REFRESH_INTERVAL_METRICS, POSITION_FIXED, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS, REQ_UNIT_METRICS } from '../../ui-constants'
 import colorSetMem from './memory.module.css'
 import colorSetCpu from './cpu.module.css'
 import colorSetLatency from './latency.module.css'
+import colorSetReq from './req.module.css'
 import NodeJSMetric, { DataValue, generateLegend } from '../application/NodeJSMetric'
 
-interface MetricsData {
+export interface MetricsData {
   dataMem: Array<DataValue>;
   dataCpu: Array<DataValue>;
   dataLatency: Array<DataValue>;
+  dataReq: Array<DataValue>;
 }
 
 interface ServicesMetricsProps {
@@ -23,7 +25,7 @@ interface ServicesMetricsProps {
   showAggregatedMetrics: boolean;
 }
 
-function ServicesMetrics({
+function ServicesMetrics ({
   serviceId,
   showAggregatedMetrics
 }: ServicesMetricsProps): React.ReactElement {
@@ -31,12 +33,14 @@ function ServicesMetrics({
   const [serviceData, setServiceData] = useState<MetricsData>({
     dataMem: [],
     dataCpu: [],
-    dataLatency: []
+    dataLatency: [],
+    dataReq: []
   })
   const [allData, setAllData] = useState<MetricsData>({
     dataMem: [],
     dataCpu: [],
-    dataLatency: []
+    dataLatency: [],
+    dataReq: []
   })
   const { runtimePid } = useAdminStore()
 
@@ -90,7 +94,6 @@ function ServicesMetrics({
                 internalKey: 'oldSpace',
                 unit: MEMORY_UNIT_METRICS
               }]}
-              backgroundColor={RICH_BLACK}
               showLegend={false}
               timeline
               slimCss
@@ -127,7 +130,6 @@ function ServicesMetrics({
                   internalKey: 'oldSpace',
                   unit: MEMORY_UNIT_METRICS
                 }]}
-                backgroundColor={RICH_BLACK}
                 showLegend={false}
                 timeline
                 slimCss
@@ -158,7 +160,6 @@ function ServicesMetrics({
                 internalKey: 'eventLoop',
                 unit: CPU_UNIT_METRICS
               }]}
-              backgroundColor={RICH_BLACK}
               showLegend={false}
               timeline
               slimCss
@@ -183,7 +184,6 @@ function ServicesMetrics({
                   internalKey: 'eventLoop',
                   unit: CPU_UNIT_METRICS
                 }]}
-                backgroundColor={RICH_BLACK}
                 showLegend={false}
                 timeline
                 slimCss
@@ -218,7 +218,6 @@ function ServicesMetrics({
                 internalKey: 'p99',
                 unit: LATENCY_UNIT_METRICS
               }]}
-              backgroundColor={RICH_BLACK}
               showLegend={false}
               slimCss
               timeline
@@ -247,7 +246,6 @@ function ServicesMetrics({
                   internalKey: 'p99',
                   unit: LATENCY_UNIT_METRICS
                 }]}
-                backgroundColor={RICH_BLACK}
                 showLegend={false}
                 slimCss
                 timeline
@@ -257,6 +255,52 @@ function ServicesMetrics({
         </div>
 
         {generateLegend(['P99', 'P95', 'P90'], colorSetLatency)}
+      </div>
+      <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth}`}>
+        <div className={`${commonStyles.smallFlexRow} ${commonStyles.fullWidth}`}>
+
+          <BorderedBox color={TRANSPARENT} backgroundColor={RICH_BLACK} classes={styles.boxMetricContainer}>
+            <NodeJSMetric
+              title={`${serviceId} Requests`}
+              metricURL='req'
+              dataValues={serviceData.dataReq}
+              initialLoading={initialLoading}
+              chartTooltipPosition={POSITION_FIXED}
+              unit={`(${REQ_UNIT_METRICS})`}
+              options={[{
+                label: 'Count',
+                internalKey: 'count',
+                unit: REQ_UNIT_METRICS
+              }]}
+              showLegend={false}
+              slimCss
+              timeline
+            />
+          </BorderedBox>
+
+          {showAggregatedMetrics && (
+            <BorderedBox color={TRANSPARENT} backgroundColor={RICH_BLACK} classes={styles.boxMetricContainer}>
+              <NodeJSMetric
+                title='Entrypoint Requests'
+                metricURL='req'
+                dataValues={allData.dataReq}
+                initialLoading={initialLoading}
+                chartTooltipPosition={POSITION_FIXED}
+                unit={`(${REQ_UNIT_METRICS})`}
+                options={[{
+                  label: 'Count',
+                  internalKey: 'count',
+                  unit: REQ_UNIT_METRICS
+                }]}
+                showLegend={false}
+                slimCss
+                timeline
+              />
+            </BorderedBox>
+          )}
+        </div>
+
+        {generateLegend(['Requests'], colorSetReq)}
       </div>
     </div>
   )

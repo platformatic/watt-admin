@@ -24,7 +24,7 @@ interface SideBarProps {
   bottomItems?: SideBarItem[];
 }
 
-function renderButton(item: SideBarItem, selected: string): React.ReactNode {
+function renderButton (item: SideBarItem, selected: string): React.ReactNode {
   return (
     <div
       className={`${commonStyles.tinyFlexBlock} ${commonStyles.itemsCenter} ${styles.item} ${typographyStyles.desktopBodySmallest} ${typographyStyles.textWhite} ${typographyStyles.textCenter}`}
@@ -45,12 +45,12 @@ function renderButton(item: SideBarItem, selected: string): React.ReactNode {
   )
 }
 
-function SideBar({
+function SideBar ({
   selected = '',
   topItems = [],
   bottomItems = []
 }: SideBarProps) {
-  function Item({ item }: ItemProps): React.ReactElement {
+  function Item ({ item }: ItemProps): React.ReactElement {
     if (item.disabled) {
       return (
         <>{renderButton(item, selected)}</>

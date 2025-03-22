@@ -9,10 +9,10 @@ interface NoDataAvailableProps {
   iconName?: string;
 }
 
-function NoDataAvailable({ iconName = '' }: NoDataAvailableProps): React.ReactElement {
-  function getIcon(): React.ReactNode {
+function NoDataAvailable ({ iconName = '' }: NoDataAvailableProps): React.ReactElement {
+  function getIcon (): React.ReactNode {
     if (iconName) {
-      return React.createElement(Icons[iconName as keyof typeof Icons], {
+      return React.createElement(Icons[iconName], {
         color: WHITE,
         size: MEDIUM
       })

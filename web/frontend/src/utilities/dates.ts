@@ -12,7 +12,7 @@ export const getFormattedDate = (date: DateFormat): string => {
 }
 
 export const getFormattedLogTimestamp = (
-  date: DateFormat, 
+  date: DateFormat,
   includeMilliseconds: boolean = false
 ): string => {
   const dateObject = getDateObjectIfValid(date)
@@ -23,7 +23,7 @@ export const getFormattedLogTimestamp = (
   return dateObject.format('HH:mm:ss')
 }
 
-function getDateObjectIfValid(date: unknown): dayjs.Dayjs | false {
+function getDateObjectIfValid (date: unknown): dayjs.Dayjs | false {
   if (date === '-') return false
   if (!(typeof date === 'string' || typeof date === 'number' || date instanceof Date)) return false
 
@@ -34,6 +34,6 @@ function getDateObjectIfValid(date: unknown): dayjs.Dayjs | false {
   return dateObject
 }
 
-export function subtractSecondsFromDate(date: DateFormat, seconds: number): string {
+export function subtractSecondsFromDate (date: DateFormat, seconds: number): string {
   return dayjs.utc(date).subtract(seconds, 'second').toISOString()
 }

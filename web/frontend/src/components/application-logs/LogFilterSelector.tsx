@@ -9,7 +9,7 @@ interface LogButtonProps {
   onClickLevel?: () => void;
 }
 
-function LogButton({
+function LogButton ({
   level = 10,
   levelName = '',
   levelSelected = 10,
@@ -49,7 +49,7 @@ interface LogFilterSelectorProps {
   onChangeLevelSelected?: (level: number) => void;
 }
 
-function LogFilterSelector({
+function LogFilterSelector ({
   defaultLevelSelected = 10,
   onChangeLevelSelected = () => {}
 }: LogFilterSelectorProps): React.ReactElement {
@@ -71,7 +71,7 @@ function LogFilterSelector({
   const [barValue, setBarValue] = useState(barLevels[defaultLevelSelected])
   const [levelSelected, setLevelSeleted] = useState(defaultLevelSelected)
 
-  function handleChangeLevelSelected(level: number): void {
+  function handleChangeLevelSelected (level: number): void {
     setLevelSeleted(level)
     setBarValue(barLevels[level])
     onChangeLevelSelected(level)

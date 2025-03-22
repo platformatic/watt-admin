@@ -25,7 +25,7 @@ interface ErrorBoundaryResult {
   didCatch: boolean;
 }
 
-export default function App(): React.ReactElement {
+export default function App (): React.ReactElement {
   const globalState = useAdminStore()
   const { setCurrentWindowWidth } = globalState
   const [innerLoading, setInnerLoading] = useState(false)
@@ -42,7 +42,7 @@ export default function App(): React.ReactElement {
   })
 
   useEffect(() => {
-    async function getUserLocal(): Promise<void> {
+    async function getUserLocal (): Promise<void> {
       setInnerLoading(false)
     }
     getUserLocal()
@@ -62,7 +62,7 @@ export default function App(): React.ReactElement {
     }
   }, [])
 
-  function handleDismiss(): void {
+  function handleDismiss (): void {
     setShowErrorComponent(false)
   }
 

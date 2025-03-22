@@ -25,7 +25,7 @@ interface ButtonSidebarProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullRounded?: boolean;
 }
 
-function ButtonSidebar({
+function ButtonSidebar ({
   textClass = '',
   paddingClass = '',
   altLabel = '',
@@ -88,16 +88,16 @@ function ButtonSidebar({
     }
   }, [disabled])
 
-  function restClassName(): string {
+  function restClassName (): string {
     return `${styles['background-color-' + backgroundColor]} `
   }
 
-  function buttonRestClassName(): string {
+  function buttonRestClassName (): string {
     if (!bordered) return ` ${styles['no-border']}`
     return styles[`bordered--${color}-30`]
   }
 
-  function buttonActiveClassName(): string {
+  function buttonActiveClassName (): string {
     if (!bordered) return ` ${styles['no-border']}`
     return styles[`bordered--${color}-100`]
   }

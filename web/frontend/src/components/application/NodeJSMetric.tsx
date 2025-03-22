@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { WHITE, BLACK_RUSSIAN, TRANSPARENT, OPACITY_30 } from '@platformatic/ui-components/src/components/constants'
+import { WHITE, TRANSPARENT, OPACITY_30, RICH_BLACK } from '@platformatic/ui-components/src/components/constants'
 import styles from './NodeJSMetric.module.css'
 import typographyStyles from '../../styles/Typography.module.css'
 import commonStyles from '../../styles/CommonStyles.module.css'
 import { BorderedBox, LoadingSpinnerV2, VerticalSeparator } from '@platformatic/ui-components'
 import loadingSpinnerStyles from '../../styles/LoadingSpinnerStyles.module.css'
 import NoDataAvailable from '../ui/NoDataAvailable'
-import MetricChart from '../metrics/MetricChart'
+import MetricChart, { DataPoint, getMetricColor } from '../metrics/MetricChart'
 import { POSITION_ABSOLUTE } from '../../ui-constants'
-import colorSetMem from '../metrics/memory.module.css'
-import colorSetCpu from '../metrics/cpu.module.css'
-import colorSetLatency from '../metrics/latency.module.css'
 
 interface MetricOption {
   label: string;
@@ -18,21 +15,20 @@ interface MetricOption {
   unit: string;
 }
 
-interface TimeValue { time: Date; values?: number[] }
+export type DataValue = {
+  date: Date;
+  values: number[];
+} & { [key: string]: number }
 
-export interface DataValue {
-  date: string | Date;
-  [key: string]: string | Date | number;
-}
+export type MetricType = 'mem' | 'cpu' | 'latency' | 'req'
 
 interface NodeJSMetricProps {
-  title?: string;
-  metricURL?: 'mem' | 'cpu' | 'latency';
-  initialLoading?: boolean;
-  dataValues?: DataValue[];
-  unit?: string;
-  options?: MetricOption[];
-  backgroundColor?: string;
+  title: string;
+  metricURL: MetricType;
+  initialLoading: boolean;
+  dataValues: DataValue[];
+  unit: string;
+  options: MetricOption[];
   chartTooltipPosition?: string;
   showLegend?: boolean;
   timeline?: boolean;
@@ -59,31 +55,34 @@ export const generateLegend = (options: string[], colorStyles: Record<string, st
   )
 }
 
-function NodeJSMetric({
-  title = '',
+function NodeJSMetric ({
+  title,
   metricURL,
-  initialLoading = false,
-  dataValues = [],
-  unit = '',
-  options = [{ label: '', internalKey: '', unit: '' }],
-  backgroundColor = BLACK_RUSSIAN,
+  initialLoading,
+  dataValues,
+  unit,
+  options,
   chartTooltipPosition = POSITION_ABSOLUTE,
   showLegend = true,
   timeline = false,
   slimCss = false
 }: NodeJSMetricProps): React.ReactElement {
+  const backgroundColor = RICH_BLACK
   const [showNoResult, setShowNoResult] = useState(false)
-  const [seriesValues, setSeriesValues] = useState<Array<TimeValue>>([])
+  const [seriesValues, setSeriesValues] = useState<DataPoint[]>([])
   const styleCss = slimCss ? `${styles.borderexBoxSlim}` : `${styles.borderexBoxContainer} ${styles.borderedBoxHeigthLoading}`
   const [borderexBoxClassName, setBorderexBoxClassName] = useState(`${styleCss}`)
-  const [lowerMaxY, setLowerMaxY] = useState(10)
-  const colorStyles = metricURL === 'mem' ? colorSetMem : metricURL === 'cpu' ? colorSetCpu : colorSetLatency
+  const [lowerMaxY, setLowerMaxY] = useState(0)
+  const colorStyles = getMetricColor(metricURL)
   const labels = options.map(option => option.label)
 
   useEffect(() => {
     setBorderexBoxClassName(`${styles.borderexBoxContainer}`)
-    let newValues: Array<TimeValue> = []
+    let newValues: DataPoint[] = []
     let lowerMaxY = 0
+    if (metricURL === 'req') {
+      lowerMaxY = 10
+    }
     if (dataValues.length > 0) {
       if (metricURL === 'latency') {
         newValues = dataValues.map(({ date, ...rest }) => ({
@@ -105,7 +104,7 @@ function NodeJSMetric({
     }
   }, [dataValues])
 
-  function renderComponent(): React.ReactNode {
+  function renderComponent (): React.ReactNode {
     if (initialLoading) {
       return (
         <LoadingSpinnerV2

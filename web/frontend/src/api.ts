@@ -14,7 +14,7 @@ export const getApiApplication = async () => {
     return { id, url, name, pltVersion, lastStarted }
   }
 
-  return {}
+  return { id: 0, lastStarted: '', name: '', url: '' }
 }
 
 // This is to avoid calling npm registry every time we run the method below

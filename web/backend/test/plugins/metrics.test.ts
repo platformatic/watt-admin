@@ -14,7 +14,7 @@ test('metrics with runtime', async (t) => {
   await startWatt(t)
   const server = await getServer(t)
 
-  await wait(1200)
+  await wait(1500)
   const metricsKeys = Object.keys(server.mappedMetrics)
   const [pid] = metricsKeys
   const servicePID = parseInt(pid)

@@ -1,11 +1,11 @@
 import React, { ReactNode } from 'react'
-import Header from './Header';
+import Header from './Header'
 
 interface RouteContainerProps {
   children?: ReactNode;
 }
 
-function RouteContainer({ children }: RouteContainerProps): React.ReactElement {
+function RouteContainer ({ children }: RouteContainerProps): React.ReactElement {
   return (
     <>
       <Header />

@@ -8,29 +8,30 @@ import { BorderedBox, Button, HorizontalSeparator, Tooltip } from '@platformatic
 import tooltipStyles from '../../styles/TooltipStyles.module.css'
 
 interface ErrorComponentProps {
-  error?: Error | string;
+  error?: unknown;
   onClickDismiss?: () => void;
   containerClassName?: string;
 }
 
-function ErrorComponent({
+function ErrorComponent ({
   error,
   onClickDismiss = () => {},
   containerClassName = ''
 }: ErrorComponentProps): React.ReactElement {
   const [showLogs, setShowLogs] = useState(false)
   const [logsCopied, setLogsCopied] = useState(false)
-  const [errorStack] = useState((error as Error)?.stack?.split('\n') || [])
+  const stack = error instanceof Error ? error.stack : ''
+  const [errorStack] = useState(stack?.split('\n') || [])
 
-  function copyLogs(): void {
+  function copyLogs (): void {
     setLogsCopied(true)
-    navigator.clipboard.writeText((error as Error).stack || '')
+    navigator.clipboard.writeText(stack || '')
     setTimeout(() => {
       setLogsCopied(false)
     }, 1000)
   }
 
-  function getButtonCopyIcon(): { iconName: string; size: string; color: string } {
+  function getButtonCopyIcon (): { iconName: string; size: string; color: string } {
     if (logsCopied) {
       return { iconName: 'CircleCheckMarkIcon', size: SMALL, color: WHITE }
     }

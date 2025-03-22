@@ -6,10 +6,6 @@ export const STATUS_RUNNING = 'running'
 export const STATUS_STARTED = 'started'
 export const STATUS_STOPPED = 'stopped'
 
-export const UP = 'up'
-export const DOWN = 'down'
-export const STALE = 'stale'
-
 export const RAW = 'raw'
 export const PRETTY = 'pretty'
 
@@ -27,6 +23,7 @@ export const REFRESH_INTERVAL_LOGS = 2000
 export const MEMORY_UNIT_METRICS = 'MB'
 export const LATENCY_UNIT_METRICS = 'ms'
 export const CPU_UNIT_METRICS = '%'
+export const REQ_UNIT_METRICS = '#'
 
 export const POSITION_ABSOLUTE = 'absolute'
 export const POSITION_FIXED = 'fixed'

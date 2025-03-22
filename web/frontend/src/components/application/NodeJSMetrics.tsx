@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { useInterval } from '../../hooks/useInterval'
-import { WHITE, MEDIUM, BLACK_RUSSIAN, TRANSPARENT, RICH_BLACK } from '@platformatic/ui-components/src/components/constants'
+import { WHITE, MEDIUM, BLACK_RUSSIAN, TRANSPARENT } from '@platformatic/ui-components/src/components/constants'
 import styles from './NodeJSMetrics.module.css'
 import typographyStyles from '../../styles/Typography.module.css'
 import commonStyles from '../../styles/CommonStyles.module.css'
 import { BorderedBox } from '@platformatic/ui-components'
 import Icons from '@platformatic/ui-components/src/components/icons'
-import NodeJSMetric, { DataValue } from './NodeJSMetric'
-import { REFRESH_INTERVAL_METRICS, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS } from '../../ui-constants'
+import NodeJSMetric from './NodeJSMetric'
+import { REFRESH_INTERVAL_METRICS, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS, REQ_UNIT_METRICS } from '../../ui-constants'
 import { getApiMetricsPod } from '../../api'
 import useAdminStore from '../../useAdminStore'
+import { MetricsData } from '../metrics/ServicesMetrics'
 
-interface MetricsData {
-  dataMem: Array<DataValue>;
-  dataCpu: Array<DataValue>;
-  dataLatency: Array<DataValue>;
-}
-
-function NodeJSMetrics(): React.ReactElement {
+function NodeJSMetrics (): React.ReactElement {
   const [initialLoading, setInitialLoading] = useState(true)
   const [allData, setAllData] = useState<MetricsData>({
     dataMem: [],
     dataCpu: [],
-    dataLatency: []
+    dataLatency: [],
+    dataReq: []
   })
   const { runtimePid } = useAdminStore()
 
@@ -79,7 +75,6 @@ function NodeJSMetrics(): React.ReactElement {
               internalKey: 'usedHeap',
               unit: MEMORY_UNIT_METRICS
             }]}
-            backgroundColor={RICH_BLACK}
           />
           <NodeJSMetric
             title='CPU & ELU Average'
@@ -96,7 +91,6 @@ function NodeJSMetrics(): React.ReactElement {
               internalKey: 'eventLoop',
               unit: CPU_UNIT_METRICS
             }]}
-            backgroundColor={RICH_BLACK}
           />
           <NodeJSMetric
             title='Entrypoint Latency'
@@ -117,7 +111,18 @@ function NodeJSMetrics(): React.ReactElement {
               internalKey: 'p99',
               unit: LATENCY_UNIT_METRICS
             }]}
-            backgroundColor={RICH_BLACK}
+          />
+          <NodeJSMetric
+            title='Requests'
+            metricURL='req'
+            dataValues={allData.dataReq}
+            initialLoading={initialLoading}
+            unit={`(${REQ_UNIT_METRICS})`}
+            options={[{
+              label: 'Count',
+              internalKey: 'count',
+              unit: REQ_UNIT_METRICS
+            }]}
           />
         </div>
       </div>

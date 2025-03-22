@@ -9,7 +9,7 @@ interface ApplicationStatusPillsProps {
   status?: string;
 }
 
-function ApplicationStatusPills({ status = STATUS_STOPPED }: ApplicationStatusPillsProps): React.ReactElement {
+function ApplicationStatusPills ({ status = STATUS_STOPPED }: ApplicationStatusPillsProps): React.ReactElement {
   if (status === STATUS_STOPPED) {
     return (
       <div className={styles.stoppedPills}>

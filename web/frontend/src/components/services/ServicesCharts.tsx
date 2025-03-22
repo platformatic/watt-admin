@@ -17,7 +17,7 @@ const ServicesCharts: React.FC = () => {
   const { setCurrentPage, runtimePid } = globalState
   const [showAggregatedMetrics, setShowAggregatedMetrics] = useState(true)
   const [services, setServices] = useState<ServiceData[]>([])
-  const [serviceSelected, setServiceSelected] = useState<ServiceData>({} as ServiceData)
+  const [serviceSelected, setServiceSelected] = useState<ServiceData>({ id: '', selected: false })
 
   useEffect(() => {
     setCurrentPage(POD_SERVICES_PATH)

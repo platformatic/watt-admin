@@ -20,11 +20,11 @@ export interface ApiApplication {
 }
 
 interface AppNameBoxProps {
-  onErrorOccurred?: (error: Error) => void;
+  onErrorOccurred?: (error: unknown) => void;
   apiApplication?: ApiApplication;
 }
 
-function AppNameBox({
+function AppNameBox ({
   onErrorOccurred = () => {},
   apiApplication
 }: AppNameBoxProps): React.ReactElement | null {
@@ -48,15 +48,14 @@ function AppNameBox({
     }
   }, [apiApplication?.id])
 
-  async function handleRestartApplication(): Promise<void> {
+  async function handleRestartApplication (): Promise<void> {
     try {
       setChangingRestartStatus(true)
       if (apiApplication?.id) {
         await restartApiApplication(apiApplication.id)
       }
     } catch (error) {
-      console.error(`Error on handleRestartApplication ${error}`)
-      onErrorOccurred(error as Error)
+      onErrorOccurred(error)
     } finally {
       setChangingRestartStatus(false)
     }

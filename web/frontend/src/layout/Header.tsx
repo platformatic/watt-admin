@@ -9,12 +9,12 @@ import { HOME_PATH } from '../ui-constants'
 import useAdminStore from '../useAdminStore'
 import Logo from '../components/ui/Logo'
 
-function Header(): React.ReactElement {
+function Header (): React.ReactElement {
   const navigate = useNavigate()
   const globalState = useAdminStore()
   const { setCurrentPage, setNavigation } = globalState
 
-  function goToHome(): void {
+  function goToHome (): void {
     navigate(HOME_PATH)
     setCurrentPage(HOME_PATH)
     setNavigation({ label: 'Overview', key: HOME_PATH, page: HOME_PATH })
