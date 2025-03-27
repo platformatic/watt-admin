@@ -9,6 +9,8 @@ export default async function (fastify: FastifyInstance) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
   const api = new RuntimeApiClient()
 
+  console.log(process.env.NODE_ENV)
+
   typedFastify.get('/runtimes', {
     schema: {
       querystring: {
@@ -28,8 +30,12 @@ export default async function (fastify: FastifyInstance) {
       if (!request.query.includeAdmin && runtime.packageName === 'watt-admin') {
         continue
       }
-      const selected = process.env.SELECTED_RUNTIME === runtime.pid.toString()
-      selectableRuntimes.push({ ...runtime, selected })
+      if (process.env.SELECTED_RUNTIME) {
+        const selected = process.env.SELECTED_RUNTIME === runtime.pid.toString()
+        selectableRuntimes.push({ ...runtime, selected })
+      } else {
+        selectableRuntimes.push({ ...runtime, selected: true })
+      }
     }
     return selectableRuntimes
   })

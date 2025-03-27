@@ -55,7 +55,6 @@ async function main () {
         const runtime = runtimes[0]
         const locationDetails = await getLocationDetails(client, runtime)
         // Display information about the runtime
-        console.log('\nRuntime Details:')
         console.log(`Name: ${runtime.packageName || 'unnamed'}`)
         console.log(`PID: ${runtime.pid}`)
         console.log(`Working directory: ${locationDetails.cwd}`)
@@ -143,6 +142,8 @@ async function main () {
 // Execute the main function if this script is run directly
 if (require.main === module) {
   main().then((selectedRuntime) => {
+    console.log('Starting Watt admin...')
+    console.log('--------')
     return start(selectedRuntime.pid)
   }).catch(error => {
     console.error('Fatal error:', error)
