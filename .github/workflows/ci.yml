@@ -34,9 +34,5 @@ jobs:
           command: npm ci
       - name: Run build
         run: npm run build
-      - name: Run CLI tests
+      - name: Run tests
         run: npm test
-      - name: Run frontend tests
-        run: cd web/frontend && npm run test
-      - name: Run backend tests
-        run: cd web/backend && npm run test

@@ -27,7 +27,7 @@ test('runtime is running', async (t) => {
   assert.strictEqual(res.statusCode, 200, 'runtimes endpoint')
   const [runtime] = res.json()
   const runtimePid = runtime.pid
-  assert.strictEqual(runtime.packageName, 'watt-admin')
+  assert.strictEqual(runtime.packageName, '@platformatic/watt-admin')
   assert.strictEqual(typeof runtimePid, 'number')
   assert.strictEqual(runtime.packageVersion, null)
 

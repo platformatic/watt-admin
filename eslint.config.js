@@ -2,4 +2,5 @@
 
 module.exports = require('neostandard')({
   ignores: ['web', 'node_modules'],
+  ts: true
 })

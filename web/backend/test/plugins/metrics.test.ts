@@ -11,6 +11,8 @@ test('metrics without runtime', async (t) => {
 })
 
 test('metrics with runtime', async (t) => {
+  // Collecting metrics requires no parallelism in tests
+  // TODO: fix it and make tests parallel again
   await startWatt(t)
   const server = await getServer(t)
   await loadMetrics(server)
