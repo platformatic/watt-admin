@@ -66,12 +66,6 @@ declare module '@platformatic/ui-components/src/components/icons' {
     className?: string;
   }
 
-  const AlertIcon: ComponentType<IconProps>
-  const ArrowUpIcon: ComponentType<IconProps>
-  const ArrowDownIcon: ComponentType<IconProps>
-  const CircleCheckMarkIcon: ComponentType<IconProps>
-  const CLIIcon: ComponentType<IconProps>
-
   const Icons: {
     AlertIcon: ComponentType<IconProps>;
     ArrowUpIcon: ComponentType<IconProps>;

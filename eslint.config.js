@@ -1,6 +1,6 @@
 'use strict'
 
 module.exports = require('neostandard')({
-  ignores: ['web', 'node_modules'],
+  ignores: ['node_modules', 'web/*/dist', 'web/frontend/public'],
   ts: true
 })
