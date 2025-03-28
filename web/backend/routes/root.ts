@@ -9,8 +9,6 @@ export default async function (fastify: FastifyInstance) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
   const api = new RuntimeApiClient()
 
-  console.log(process.env.NODE_ENV)
-
   typedFastify.get('/runtimes', {
     schema: {
       querystring: {
