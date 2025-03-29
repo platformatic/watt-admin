@@ -1,8 +1,10 @@
-import test from 'node:test'
+import test, { mock } from 'node:test'
 import assert from 'node:assert'
 import { calcBytesToMB } from '../../utils/calc'
 import proxyquire from 'proxyquire'
-import { FastifyInstance } from 'fastify'
+import { FastifyBaseLogger, FastifyInstance } from 'fastify'
+import { metricFixtures } from '../fixtures/metrics'
+import { RuntimeServices } from '@platformatic/control'
 
 const calcPath = '../../utils/calc'
 
@@ -12,56 +14,29 @@ class RuntimeApiClient {
   }
 
   async getRuntimeServices () {
-    return {
+    const status = 'ok'
+    const services: RuntimeServices = {
+      production: false,
+      entrypoint: 'composer',
       services: [
-        { id: 'service-1' },
-        { id: 'service-2' }
+        { id: 'composer', status },
+        { id: 'fastify2', status },
+        { id: 'fastify3', status },
+        { id: 'node3', status },
+        { id: 'type1', status },
+        { id: 'type4', status }
       ]
     }
+    return services
   }
 
   async getRuntimeMetrics () {
-    return [
-      {
-        name: 'process_resident_memory_bytes',
-        values: [{ value: 1048576, labels: {} }]
-      },
-      {
-        name: 'nodejs_heap_size_total_bytes',
-        values: [{ value: 2097152, labels: { serviceId: 'service-1' } }]
-      },
-      {
-        name: 'nodejs_heap_size_used_bytes',
-        values: [{ value: 1048576, labels: { serviceId: 'service-1' } }]
-      },
-      {
-        name: 'nodejs_heap_space_size_used_bytes',
-        values: [
-          { value: 524288, labels: { serviceId: 'service-1', space: 'new' } },
-          { value: 1048576, labels: { serviceId: 'service-1', space: 'old' } }
-        ]
-      },
-      {
-        name: 'thread_cpu_percent_usage',
-        values: [{ value: 50, labels: { serviceId: 'service-1' } }]
-      },
-      {
-        name: 'nodejs_eventloop_utilization',
-        values: [{ value: 0.5, labels: { serviceId: 'service-1' } }]
-      },
-      {
-        name: 'http_request_all_summary_seconds',
-        values: [
-          { value: 0.09, labels: { serviceId: 'service-1', quantile: 0.9 } },
-          { value: 0.095, labels: { serviceId: 'service-1', quantile: 0.95 } },
-          { value: 0.099, labels: { serviceId: 'service-1', quantile: 0.99 } }
-        ]
-      }
-    ]
+    return metricFixtures
   }
 }
 
-const getMockFastify = () => ({ mappedMetrics: {} }) as FastifyInstance
+const debug = mock.fn<FastifyBaseLogger['debug']>()
+const getMockFastify = () => ({ mappedMetrics: {}, log: { debug } }) as unknown as FastifyInstance
 
 test('calculateMetrics collects and aggregates metrics correctly', async () => {
   const { calculateMetrics } = proxyquire(calcPath, {
@@ -71,44 +46,61 @@ test('calculateMetrics collects and aggregates metrics correctly', async () => {
   const fastify = getMockFastify()
   await calculateMetrics(fastify)
 
-  assert.ok(fastify.mappedMetrics[1234])
+  const mockedMetrics = fastify.mappedMetrics[1234]
+  const metricService1 = mockedMetrics.services['type1']
+  const metricService2 = mockedMetrics.services['type4']
+  assert.ok(mockedMetrics)
+  assert.ok(metricService1)
+  assert.ok(metricService2)
+  assert.ok(mockedMetrics.services['composer'])
 
-  assert.ok(fastify.mappedMetrics[1234].services['service-1'])
-  assert.ok(fastify.mappedMetrics[1234].services['service-2'])
+  const service1Mem = metricService1.dataMem[0]
+  assert.strictEqual(service1Mem.rss, 520.66)
+  assert.strictEqual(service1Mem.totalHeap, 33.92)
+  assert.strictEqual(service1Mem.usedHeap, 17.29)
+  assert.strictEqual(service1Mem.newSpace, 2.46)
+  assert.strictEqual(service1Mem.oldSpace, 11.38)
 
-  const service1Mem = fastify.mappedMetrics[1234].services['service-1'].dataMem[0]
-  assert.strictEqual(service1Mem.rss, 1.00) // 1MB
-  assert.strictEqual(service1Mem.totalHeap, 2.00) // 2MB
-  assert.strictEqual(service1Mem.usedHeap, 1.00) // 1MB
-  assert.strictEqual(service1Mem.newSpace, 0.50) // 0.5MB
-  assert.strictEqual(service1Mem.oldSpace, 1.00) // 1MB
+  const service1Cpu = metricService1.dataCpu[0]
+  assert.strictEqual(service1Cpu.cpu, 0.25760680931397056)
+  assert.strictEqual(service1Cpu.eventLoop, 0.91912591661838)
 
-  const service1Cpu = fastify.mappedMetrics[1234].services['service-1'].dataCpu[0]
-  assert.strictEqual(service1Cpu.cpu, 50) // 50%
-  assert.strictEqual(service1Cpu.eventLoop, 50) // 0.5 * 100
+  const service1Latency = metricService1.dataLatency[0]
+  assert.strictEqual(service1Latency.p90, 0)
+  assert.strictEqual(service1Latency.p95, 0)
+  assert.strictEqual(service1Latency.p99, 0)
 
-  const service1Latency = fastify.mappedMetrics[1234].services['service-1'].dataLatency[0]
-  assert.strictEqual(service1Latency.p90, 90) // 0.09 * 1000
-  assert.strictEqual(service1Latency.p95, 95) // 0.095 * 1000
-  assert.strictEqual(service1Latency.p99, 99) // 0.099 * 1000
+  const service2Latency = metricService2.dataLatency[0]
+  assert.strictEqual(service2Latency.p90, 0.607875)
+  assert.strictEqual(service2Latency.p95, 0.607875)
+  assert.strictEqual(service2Latency.p99, 0.607875)
 
-  const service1Req = fastify.mappedMetrics[1234].services['service-1'].dataReq[0]
-  assert.ok(service1Req.count >= 0)
+  const service1Req = metricService1.dataReq[0]
+  assert.strictEqual(service1Req.count, 1)
+  assert.strictEqual(service1Req.rps, 1)
 
-  const aggregatedMem = fastify.mappedMetrics[1234].aggregated.dataMem[0]
-  assert.strictEqual(aggregatedMem.rss, 1.00)
-  assert.strictEqual(aggregatedMem.totalHeap, 2.00)
-  assert.strictEqual(aggregatedMem.usedHeap, 1.00)
-  assert.strictEqual(aggregatedMem.newSpace, 0.50)
-  assert.strictEqual(aggregatedMem.oldSpace, 1.00)
+  const service2Req = metricService2.dataReq[0]
+  assert.strictEqual(service2Req.count, 2)
+  assert.strictEqual(service2Req.rps, 2)
 
-  assert.ok(fastify.mappedMetrics[1234].services['service-1'].dataMem.length <= 20)
-  assert.ok(fastify.mappedMetrics[1234].services['service-1'].dataCpu.length <= 20)
-  assert.ok(fastify.mappedMetrics[1234].services['service-1'].dataLatency.length <= 20)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataMem.length <= 20)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataCpu.length <= 20)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataLatency.length <= 20)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataReq.length <= 20)
+  const aggregatedMem = mockedMetrics.aggregated.dataMem[0]
+  assert.strictEqual(aggregatedMem.rss, 520.66)
+  assert.strictEqual(aggregatedMem.totalHeap, 650.3199999999999)
+  assert.strictEqual(aggregatedMem.usedHeap, 405.73)
+  assert.strictEqual(aggregatedMem.newSpace, 27.860000000000003)
+  assert.strictEqual(aggregatedMem.oldSpace, 285.08)
+
+  const aggregatedReq = mockedMetrics.aggregated.dataReq[0]
+  assert.strictEqual(aggregatedReq.count, 5)
+  assert.strictEqual(aggregatedReq.rps, 5)
+
+  assert.ok(metricService1.dataMem.length <= 20)
+  assert.ok(metricService1.dataCpu.length <= 20)
+  assert.ok(metricService1.dataLatency.length <= 20)
+  assert.ok(mockedMetrics.aggregated.dataMem.length <= 20)
+  assert.ok(mockedMetrics.aggregated.dataCpu.length <= 20)
+  assert.ok(mockedMetrics.aggregated.dataLatency.length <= 20)
+  assert.ok(mockedMetrics.aggregated.dataReq.length <= 20)
 })
 
 test('calculateMetrics handles empty metrics correctly', async () => {
@@ -128,7 +120,7 @@ test('calculateMetrics handles empty metrics correctly', async () => {
   await calculateEmptyMetrics(fastify)
 
   assert.ok(fastify.mappedMetrics[1234])
-  const service1Metrics = fastify.mappedMetrics[1234].services['service-1']
+  const service1Metrics = fastify.mappedMetrics[1234].services['type1']
 
   assert.strictEqual(service1Metrics.dataMem[0].rss, 0)
   assert.strictEqual(service1Metrics.dataMem[0].totalHeap, 0)
@@ -140,7 +132,7 @@ test('calculateMetrics handles empty metrics correctly', async () => {
 test('calculateMetrics handles missing services', async () => {
   class NoServicesMockClient extends RuntimeApiClient {
     async getRuntimeServices () {
-      return { services: [] }
+      return { production: false, services: [], entrypoint: '' }
     }
   }
 
