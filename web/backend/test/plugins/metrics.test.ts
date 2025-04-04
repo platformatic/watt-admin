@@ -55,5 +55,10 @@ test('metrics with runtime', async (t) => {
   assert.ok('dataMem' in response)
   assert.ok('dataReq' in response)
 
-  assert.equal(metrics.dataMem[0].rss, response.dataMem[0].rss)
+  const composer = await server.inject({
+    url: `/runtimes/${pid}/metrics/composer`
+  })
+  const composerData = composer.json()
+  assert.equal(metrics.dataMem[0].rss, composerData.dataMem[0].rss, 'RSS metrics of the entrypoint')
+  assert.notEqual(metrics.dataMem[0].rss, response.dataMem[0].rss, 'RSS metrics of a generic service')
 })

@@ -56,14 +56,14 @@ test('calculateMetrics collects and aggregates metrics correctly', async () => {
 
   const service1Mem = metricService1.dataMem[0]
   assert.strictEqual(service1Mem.rss, 520.66)
-  assert.strictEqual(service1Mem.totalHeap, 33.92)
-  assert.strictEqual(service1Mem.usedHeap, 17.29)
-  assert.strictEqual(service1Mem.newSpace, 2.46)
-  assert.strictEqual(service1Mem.oldSpace, 11.38)
+  assert.strictEqual(service1Mem.totalHeap, 68.09)
+  assert.strictEqual(service1Mem.usedHeap, 35.26)
+  assert.strictEqual(service1Mem.newSpace, 5.42)
+  assert.strictEqual(service1Mem.oldSpace, 22.86)
 
   const service1Cpu = metricService1.dataCpu[0]
-  assert.strictEqual(service1Cpu.cpu, 0.25760680931397056)
-  assert.strictEqual(service1Cpu.eventLoop, 0.91912591661838)
+  assert.strictEqual(service1Cpu.cpu, 0.6113706617939665)
+  assert.strictEqual(service1Cpu.eventLoop, 2.0150545235133976)
 
   const service1Latency = metricService1.dataLatency[0]
   assert.strictEqual(service1Latency.p90, 0)
@@ -71,28 +71,37 @@ test('calculateMetrics collects and aggregates metrics correctly', async () => {
   assert.strictEqual(service1Latency.p99, 0)
 
   const service2Latency = metricService2.dataLatency[0]
-  assert.strictEqual(service2Latency.p90, 0.607875)
-  assert.strictEqual(service2Latency.p95, 0.607875)
-  assert.strictEqual(service2Latency.p99, 0.607875)
+  assert.strictEqual(service2Latency.p90, 0.731325)
+  assert.strictEqual(service2Latency.p95, 0.952985)
+  assert.strictEqual(service2Latency.p99, 1.061085)
 
   const service1Req = metricService1.dataReq[0]
   assert.strictEqual(service1Req.count, 1)
   assert.strictEqual(service1Req.rps, 1)
 
   const service2Req = metricService2.dataReq[0]
-  assert.strictEqual(service2Req.count, 2)
-  assert.strictEqual(service2Req.rps, 2)
+  assert.strictEqual(service2Req.count, 5)
+  assert.strictEqual(service2Req.rps, 5)
 
   const aggregatedMem = mockedMetrics.aggregated.dataMem[0]
   assert.strictEqual(aggregatedMem.rss, 520.66)
-  assert.strictEqual(aggregatedMem.totalHeap, 650.3199999999999)
-  assert.strictEqual(aggregatedMem.usedHeap, 405.73)
-  assert.strictEqual(aggregatedMem.newSpace, 27.860000000000003)
-  assert.strictEqual(aggregatedMem.oldSpace, 285.08)
+  assert.strictEqual(aggregatedMem.totalHeap, 898.05)
+  assert.strictEqual(aggregatedMem.usedHeap, 569.9100000000001)
+  assert.strictEqual(aggregatedMem.newSpace, 34.42)
+  assert.strictEqual(aggregatedMem.oldSpace, 402.32)
 
   const aggregatedReq = mockedMetrics.aggregated.dataReq[0]
   assert.strictEqual(aggregatedReq.count, 5)
   assert.strictEqual(aggregatedReq.rps, 5)
+
+  const aggregatedCpu = mockedMetrics.aggregated.dataCpu[0]
+  assert.strictEqual(aggregatedCpu.cpu, 10.32570334682594)
+  assert.strictEqual(aggregatedCpu.eventLoop, 44.79003071417996)
+
+  const aggregatedLatency = mockedMetrics.aggregated.dataLatency[0]
+  assert.strictEqual(aggregatedLatency.p90, 3.2)
+  assert.strictEqual(aggregatedLatency.p95, 4.5)
+  assert.strictEqual(aggregatedLatency.p99, 5.6)
 
   assert.ok(metricService1.dataMem.length <= 20)
   assert.ok(metricService1.dataCpu.length <= 20)

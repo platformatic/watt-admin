@@ -2397,7 +2397,7 @@ export const metricFixtures: Metric[] = [
           status_code: 404,
           serviceId: 'composer'
         },
-        value: 0
+        value: 0.0032
       },
       {
         labels: {
@@ -2407,7 +2407,7 @@ export const metricFixtures: Metric[] = [
           status_code: 404,
           serviceId: 'composer'
         },
-        value: 0
+        value: 0.0045
       },
       {
         labels: {
@@ -2417,7 +2417,7 @@ export const metricFixtures: Metric[] = [
           status_code: 404,
           serviceId: 'composer'
         },
-        value: 0
+        value: 0.0056
       },
       {
         labels: {
@@ -13580,7 +13580,7 @@ export const metricFixtures: Metric[] = [
           serviceId: 'type4',
           workerId: 1
         },
-        value: 0
+        value: 0.00012345
       },
       {
         labels: {
@@ -13591,7 +13591,7 @@ export const metricFixtures: Metric[] = [
           serviceId: 'type4',
           workerId: 1
         },
-        value: 0
+        value: 0.00034511
       },
       {
         labels: {
@@ -13602,7 +13602,7 @@ export const metricFixtures: Metric[] = [
           serviceId: 'type4',
           workerId: 1
         },
-        value: 0
+        value: 0.00045321
       },
       {
         labels: {
