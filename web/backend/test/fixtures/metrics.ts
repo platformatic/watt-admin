@@ -1630,12 +1630,12 @@ export const metricFixtures: Metric[] = [
         }
       },
       {
-        value: 0,
+        value: 2,
         metricName: 'http_request_duration_seconds_count',
         labels: {
           method: 'GET',
           route: '/__empty_metrics',
-          status_code: 404,
+          status_code: 200,
           serviceId: 'composer'
         }
       },

@@ -91,8 +91,8 @@ test('calculateMetrics collects and aggregates metrics correctly', async () => {
   assert.strictEqual(aggregatedMem.oldSpace, 285.08)
 
   const aggregatedReq = mockedMetrics.aggregated.dataReq[0]
-  assert.strictEqual(aggregatedReq.count, 5)
-  assert.strictEqual(aggregatedReq.rps, 5)
+  assert.strictEqual(aggregatedReq.count, 7)
+  assert.strictEqual(aggregatedReq.rps, 7)
 
   assert.ok(metricService1.dataMem.length <= 20)
   assert.ok(metricService1.dataCpu.length <= 20)

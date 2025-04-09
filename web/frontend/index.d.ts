@@ -3,7 +3,7 @@ declare module '*.module.css' {
   export default classes
 }
 
-// FIXME: add following types directly on the `@platformatic/ui-components` package
+// FIXME: wait for newer version of `@platformatic/ui-components` package to remove following types definition
 declare module '@platformatic/ui-components' {
   import { ComponentType } from 'react'
 

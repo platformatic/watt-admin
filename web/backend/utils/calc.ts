@@ -182,9 +182,11 @@ export const calculateMetrics = async ({ mappedMetrics, log }: FastifyInstance):
               }
 
               if (metric.name === 'http_request_duration_seconds') {
+                const alreadyIteratedRoutes: Record<string, boolean> = {}
                 const count = metric.values.reduce((acc, { metricName, value, labels }) => {
-                  const lastRouteChar = labels.route?.slice(-1)
-                  if (metricName === 'http_request_duration_seconds_count' && lastRouteChar !== '/') {
+                  const routeLabel = labels.route || ''
+                  const cleanRouteLabel = routeLabel?.endsWith('/') ? routeLabel.slice(0, -1) : routeLabel
+                  if (metricName === 'http_request_duration_seconds_count' && !alreadyIteratedRoutes[cleanRouteLabel]) {
                     /*
                       TODO: The check above is to avoid duplicated data returned from `@platformatic/control`. For instance, we may received values like:
 
@@ -215,6 +217,7 @@ export const calculateMetrics = async ({ mappedMetrics, log }: FastifyInstance):
                         Evaluate if this approach is correct (on `@platformatic/control`) and update this code accordingly in case of an update from the lib itself.
                      */
                     acc += value
+                    alreadyIteratedRoutes[cleanRouteLabel] = true
                   }
                   return acc
                 }, 0)

@@ -36,7 +36,7 @@
     "eslint": "^9.22.0",
     "typescript": "^5.5.4",
     "neostandard": "^0.12.1",
-    "@platformatic/ui-components": "^0.13.1",
+    "@platformatic/ui-components": "^0.13.5",
     "@types/d3": "^7.4.3",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.3",
