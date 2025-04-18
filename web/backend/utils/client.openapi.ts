@@ -3,7 +3,7 @@ import { buildServer } from '@platformatic/service'
 
 async function clientOpenapi () {
   const server = await buildServer({
-    $schema: 'https://schemas.platformatic.dev/@platformatic/service/2.57.0.json',
+    $schema: 'https://schemas.platformatic.dev/@platformatic/service/2.60.0.json',
     service: {
       openapi: true
     },

@@ -133,6 +133,35 @@ const _getRuntimesPidMetricsServiceId = async (url: string, request: Types.GetRu
 export const getRuntimesPidMetricsServiceId: Backend['getRuntimesPidMetricsServiceId'] = async (request: Types.GetRuntimesPidMetricsServiceIdRequest): Promise<Types.GetRuntimesPidMetricsServiceIdResponses> => {
   return await _getRuntimesPidMetricsServiceId(baseUrl, request)
 }
+const _getRuntimesPidMetricsServiceIdWorkerId = async (url: string, request: Types.GetRuntimesPidMetricsServiceIdWorkerIdRequest): Promise<Types.GetRuntimesPidMetricsServiceIdWorkerIdResponses> => {
+  const headers: HeadersInit = {
+    ...defaultHeaders
+  }
+
+  const response = await fetch(`${url}/runtimes/${request.path['pid']}/metrics/${request.path['serviceId']}/${request.path['workerId']}`, {
+    headers,
+    ...defaultFetchParams
+  })
+
+  const jsonResponses = [200]
+  if (jsonResponses.includes(response.status)) {
+    return {
+      statusCode: response.status as 200,
+      headers: headersToJSON(response.headers),
+      body: await response.json()
+    }
+  }
+  const responseType = response.headers.get('content-type')?.startsWith('application/json') ? 'json' : 'text'
+  return {
+    statusCode: response.status as 200,
+    headers: headersToJSON(response.headers),
+    body: await response[responseType]()
+  }
+}
+
+export const getRuntimesPidMetricsServiceIdWorkerId: Backend['getRuntimesPidMetricsServiceIdWorkerId'] = async (request: Types.GetRuntimesPidMetricsServiceIdWorkerIdRequest): Promise<Types.GetRuntimesPidMetricsServiceIdWorkerIdResponses> => {
+  return await _getRuntimesPidMetricsServiceIdWorkerId(baseUrl, request)
+}
 const _getRuntimesPidServices = async (url: string, request: Types.GetRuntimesPidServicesRequest): Promise<Types.GetRuntimesPidServicesResponses> => {
   const headers: HeadersInit = {
     ...defaultHeaders
@@ -266,6 +295,7 @@ export default function build (url: string, options?: BuildOptions) {
     getRuntimes: _getRuntimes.bind(url, ...arguments),
     getRuntimesPidMetrics: _getRuntimesPidMetrics.bind(url, ...arguments),
     getRuntimesPidMetricsServiceId: _getRuntimesPidMetricsServiceId.bind(url, ...arguments),
+    getRuntimesPidMetricsServiceIdWorkerId: _getRuntimesPidMetricsServiceIdWorkerId.bind(url, ...arguments),
     getRuntimesPidServices: _getRuntimesPidServices.bind(url, ...arguments),
     getRuntimesPidLogs: _getRuntimesPidLogs.bind(url, ...arguments),
     getRuntimesPidOpenapiServiceId: _getRuntimesPidOpenapiServiceId.bind(url, ...arguments),

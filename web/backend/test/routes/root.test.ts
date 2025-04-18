@@ -19,6 +19,8 @@ test('no runtime running', async (t) => {
 })
 
 test('runtime is running', async (t) => {
+  const emptyMetrics = { dataCpu: [], dataLatency: [], dataMem: [], dataReq: [] }
+
   await startWatt(t)
   const server = await getServer(t)
   const res = await server.inject({
@@ -34,7 +36,7 @@ test('runtime is running', async (t) => {
     url: `/runtimes/${runtimePid}/metrics`
   })
   assert.strictEqual(metricsEmpty.statusCode, 200, 'metrics endpoint')
-  assert.deepEqual(metricsEmpty.json(), { dataCpu: [], dataLatency: [], dataMem: [], dataReq: [] }, 'metrics result is empty')
+  assert.deepEqual(metricsEmpty.json(), emptyMetrics, 'metrics result is empty')
 
   const services = await server.inject({
     url: `/runtimes/${runtimePid}/services`
@@ -61,13 +63,19 @@ test('runtime is running', async (t) => {
     url: `/runtimes/${runtimePid}/metrics/backend`
   })
   assert.strictEqual(serviceMetrics.statusCode, 200, 'service metrics endpoint')
-  assert.notDeepEqual(serviceMetrics.json(), [], 'service metrics are not empty for a valid service name')
+  assert.notDeepEqual(serviceMetrics.json(), emptyMetrics, 'service metrics are not empty for a valid service name')
 
   const serviceMetricsEmpty = await server.inject({
     url: `/runtimes/${runtimePid}/metrics/fantozzi`
   })
   assert.strictEqual(serviceMetricsEmpty.statusCode, 200, 'service metrics endpoint')
-  assert.deepEqual(serviceMetricsEmpty.json(), { dataCpu: [], dataLatency: [], dataMem: [], dataReq: [] }, 'service metrics are empty for an invalid service name')
+  assert.deepEqual(serviceMetricsEmpty.json(), emptyMetrics, 'service metrics are empty for an invalid service name')
+
+  const workerMetricsEmpty = await server.inject({
+    url: `/runtimes/${runtimePid}/metrics/backend/42`
+  })
+  assert.strictEqual(workerMetricsEmpty.statusCode, 200, 'worker metrics endpoint')
+  assert.deepEqual(workerMetricsEmpty.json(), emptyMetrics, 'worker metrics are empty for a non existent worker id')
 
   const serviceOpenapi = await server.inject({
     url: `/runtimes/${runtimePid}/openapi/backend`

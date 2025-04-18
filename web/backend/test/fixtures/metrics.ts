@@ -2397,7 +2397,7 @@ export const metricFixtures: Metric[] = [
           status_code: 404,
           serviceId: 'composer'
         },
-        value: 0
+        value: 0.0032
       },
       {
         labels: {
@@ -2407,7 +2407,7 @@ export const metricFixtures: Metric[] = [
           status_code: 404,
           serviceId: 'composer'
         },
-        value: 0
+        value: 0.0045
       },
       {
         labels: {
@@ -2417,7 +2417,7 @@ export const metricFixtures: Metric[] = [
           status_code: 404,
           serviceId: 'composer'
         },
-        value: 0
+        value: 0.0056
       },
       {
         labels: {
@@ -10189,7 +10189,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type1'
         },
-        value: 0
+        value: 0.5433
       },
       {
         labels: {
@@ -10199,7 +10199,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type1'
         },
-        value: 0
+        value: 0.8324
       },
       {
         labels: {
@@ -10209,7 +10209,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type1'
         },
-        value: 0
+        value: 0.4312
       },
       {
         labels: {
@@ -12219,7 +12219,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.0012345678
       },
       {
         labels: {
@@ -12229,7 +12229,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.0023456789
       },
       {
         labels: {
@@ -12239,7 +12239,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.00456789
       },
       {
         labels: {
@@ -12249,7 +12249,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.0098765
       },
       {
         labels: {
@@ -12259,7 +12259,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.00045678
       },
       {
         labels: {
@@ -12269,7 +12269,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.0003216
       },
       {
         labels: {
@@ -12279,7 +12279,7 @@ export const metricFixtures: Metric[] = [
           telemetry_id: 'unknown',
           serviceId: 'type4'
         },
-        value: 0.000607875
+        value: 0.0004578
       },
       {
         metricName: 'http_request_all_summary_seconds_sum',
@@ -13580,7 +13580,7 @@ export const metricFixtures: Metric[] = [
           serviceId: 'type4',
           workerId: 1
         },
-        value: 0
+        value: 0.00012345
       },
       {
         labels: {
@@ -13591,7 +13591,7 @@ export const metricFixtures: Metric[] = [
           serviceId: 'type4',
           workerId: 1
         },
-        value: 0
+        value: 0.00034511
       },
       {
         labels: {
@@ -13602,7 +13602,7 @@ export const metricFixtures: Metric[] = [
           serviceId: 'type4',
           workerId: 1
         },
-        value: 0
+        value: 0.00045321
       },
       {
         labels: {

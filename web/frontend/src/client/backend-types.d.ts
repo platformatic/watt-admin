@@ -44,6 +44,21 @@ export type GetRuntimesPidMetricsServiceIdResponseOK = { 'dataMem': Array<{ 'dat
 export type GetRuntimesPidMetricsServiceIdResponses =
   FullResponse<GetRuntimesPidMetricsServiceIdResponseOK, 200>
 
+export type GetRuntimesPidMetricsServiceIdWorkerIdRequest = {
+  path: {
+    'pid': number;
+    'serviceId': string;
+    'workerId': number;
+  }
+}
+
+/**
+ * Default Response
+ */
+export type GetRuntimesPidMetricsServiceIdWorkerIdResponseOK = { 'dataMem': Array<{ 'date': string; 'rss': number; 'totalHeap': number; 'usedHeap': number; 'newSpace': number; 'oldSpace': number }>; 'dataCpu': Array<{ 'date': string; 'cpu': number; 'eventLoop': number }>; 'dataLatency': Array<{ 'date': string; 'p90': number; 'p95': number; 'p99': number }>; 'dataReq': Array<{ 'date': string; 'count': number; 'rps': number }> }
+export type GetRuntimesPidMetricsServiceIdWorkerIdResponses =
+  FullResponse<GetRuntimesPidMetricsServiceIdWorkerIdResponseOK, 200>
+
 export type GetRuntimesPidServicesRequest = {
   path: {
     'pid': number;
@@ -111,6 +126,11 @@ export interface Backend {
    * @returns the API response
    */
   getRuntimesPidMetricsServiceId(req: GetRuntimesPidMetricsServiceIdRequest): Promise<GetRuntimesPidMetricsServiceIdResponses>;
+  /**
+   * @param req - request parameters object
+   * @returns the API response
+   */
+  getRuntimesPidMetricsServiceIdWorkerId(req: GetRuntimesPidMetricsServiceIdWorkerIdRequest): Promise<GetRuntimesPidMetricsServiceIdWorkerIdResponses>;
   /**
    * @param req - request parameters object
    * @returns the API response

@@ -4,6 +4,7 @@ const dateSchema = { type: 'string', format: 'date-time' } as const
 
 const memoryDataPointSchema = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     date: dateSchema,
     rss: { type: 'number' },
@@ -18,6 +19,7 @@ export type MemoryDataPoint = FromSchema<typeof memoryDataPointSchema>
 
 const cpuDataPointSchema = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     date: dateSchema,
     cpu: { type: 'number' },
@@ -29,6 +31,7 @@ export type CpuDataPoint = FromSchema<typeof cpuDataPointSchema>
 
 const latencyDataPointSchema = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     date: { type: 'string', format: 'date-time' },
     p90: { type: 'number' },
@@ -41,6 +44,7 @@ export type LatencyDataPoint = FromSchema<typeof latencyDataPointSchema>
 
 const requestDataPointSchema = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     date: { type: 'string', format: 'date-time' },
     count: { type: 'number' },
@@ -52,6 +56,7 @@ export type RequestDataPoint = FromSchema<typeof requestDataPointSchema>
 
 export const metricResponseSchema = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     dataMem: { type: 'array', items: memoryDataPointSchema },
     dataCpu: { type: 'array', items: cpuDataPointSchema },
@@ -64,6 +69,7 @@ export type MetricsResponse = FromSchema<typeof metricResponseSchema>
 
 export const selectableRuntimeSchema = {
   type: 'object',
+  additionalProperties: false,
   properties: {
     pid: {
       type: 'integer'
