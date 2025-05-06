@@ -1,8 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import { RuntimeApiClient } from '@platformatic/control'
-import { getLogsFromReadable } from '../utils/log'
-import { metricResponseSchema, SelectableRuntime, selectableRuntimeSchema } from '../schemas'
+import { metricResponseSchema, PidParam, pidParamSchema, SelectableRuntime, selectableRuntimeSchema } from '../schemas'
 
 export default async function (fastify: FastifyInstance) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
@@ -42,7 +41,7 @@ export default async function (fastify: FastifyInstance) {
 
   typedFastify.get('/runtimes/:pid/health', {
     schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
+      params: pidParamSchema,
       response: {
         200: {
           type: 'object',
@@ -71,10 +70,7 @@ export default async function (fastify: FastifyInstance) {
   })
 
   typedFastify.get('/runtimes/:pid/metrics', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
-      response: { 200: metricResponseSchema }
-    },
+    schema: { params: pidParamSchema, response: { 200: metricResponseSchema } },
   }, async ({ params: { pid } }) => {
     return typedFastify.mappedMetrics[pid]?.aggregated || emptyMetrics
   })
@@ -114,7 +110,7 @@ export default async function (fastify: FastifyInstance) {
 
   typedFastify.get('/runtimes/:pid/services', {
     schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
+      params: pidParamSchema,
       response: {
         200: {
           type: 'object',
@@ -202,12 +198,59 @@ export default async function (fastify: FastifyInstance) {
     return api.getRuntimeServices(request.params.pid)
   })
 
-  typedFastify.get('/runtimes/:pid/logs', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] }
-    }
-  }, async ({ params: { pid }, log }) =>
-    getLogsFromReadable(await api.getRuntimeAllLogsStream(pid), log))
+  // const logStream: Record<number, BodyReadable> = {}
+  // typedFastify.get<{ Params: PidParam }>('/runtimes/:pid/logs/ws', {
+  typedFastify.get<{ Params: PidParam }>('/ws', {
+    schema: { params: pidParamSchema },
+    websocket: true
+  // }, async (socket, { params: { pid } }) => {
+  }, async (socket) => {
+    // try {
+
+    // FIXME: remove this test logic (that is exactly the same as on `/test.ts`)
+    const interval = setInterval(() => {
+      const message = `Current time: ${new Date().toISOString()}`
+      socket.send(message)
+    }, 1000)
+
+    socket.on('close', () => {
+      clearInterval(interval)
+    })
+
+    //   socket.on('close', () => {
+    //     logStream[pid].destroy()
+    //     delete logStream[pid]
+    //   })
+
+    //   logStream[pid].on('data', (chunk) => {
+    //     fastify.log.info({ chunk }, 'Incoming log stream data chunk')
+    //     socket.send(chunk.toString())
+    //   })
+
+    //   logStream[pid].on('error', (err) => {
+    //     fastify.log.error({ err }, 'Error during log stream')
+    //     if (socket.readyState === WebSocket.OPEN) {
+    //       socket.send(JSON.stringify({ error: err.message }))
+    //       socket.close()
+    //     }
+    //     delete logStream[pid]
+    //   })
+
+    //   logStream[pid].on('end', () => {
+    //     if (socket.readyState === WebSocket.OPEN) {
+    //       socket.close()
+    //       delete logStream[pid]
+    //     }
+    //   })
+    // } catch (err) {
+    //   fastify.log.error({ err }, 'Fatal error caught on log stream')
+    //   if (socket.readyState === WebSocket.OPEN) {
+    //     socket.send(JSON.stringify({ error: 'Failed to get log stream' }))
+    //     socket.close()
+    //     delete logStream[pid]
+    //   }
+    // }
+  })
 
   typedFastify.get('/runtimes/:pid/openapi/:serviceId', {
     schema: {
@@ -218,10 +261,7 @@ export default async function (fastify: FastifyInstance) {
   })
 
   typedFastify.post('/runtimes/:pid/restart', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
-      body: { type: 'object' }
-    }
+    schema: { params: pidParamSchema, body: { type: 'object' } }
   }, async (request) => {
     try {
       await api.restartRuntime(request.params.pid)

@@ -722,7 +722,7 @@
         }
       }
     },
-    "/runtimes/{pid}/logs": {
+    "/ws": {
       "get": {
         "parameters": [
           {

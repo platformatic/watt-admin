@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useInterval } from '../../hooks/useInterval'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import useWebSocket from 'react-use-websocket'
 import { RICH_BLACK, WHITE, TRANSPARENT, MARGIN_0, OPACITY_15 } from '@platformatic/ui-components/src/components/constants'
 import styles from './AppLogs.module.css'
 import typographyStyles from '../../styles/Typography.module.css'
@@ -16,12 +16,10 @@ import {
   DIRECTION_STILL,
   DIRECTION_TAIL,
   STATUS_PAUSED_LOGS,
-  STATUS_RESUMED_LOGS,
-  REFRESH_INTERVAL_LOGS
+  STATUS_RESUMED_LOGS
 } from '../../ui-constants'
 import LogFilterSelector from './LogFilterSelector'
 import useAdminStore from '../../useAdminStore'
-import { getLogs } from '../../api'
 
 interface AppLogsProps {
   filteredServices: string[];
@@ -50,6 +48,53 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   const [statusPausedLogs, setStatusPausedLogs] = useState('')
   const [filteredLogsLengthAtPause, setFilteredLogsLengthAtPause] = useState(0)
   const [error, setError] = useState<unknown>(undefined)
+  const [isPaused, setIsPaused] = useState(false)
+
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const wsUrl = `${protocol}//${window.location.host}/runtimes/${runtimePid}/logs/ws`
+
+  const handleMessage = useCallback((event: MessageEvent) => {
+    console.log('the event', event)
+    try {
+      let logEntry: LogEntry
+      try {
+        logEntry = JSON.parse(event.data)
+      } catch (e) {
+        logEntry = {
+          level: 30,
+          time: new Date().toISOString(),
+          name: 'unknown',
+          msg: event.data
+        }
+      }
+
+      if (!isPaused) {
+        setApplicationLogs(prevLogs => [...prevLogs, logEntry])
+      }
+    } catch (err) {
+      console.error('Error processing log message:', err)
+    }
+  }, [isPaused])
+
+  useWebSocket(wsUrl, {
+    onOpen: () => {
+      console.log('WebSocket connected')
+      setLoading(false)
+      setError(undefined)
+    },
+    onMessage: handleMessage,
+    onError: (event) => {
+      console.error('WebSocket error:', event)
+      setError(new Error('Failed to connect to log stream'))
+      setLoading(false)
+    },
+    onClose: () => {
+      console.log('WebSocket disconnected')
+    },
+    shouldReconnect: () => !!runtimePid,
+    reconnectAttempts: 10,
+    reconnectInterval: 3000
+  })
 
   useEffect(() => {
     if (logContentRef.current && scrollDirection === DIRECTION_TAIL && filteredLogs.length > 0) {
@@ -71,13 +116,11 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
     if (statusPausedLogs) {
       switch (statusPausedLogs) {
         case STATUS_PAUSED_LOGS:
-          // callApiPauseLogs()
-          console.log('pause TODO')
+          setIsPaused(true)
           break
 
         case STATUS_RESUMED_LOGS:
-          console.log('resume TODO')
-          // callApiResumeLogs()
+          setIsPaused(false)
           break
 
         default:
@@ -113,28 +156,17 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
     filteredServices
   ])
 
-  const getData = async (): Promise<void> => {
-    try {
-      if (runtimePid) {
-        const logs = await getLogs(runtimePid)
-        setApplicationLogs(logs)
-        setError(undefined)
-      }
-    } catch (error) {
-      setError(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useInterval(() => { getData() }, REFRESH_INTERVAL_LOGS)
-  useEffect(() => { getData() }, [runtimePid])
-
   useEffect(() => {
     if (scrollDirection !== DIRECTION_TAIL && filteredLogsLengthAtPause > 0 && filteredLogsLengthAtPause < filteredLogs.length) {
       setDisplayGoToBottom(true)
     }
   }, [scrollDirection, filteredLogs.length, filteredLogsLengthAtPause])
+
+  useEffect(() => {
+    setApplicationLogs([])
+    setFilteredLogs([])
+    setLoading(true)
+  }, [runtimePid])
 
   function resumeScrolling (): void {
     setScrollDirection(DIRECTION_TAIL)
@@ -145,7 +177,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   function saveLogs (): void {
     let fileData = ''
     applicationLogs.forEach(log => {
-      fileData += `${log}
+      fileData += `${JSON.stringify(log, null, 2)}
 `
     })
 
@@ -187,6 +219,12 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
       setScrollDirection(DIRECTION_UP)
     }
     setLastScrollTop(st <= 0 ? 0 : st)
+  }
+
+  // Clear logs button
+  function clearLogs (): void {
+    setApplicationLogs([])
+    setFilteredLogs([])
   }
 
   if (error) {
@@ -234,6 +272,24 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
                   color={WHITE}
                   backgroundColor={TRANSPARENT}
                   selected={displayLog === RAW}
+                  textClass={typographyStyles.desktopButtonSmall}
+                />
+                <Button
+                  type='button'
+                  paddingClass={commonStyles.smallButtonPadding}
+                  label={isPaused ? 'Resume' : 'Pause'}
+                  onClick={() => setIsPaused(!isPaused)}
+                  color={WHITE}
+                  backgroundColor={TRANSPARENT}
+                  textClass={typographyStyles.desktopButtonSmall}
+                />
+                <Button
+                  type='button'
+                  paddingClass={commonStyles.smallButtonPadding}
+                  label='Clear'
+                  onClick={clearLogs}
+                  color={WHITE}
+                  backgroundColor={TRANSPARENT}
                   textClass={typographyStyles.desktopButtonSmall}
                 />
               </div>
