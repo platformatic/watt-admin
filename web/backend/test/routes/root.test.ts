@@ -1,7 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert'
 import { getServer, startWatt, loadMetrics } from '../helper'
-import type { Log } from '../../utils/log'
 
 test('no runtime running', async (t) => {
   const server = await getServer(t)
@@ -119,27 +118,49 @@ test('runtime is running', async (t) => {
   assert.strictEqual(serviceInvalidOpenapi.statusCode, 500, 'service OpenAPI endpoint')
   assert.strictEqual(typeof serviceInvalidOpenapi.json().code, 'string')
 
-  const logs = await server.inject({
-    url: `/runtimes/${runtimePid}/logs`
-  })
-  assert.strictEqual(logs.statusCode, 200)
-
-  const result = logs.json<Log[]>()
-  assert.ok(result.some(({ msg }) => msg.includes('Starting the service')))
-  assert.ok(result.some(({ msg }) => msg.includes('Started the service')))
-  assert.ok(result.some(({ msg }) => msg.includes('Server listening at')))
-  assert.ok(result.some(({ msg }) => msg.includes('Platformatic is now listening')))
-
-  const [{ level, time, pid, hostname }] = result
-  assert.ok(typeof level, 'number')
-  assert.ok(typeof time, 'number')
-  assert.ok(typeof pid, 'number')
-  assert.ok(typeof hostname, 'string')
-
   const restart = await server.inject({
     method: 'POST',
-    url: `/runtimes/${pid}/restart`,
+    url: `/runtimes/${runtimePid}/restart`,
     body: {}
   })
   assert.strictEqual(restart.statusCode, 200, 'check for restart endpoint')
+})
+
+test('runtime logs websocket', async (t) => {
+  const port = await startWatt(t)
+  const server = await getServer(t)
+
+  const res = await server.inject({
+    url: '/runtimes?includeAdmin=true'
+  })
+  assert.strictEqual(res.statusCode, 200, 'runtimes endpoint')
+  const [runtime] = res.json()
+  const runtimePid = runtime.pid
+
+  const WebSocket = require('ws')
+  const ws = new WebSocket(`ws://localhost:${port}/runtimes/${runtimePid}/logs/ws`)
+
+  await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error('WebSocket connection timed out'))
+    }, 3000)
+
+    ws.on('open', () => {
+      clearTimeout(timeout)
+
+      setTimeout(() => {
+        ws.close()
+        resolve(null)
+      }, 1000)
+    })
+
+    ws.on('error', (err: unknown) => {
+      clearTimeout(timeout)
+      reject(err)
+    })
+
+    ws.on('message', (data: string) => {
+      assert.ok(data, 'Received log message from websocket')
+    })
+  })
 })

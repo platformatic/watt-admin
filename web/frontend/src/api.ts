@@ -1,8 +1,7 @@
 import { getRuntimes, getRuntimesPidHealth, getRuntimesPidMetrics, getRuntimesPidMetricsServiceId, getRuntimesPidMetricsServiceIdWorkerId, getRuntimesPidServices, postRuntimesPidRestart, setBaseUrl } from './client/backend'
 import { subtractSecondsFromDate } from './utilities/dates'
 
-const host = '/api'
-setBaseUrl(host)
+setBaseUrl('/api')
 
 export const getApiApplication = async () => {
   const { body } = await getRuntimes({ query: { includeAdmin: false } })
@@ -32,12 +31,6 @@ export const isWattpmVersionOutdated = async (currentVersion?: string) => {
 export const getServices = async (pid: number) => {
   const { body } = await getRuntimesPidServices({ path: { pid } })
   return body?.services
-}
-
-export const getLogs = async (id: number) => {
-  const result = await fetch(`${host}/runtimes/${id}/logs`)
-  const data = await result.json()
-  return data
 }
 
 export const getServiceHealth = async (pid: number) => {

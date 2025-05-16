@@ -60,7 +60,7 @@ export async function startWatt (t: TestContext): Promise<string> {
       const input = data.toString()
       if (input.includes('Platformatic is now listening at ')) {
         removeListeners()
-        resolve(input)
+        resolve(input.match(/http:\/\/[^:]+:(\d+)/)?.[1] || '0')
       }
     }
 

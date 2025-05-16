@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useInterval } from '../../hooks/useInterval'
+import useWebSocket from 'react-use-websocket'
 import { RICH_BLACK, WHITE, TRANSPARENT, MARGIN_0, OPACITY_15 } from '@platformatic/ui-components/src/components/constants'
 import styles from './AppLogs.module.css'
 import typographyStyles from '../../styles/Typography.module.css'
@@ -16,12 +16,10 @@ import {
   DIRECTION_STILL,
   DIRECTION_TAIL,
   STATUS_PAUSED_LOGS,
-  STATUS_RESUMED_LOGS,
-  REFRESH_INTERVAL_LOGS
+  STATUS_RESUMED_LOGS
 } from '../../ui-constants'
 import LogFilterSelector from './LogFilterSelector'
 import useAdminStore from '../../useAdminStore'
-import { getLogs } from '../../api'
 
 interface AppLogsProps {
   filteredServices: string[];
@@ -50,6 +48,48 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   const [statusPausedLogs, setStatusPausedLogs] = useState('')
   const [filteredLogsLengthAtPause, setFilteredLogsLengthAtPause] = useState(0)
   const [error, setError] = useState<unknown>(undefined)
+
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const wsUrl = `${protocol}//${window.location.host}/api/runtimes/${runtimePid}/logs/ws`
+
+  useWebSocket(wsUrl, {
+    onOpen: () => {
+      setLoading(false)
+      setError(undefined)
+    },
+    onMessage: (event: MessageEvent) => {
+      try {
+        let logEntry: LogEntry
+        try {
+          logEntry = JSON.parse(event.data)
+        } catch (e) {
+          logEntry = {
+            level: 30,
+            time: new Date().toISOString(),
+            name: 'unknown',
+            msg: event.data
+          }
+        }
+
+        setApplicationLogs(prevLogs => {
+          const newLogs = [...prevLogs, logEntry]
+          if (newLogs.length >= 100) {
+            newLogs.shift()
+          }
+          return newLogs
+        })
+      } catch (err) {
+        setError(err)
+      }
+    },
+    onError: (error) => {
+      setError(error)
+      setLoading(false)
+    },
+    shouldReconnect: () => typeof runtimePid !== 'number',
+    reconnectAttempts: 5,
+    reconnectInterval: 2000,
+  })
 
   useEffect(() => {
     if (logContentRef.current && scrollDirection === DIRECTION_TAIL && filteredLogs.length > 0) {
@@ -113,28 +153,17 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
     filteredServices
   ])
 
-  const getData = async (): Promise<void> => {
-    try {
-      if (runtimePid) {
-        const logs = await getLogs(runtimePid)
-        setApplicationLogs(logs)
-        setError(undefined)
-      }
-    } catch (error) {
-      setError(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useInterval(() => { getData() }, REFRESH_INTERVAL_LOGS)
-  useEffect(() => { getData() }, [runtimePid])
-
   useEffect(() => {
     if (scrollDirection !== DIRECTION_TAIL && filteredLogsLengthAtPause > 0 && filteredLogsLengthAtPause < filteredLogs.length) {
       setDisplayGoToBottom(true)
     }
   }, [scrollDirection, filteredLogs.length, filteredLogsLengthAtPause])
+
+  useEffect(() => {
+    setApplicationLogs([])
+    setFilteredLogs([])
+    setLoading(true)
+  }, [runtimePid])
 
   function resumeScrolling (): void {
     setScrollDirection(DIRECTION_TAIL)
@@ -145,7 +174,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   function saveLogs (): void {
     let fileData = ''
     applicationLogs.forEach(log => {
-      fileData += `${log}
+      fileData += `${JSON.stringify(log, null, 2)}
 `
     })
 
@@ -165,7 +194,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
 
   function renderLogs (): React.ReactNode {
     if (displayLog === PRETTY) {
-      return filteredLogs.map((log, index) => <Log key={`${index}-${filterLogsByLevel}`} log={log} onClickArrow={() => handlingClickArrow()} />)
+      return filteredLogs.map((log, index) => <Log key={index} log={log} onClickArrow={() => handlingClickArrow()} />)
     }
 
     return (
