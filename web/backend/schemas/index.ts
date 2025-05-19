@@ -67,6 +67,9 @@ export const metricResponseSchema = {
 } as const
 export type MetricsResponse = FromSchema<typeof metricResponseSchema>
 
+export const pidParamSchema = { type: 'object', additionalProperties: false, properties: { pid: { type: 'number' } }, required: ['pid'] } as const
+export type PidParam = FromSchema<typeof pidParamSchema>
+
 export const selectableRuntimeSchema = {
   type: 'object',
   additionalProperties: false,

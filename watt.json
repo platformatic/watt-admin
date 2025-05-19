@@ -8,6 +8,12 @@
     "level": "info"
   },
   "autoload": {
-    "path": "web"
+    "path": "web",
+    "mappings": {
+      "backend": {
+        "id": "backend",
+        "useHttp": true
+      }
+    }
   }
 }

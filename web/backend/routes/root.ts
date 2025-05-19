@@ -1,13 +1,11 @@
 import { FastifyInstance } from 'fastify'
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import { RuntimeApiClient } from '@platformatic/control'
-import { getLogsFromReadable } from '../utils/log'
-import { metricResponseSchema, SelectableRuntime, selectableRuntimeSchema } from '../schemas'
+import { pidParamSchema, SelectableRuntime, selectableRuntimeSchema } from '../schemas'
 
 export default async function (fastify: FastifyInstance) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
   const api = new RuntimeApiClient()
-  const emptyMetrics = { dataCpu: [], dataLatency: [], dataMem: [], dataReq: [] }
 
   typedFastify.get('/runtimes', {
     schema: {
@@ -42,7 +40,7 @@ export default async function (fastify: FastifyInstance) {
 
   typedFastify.get('/runtimes/:pid/health', {
     schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
+      params: pidParamSchema,
       response: {
         200: {
           type: 'object',
@@ -70,51 +68,9 @@ export default async function (fastify: FastifyInstance) {
     }
   })
 
-  typedFastify.get('/runtimes/:pid/metrics', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
-      response: { 200: metricResponseSchema }
-    },
-  }, async ({ params: { pid } }) => {
-    return typedFastify.mappedMetrics[pid]?.aggregated || emptyMetrics
-  })
-
-  typedFastify.get('/runtimes/:pid/metrics/:serviceId', {
-    schema: {
-      params: {
-        type: 'object',
-        properties: {
-          pid: { type: 'number' },
-          serviceId: { type: 'string' }
-        },
-        required: ['pid', 'serviceId']
-      },
-      response: { 200: metricResponseSchema }
-    }
-  }, async ({ params: { pid, serviceId } }) => {
-    return fastify.mappedMetrics[pid]?.services[serviceId]?.all || emptyMetrics
-  })
-
-  typedFastify.get('/runtimes/:pid/metrics/:serviceId/:workerId', {
-    schema: {
-      params: {
-        type: 'object',
-        properties: {
-          pid: { type: 'number' },
-          serviceId: { type: 'string' },
-          workerId: { type: 'number' },
-        },
-        required: ['pid', 'serviceId', 'workerId']
-      },
-      response: { 200: metricResponseSchema }
-    }
-  }, async ({ params: { pid, serviceId, workerId } }) => {
-    return fastify.mappedMetrics[pid]?.services[serviceId]?.[workerId] || emptyMetrics
-  })
-
   typedFastify.get('/runtimes/:pid/services', {
     schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
+      params: pidParamSchema,
       response: {
         200: {
           type: 'object',
@@ -202,13 +158,6 @@ export default async function (fastify: FastifyInstance) {
     return api.getRuntimeServices(request.params.pid)
   })
 
-  typedFastify.get('/runtimes/:pid/logs', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] }
-    }
-  }, async ({ params: { pid }, log }) =>
-    getLogsFromReadable(await api.getRuntimeAllLogsStream(pid), log))
-
   typedFastify.get('/runtimes/:pid/openapi/:serviceId', {
     schema: {
       params: { type: 'object', properties: { pid: { type: 'number' }, serviceId: { type: 'string' } }, required: ['pid', 'serviceId'] }
@@ -218,15 +167,11 @@ export default async function (fastify: FastifyInstance) {
   })
 
   typedFastify.post('/runtimes/:pid/restart', {
-    schema: {
-      params: { type: 'object', properties: { pid: { type: 'number' } }, required: ['pid'] },
-      body: { type: 'object' }
-    }
+    schema: { params: pidParamSchema, body: { type: 'object' } }
   }, async (request) => {
     try {
       await api.restartRuntime(request.params.pid)
     } catch (err) {
-      // TODO: restart is currently not working. Apparently, the call to `this.start()` on `@platformatic/runtime/lib/runtime.js` fails. Once it will be fixed, we can remove the catch and the warning log (and leave the function throw as it was before). Monitor this issue to check if it's fixed or not (https://github.com/platformatic/platformatic/issues/3928)
       fastify.log.warn({ err }, 'Issue restarting the runtime')
     }
   })

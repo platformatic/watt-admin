@@ -14,9 +14,6 @@ export const DIRECTION_STILL = 'still'
 export const DIRECTION_UP = 'up'
 export const DIRECTION_TAIL = 'tail'
 
-export const STATUS_PAUSED_LOGS = 'PAUSED'
-export const STATUS_RESUMED_LOGS = 'RESUMED'
-
 export const REFRESH_INTERVAL_METRICS = 2000
 export const REFRESH_INTERVAL_LOGS = 2000
 

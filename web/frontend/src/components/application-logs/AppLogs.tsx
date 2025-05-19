@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useInterval } from '../../hooks/useInterval'
+import useWebSocket from 'react-use-websocket'
 import { RICH_BLACK, WHITE, TRANSPARENT, MARGIN_0, OPACITY_15 } from '@platformatic/ui-components/src/components/constants'
 import styles from './AppLogs.module.css'
 import typographyStyles from '../../styles/Typography.module.css'
@@ -14,14 +14,10 @@ import {
   DIRECTION_UP,
   DIRECTION_DOWN,
   DIRECTION_STILL,
-  DIRECTION_TAIL,
-  STATUS_PAUSED_LOGS,
-  STATUS_RESUMED_LOGS,
-  REFRESH_INTERVAL_LOGS
+  DIRECTION_TAIL
 } from '../../ui-constants'
 import LogFilterSelector from './LogFilterSelector'
 import useAdminStore from '../../useAdminStore'
-import { getLogs } from '../../api'
 
 interface AppLogsProps {
   filteredServices: string[];
@@ -47,9 +43,50 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   const logContentRef = useRef<HTMLDivElement>(null)
   const [lastScrollTop, setLastScrollTop] = useState(0)
   const [displayGoToBottom, setDisplayGoToBottom] = useState(false)
-  const [statusPausedLogs, setStatusPausedLogs] = useState('')
   const [filteredLogsLengthAtPause, setFilteredLogsLengthAtPause] = useState(0)
   const [error, setError] = useState<unknown>(undefined)
+
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const wsUrl = `${protocol}//${window.location.host}/api/runtimes/${runtimePid}/logs/ws`
+
+  useWebSocket(wsUrl, {
+    onOpen: () => {
+      setLoading(false)
+      setError(undefined)
+    },
+    onMessage: (event: MessageEvent) => {
+      try {
+        let logEntry: LogEntry
+        try {
+          logEntry = JSON.parse(event.data)
+        } catch (e) {
+          logEntry = {
+            level: 30,
+            time: new Date().toISOString(),
+            name: 'unknown',
+            msg: event.data
+          }
+        }
+
+        setApplicationLogs(prevLogs => {
+          const newLogs = [...prevLogs, logEntry]
+          if (newLogs.length >= 100) {
+            newLogs.shift()
+          }
+          return newLogs
+        })
+      } catch (err) {
+        setError(err)
+      }
+    },
+    onError: (error) => {
+      setError(error)
+      setLoading(false)
+    },
+    shouldReconnect: () => typeof runtimePid !== 'number',
+    reconnectAttempts: 5,
+    reconnectInterval: 2000,
+  })
 
   useEffect(() => {
     if (logContentRef.current && scrollDirection === DIRECTION_TAIL && filteredLogs.length > 0) {
@@ -58,33 +95,11 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
         left: 0,
         behavior: 'smooth'
       })
-      if (statusPausedLogs === STATUS_PAUSED_LOGS) {
-        setStatusPausedLogs(STATUS_RESUMED_LOGS)
-      }
     }
     if (scrollDirection !== DIRECTION_TAIL) {
       setFilteredLogsLengthAtPause(filteredLogs.length)
     }
   }, [logContentRef, scrollDirection, filteredLogs])
-
-  useEffect(() => {
-    if (statusPausedLogs) {
-      switch (statusPausedLogs) {
-        case STATUS_PAUSED_LOGS:
-          // callApiPauseLogs()
-          console.log('pause TODO')
-          break
-
-        case STATUS_RESUMED_LOGS:
-          console.log('resume TODO')
-          // callApiResumeLogs()
-          break
-
-        default:
-          break
-      }
-    }
-  }, [statusPausedLogs])
 
   useEffect(() => {
     if (applicationLogs.length > 0) {
@@ -93,12 +108,12 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
         setFiltersInitialized(true)
         return
       }
-      if (filterLogsByLevel || filteredServices.length >= 0) {
+      if (filterLogsByLevel || filteredServices.length > 0) {
         let founds = [...applicationLogs]
         if (filterLogsByLevel) {
           founds = founds.filter(log => log.level >= filterLogsByLevel)
         }
-        if (filteredServices.length >= 0) {
+        if (filteredServices.length > 0) {
           founds = founds.filter(log => filteredServices.includes(log.name))
         }
         setFilteredLogs(founds)
@@ -113,28 +128,17 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
     filteredServices
   ])
 
-  const getData = async (): Promise<void> => {
-    try {
-      if (runtimePid) {
-        const logs = await getLogs(runtimePid)
-        setApplicationLogs(logs)
-        setError(undefined)
-      }
-    } catch (error) {
-      setError(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useInterval(() => { getData() }, REFRESH_INTERVAL_LOGS)
-  useEffect(() => { getData() }, [runtimePid])
-
   useEffect(() => {
     if (scrollDirection !== DIRECTION_TAIL && filteredLogsLengthAtPause > 0 && filteredLogsLengthAtPause < filteredLogs.length) {
       setDisplayGoToBottom(true)
     }
   }, [scrollDirection, filteredLogs.length, filteredLogsLengthAtPause])
+
+  useEffect(() => {
+    setApplicationLogs([])
+    setFilteredLogs([])
+    setLoading(true)
+  }, [runtimePid])
 
   function resumeScrolling (): void {
     setScrollDirection(DIRECTION_TAIL)
@@ -145,7 +149,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
   function saveLogs (): void {
     let fileData = ''
     applicationLogs.forEach(log => {
-      fileData += `${log}
+      fileData += `${JSON.stringify(log, null, 2)}
 `
     })
 
@@ -165,7 +169,7 @@ const AppLogs: React.FC<AppLogsProps> = ({ filteredServices }) => {
 
   function renderLogs (): React.ReactNode {
     if (displayLog === PRETTY) {
-      return filteredLogs.map((log, index) => <Log key={`${index}-${filterLogsByLevel}`} log={log} onClickArrow={() => handlingClickArrow()} />)
+      return filteredLogs.map((log, index) => <Log key={index} log={log} onClickArrow={() => handlingClickArrow()} />)
     }
 
     return (

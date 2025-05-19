@@ -179,35 +179,7 @@ export const calculateMetrics = async ({ mappedMetrics, log }: FastifyInstance):
                   const routeLabel = labels.route || ''
                   const cleanRouteLabel = routeLabel?.endsWith('/') ? routeLabel.slice(0, -1) : routeLabel
                   if (metricName === 'http_request_duration_seconds_count' && !alreadyIteratedRoutes[cleanRouteLabel]) {
-                    /*
-                      TODO: The check above is to avoid duplicated data returned from `@platformatic/control`. For instance, we may received values like:
-
-                        ...
-                        {
-                          "value": 56,
-                          "metricName": "http_request_duration_seconds_count",
-                          "labels": {
-                            "method": "GET",
-                            "route": "/typescript/",
-                            "status_code": 200,
-                            "telemetry_id": "unknown",
-                            "serviceId": "composer"
-                          }
-                        }, {
-                          "value": 56,
-                          "metricName": "http_request_duration_seconds_count",
-                          "labels": {
-                            "method": "GET",
-                            "route": "/typescript",
-                            "status_code": 200,
-                            "telemetry_id": "unknown",
-                            "serviceId": "composer"
-                          }
-                        }
-                        ...
-
-                        Evaluate if this approach is correct (on `@platformatic/control`) and update this code accordingly in case of an update from the lib itself.
-                     */
+                    // The check above is to avoid duplicated data returned from `@platformatic/control`, when `route` have trailing slash (or not)
                     acc += value
                     alreadyIteratedRoutes[cleanRouteLabel] = true
                   }

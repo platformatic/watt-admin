@@ -722,25 +722,6 @@
         }
       }
     },
-    "/runtimes/{pid}/logs": {
-      "get": {
-        "parameters": [
-          {
-            "schema": {
-              "type": "number"
-            },
-            "in": "path",
-            "name": "pid",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default Response"
-          }
-        }
-      }
-    },
     "/runtimes/{pid}/openapi/{serviceId}": {
       "get": {
         "parameters": [

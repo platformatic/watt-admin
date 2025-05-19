@@ -85,16 +85,6 @@ export type GetRuntimesPidServicesResponseOK = { 'entrypoint': string; 'producti
 export type GetRuntimesPidServicesResponses =
   FullResponse<GetRuntimesPidServicesResponseOK, 200>
 
-export type GetRuntimesPidLogsRequest = {
-  path: {
-    'pid': number;
-  }
-}
-
-export type GetRuntimesPidLogsResponseOK = unknown
-export type GetRuntimesPidLogsResponses =
-  FullResponse<GetRuntimesPidLogsResponseOK, 200>
-
 export type GetRuntimesPidOpenapiServiceIdRequest = {
   path: {
     'pid': number;
@@ -154,11 +144,6 @@ export interface Backend {
    * @returns the API response
    */
   getRuntimesPidServices(req: GetRuntimesPidServicesRequest): Promise<GetRuntimesPidServicesResponses>;
-  /**
-   * @param req - request parameters object
-   * @returns the API response
-   */
-  getRuntimesPidLogs(req: GetRuntimesPidLogsRequest): Promise<GetRuntimesPidLogsResponses>;
   /**
    * @param req - request parameters object
    * @returns the API response

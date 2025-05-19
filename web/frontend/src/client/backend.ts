@@ -220,35 +220,6 @@ const _getRuntimesPidServices = async (url: string, request: Types.GetRuntimesPi
 export const getRuntimesPidServices: Backend['getRuntimesPidServices'] = async (request: Types.GetRuntimesPidServicesRequest): Promise<Types.GetRuntimesPidServicesResponses> => {
   return await _getRuntimesPidServices(baseUrl, request)
 }
-const _getRuntimesPidLogs = async (url: string, request: Types.GetRuntimesPidLogsRequest): Promise<Types.GetRuntimesPidLogsResponses> => {
-  const headers: HeadersInit = {
-    ...defaultHeaders
-  }
-
-  const response = await fetch(`${url}/runtimes/${request.path['pid']}/logs`, {
-    headers,
-    ...defaultFetchParams
-  })
-
-  const textResponses = [200]
-  if (textResponses.includes(response.status)) {
-    return {
-      statusCode: response.status as 200,
-      headers: headersToJSON(response.headers),
-      body: await response.text()
-    }
-  }
-  const responseType = response.headers.get('content-type')?.startsWith('application/json') ? 'json' : 'text'
-  return {
-    statusCode: response.status as 200,
-    headers: headersToJSON(response.headers),
-    body: await response[responseType]()
-  }
-}
-
-export const getRuntimesPidLogs: Backend['getRuntimesPidLogs'] = async (request: Types.GetRuntimesPidLogsRequest): Promise<Types.GetRuntimesPidLogsResponses> => {
-  return await _getRuntimesPidLogs(baseUrl, request)
-}
 const _getRuntimesPidOpenapiServiceId = async (url: string, request: Types.GetRuntimesPidOpenapiServiceIdRequest): Promise<Types.GetRuntimesPidOpenapiServiceIdResponses> => {
   const headers: HeadersInit = {
     ...defaultHeaders
@@ -327,7 +298,6 @@ export default function build (url: string, options?: BuildOptions) {
     getRuntimesPidMetricsServiceId: _getRuntimesPidMetricsServiceId.bind(url, ...arguments),
     getRuntimesPidMetricsServiceIdWorkerId: _getRuntimesPidMetricsServiceIdWorkerId.bind(url, ...arguments),
     getRuntimesPidServices: _getRuntimesPidServices.bind(url, ...arguments),
-    getRuntimesPidLogs: _getRuntimesPidLogs.bind(url, ...arguments),
     getRuntimesPidOpenapiServiceId: _getRuntimesPidOpenapiServiceId.bind(url, ...arguments),
     postRuntimesPidRestart: _postRuntimesPidRestart.bind(url, ...arguments)
   }
