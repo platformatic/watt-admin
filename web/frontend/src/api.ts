@@ -1,4 +1,4 @@
-import { getRuntimes, getRuntimesPidHealth, getRuntimesPidMetrics, getRuntimesPidMetricsServiceId, getRuntimesPidMetricsServiceIdWorkerId, getRuntimesPidServices, postRuntimesPidRestart, setBaseUrl } from './client/backend'
+import { getRuntimes, getRuntimesPidHealth, getRuntimesPidMetrics, getRuntimesPidMetricsServiceId, getRuntimesPidMetricsServiceIdWorkerId, getRuntimesPidServices, getRuntimesPidOpenapiServiceId, postRuntimesPidRestart, setBaseUrl } from './client/backend'
 import { subtractSecondsFromDate } from './utilities/dates'
 
 setBaseUrl('/api')
@@ -55,6 +55,11 @@ export const getApiMetricsPodService = async (pid: number, serviceId: string) =>
 export const getApiMetricsPodWorker = async (pid: number, serviceId: string, workerId: number) => {
   await getServiceHealth(pid)
   const { body } = await getRuntimesPidMetricsServiceIdWorkerId({ path: { pid, serviceId, workerId } })
+  return body
+}
+
+export const getOpenApi = async (pid: number, serviceId: string) => {
+  const { body } = await getRuntimesPidOpenapiServiceId({ path: { pid, serviceId } })
   return body
 }
 

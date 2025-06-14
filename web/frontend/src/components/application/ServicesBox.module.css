@@ -32,3 +32,28 @@
 .servicePadding {
   @apply p-4;
 }
+.emptyOpenApi {
+  @apply font-inter flex flex-col items-center justify-center h-full;
+}
+.emptyOpenApiTitle {
+  font-size: 16px;
+  margin-top: 10px;
+  padding: 10px 0;
+}
+.emptyOpenApiText {
+  font-size: 14px;
+  opacity: 0.7;
+}
+.serviceDetailPanel {
+  @apply fixed top-0 right-0 bottom-0 z-[9999] flex flex-col bg-rich-black overflow-auto;
+  min-width: 1020px;
+  border-left: 1px solid rgba(255, 255, 255, 0.30);
+}
+.closeButton {
+  @apply bg-transparent border-0 cursor-pointer p-4 fixed top-0 z-[9999];
+  right: 10px;
+}
+.overlay {
+  @apply fixed top-0 left-0 right-0 bottom-0 z-[9999];
+  background-color: rgba(0, 0, 0, 0.95);
+}
