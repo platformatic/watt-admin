@@ -82,6 +82,7 @@ const kafkaDataPointSchema = {
 } as const
 export type KafkaDataPoint = FromSchema<typeof kafkaDataPointSchema>
 
+export const requiredMetricKeys = ['dataMem', 'dataCpu', 'dataKafka', 'dataReq', 'dataLatency'] as const
 export const metricResponseSchema = {
   type: 'object',
   additionalProperties: false,
@@ -92,9 +93,12 @@ export const metricResponseSchema = {
     dataReq: { type: 'array', items: requestDataPointSchema },
     dataKafka: { type: 'array', items: kafkaDataPointSchema },
   },
-  required: ['dataMem', 'dataCpu', 'dataLatency', 'dataReq', 'dataKafka']
+  required: requiredMetricKeys
 } as const
 export type MetricsResponse = FromSchema<typeof metricResponseSchema>
+export type SingleMetricResponse = {
+  [K in keyof MetricsResponse]: MetricsResponse[K] extends (infer T)[] ? T : never
+}
 
 export const pidParamSchema = { type: 'object', additionalProperties: false, properties: { pid: { type: 'number' } }, required: ['pid'] } as const
 export type PidParam = FromSchema<typeof pidParamSchema>

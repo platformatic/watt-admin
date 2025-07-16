@@ -1,13 +1,11 @@
 import test, { mock } from 'node:test'
 import assert from 'node:assert'
-import { calcBytesToMB, calcReqRps } from '../../utils/calc'
 import proxyquire from 'proxyquire'
 import { FastifyBaseLogger, FastifyInstance } from 'fastify'
 import { metricFixtures } from '../fixtures/metrics'
 import { RuntimeServices } from '@platformatic/control'
-import { RequestDataPoint } from '../../schemas'
 
-const calcPath = '../../utils/calc'
+const calcPath = '../../utils/metrics'
 
 class RuntimeApiClient {
   async getRuntimes () {
@@ -40,7 +38,7 @@ class RuntimeApiClient {
 const debug = mock.fn<FastifyBaseLogger['debug']>()
 const getMockFastify = () => ({ mappedMetrics: {}, log: { debug } }) as unknown as FastifyInstance
 
-test('calculateMetrics handles runtime client errors gracefully', async () => {
+test('getMetrics handles runtime client errors gracefully', async () => {
   class ErrorThrowingClient extends RuntimeApiClient {
     async getRuntimes (): Promise<{ pid: number }[]> {
       throw new Error('Failed to get runtimes')
@@ -48,7 +46,7 @@ test('calculateMetrics handles runtime client errors gracefully', async () => {
   }
 
   const warn = mock.fn<FastifyBaseLogger['warn']>()
-  const { calculateMetrics: calculateErrorMetrics } = proxyquire(calcPath, {
+  const { getMetrics: calculateErrorMetrics } = proxyquire(calcPath, {
     '@platformatic/control': {
       RuntimeApiClient: ErrorThrowingClient
     }
@@ -61,7 +59,7 @@ test('calculateMetrics handles runtime client errors gracefully', async () => {
   assert.ok(warn.mock.calls[0].arguments[1].includes('Unable to get runtime metrics'))
 })
 
-test('calculateMetrics handles services with single worker correctly', async () => {
+test('getMetrics handles services with single worker correctly', async () => {
   class SingleWorkerClient extends RuntimeApiClient {
     async getRuntimeServices () {
       const status = 'ok'
@@ -75,7 +73,7 @@ test('calculateMetrics handles services with single worker correctly', async () 
     }
   }
 
-  const { calculateMetrics: calculateSingleWorker } = proxyquire(calcPath, {
+  const { getMetrics: calculateSingleWorker } = proxyquire(calcPath, {
     '@platformatic/control': {
       RuntimeApiClient: SingleWorkerClient
     }
@@ -91,13 +89,13 @@ test('calculateMetrics handles services with single worker correctly', async () 
     'Single worker service should only have "all" metrics and no worker-specific metrics')
 })
 
-test('calculateMetrics collects and aggregates metrics correctly', async () => {
-  const { calculateMetrics } = proxyquire(calcPath, {
+test('getMetrics collects and aggregates metrics correctly', async () => {
+  const { getMetrics } = proxyquire(calcPath, {
     '@platformatic/control': { RuntimeApiClient },
   })
 
   const fastify = getMockFastify()
-  await calculateMetrics(fastify)
+  await getMetrics(fastify)
 
   const mockedMetrics = fastify.mappedMetrics[1234]
   const metricService1 = mockedMetrics.services['type1']
@@ -223,14 +221,14 @@ test('calculateMetrics collects and aggregates metrics correctly', async () => {
   assert.ok(mockedMetrics.aggregated.dataKafka.length <= 20)
 })
 
-test('calculateMetrics handles empty metrics correctly', async () => {
+test('getMetrics handles empty metrics correctly', async () => {
   class EmptyMetricsMockClient extends RuntimeApiClient {
     async getRuntimeMetrics () {
       return []
     }
   }
 
-  const { calculateMetrics: calculateEmptyMetrics } = proxyquire(calcPath, {
+  const { getMetrics: calculateEmptyMetrics } = proxyquire(calcPath, {
     '@platformatic/control': {
       RuntimeApiClient: EmptyMetricsMockClient
     }
@@ -263,14 +261,14 @@ test('calculateMetrics handles empty metrics correctly', async () => {
   assert.strictEqual(service1Metrics[1].dataReq[0].count, 0)
 })
 
-test('calculateMetrics handles missing services', async () => {
+test('getMetrics handles missing services', async () => {
   class NoServicesMockClient extends RuntimeApiClient {
     async getRuntimeServices () {
       return { production: false, services: [], entrypoint: '' }
     }
   }
 
-  const { calculateMetrics: calculateNoServices } = proxyquire(calcPath, {
+  const { getMetrics: calculateNoServices } = proxyquire(calcPath, {
     '@platformatic/control': {
       RuntimeApiClient: NoServicesMockClient
     }
@@ -288,8 +286,8 @@ test('calculateMetrics handles missing services', async () => {
   assert.ok(fastify.mappedMetrics[1234].aggregated.dataKafka.length === 1)
 })
 
-test('calculateMetrics respects MAX_STORED_METRICS limit', async () => {
-  const { calculateMetrics: calculateLimitedMetrics } = proxyquire(calcPath, {
+test('getMetrics respects MAX_STORED_METRICS limit', async () => {
+  const { getMetrics: calculateLimitedMetrics } = proxyquire(calcPath, {
     '@platformatic/control': { RuntimeApiClient }
   })
 
@@ -323,118 +321,4 @@ test('calculateMetrics respects MAX_STORED_METRICS limit', async () => {
   assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataLatency.length, 20, 'Aggregated latency metrics should be limited to 20 entries')
   assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataReq.length, 20, 'Aggregated req metrics should be limited to 20 entries')
   assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataKafka.length, 20, 'Aggregated kafka metrics should be limited to 20 entries')
-})
-
-test('calcBytesToMB converts 1048576 bytes to 1.00MB', () => {
-  const result = calcBytesToMB(1048576)
-  assert.strictEqual(result, 1.00)
-})
-
-test('calcBytesToMB converts 2621440 bytes to 2.50MB', () => {
-  const result = calcBytesToMB(2621440)
-  assert.strictEqual(result, 2.50)
-})
-
-test('calcBytesToMB converts 0 bytes to 0.00MB', () => {
-  const result = calcBytesToMB(0)
-  assert.strictEqual(result, 0.00)
-})
-
-test('calcBytesToMB handles small numbers correctly', () => {
-  const result = calcBytesToMB(10000)
-  assert.strictEqual(result, 0.01)
-})
-
-test('calcReqRps calculates correct RPS when count increases', () => {
-  const previousRequests: RequestDataPoint[] = [{
-    date: '2024-01-01T00:00:00.000Z',
-    count: 100,
-    rps: 0
-  }]
-  const currentCount = 150
-
-  const result = calcReqRps(currentCount, previousRequests)
-  assert.strictEqual(result, 50)
-})
-
-test('calcReqRps calculates correct RPS when count decreases', () => {
-  const previousRequests: RequestDataPoint[] = [{
-    date: '2024-01-01T00:00:00.000Z',
-    count: 150,
-    rps: 0
-  }]
-  const currentCount = 100
-
-  const result = calcReqRps(currentCount, previousRequests)
-  assert.strictEqual(result, 50)
-})
-
-test('calcReqRps returns current count when no previous requests exist', () => {
-  const previousRequests: RequestDataPoint[] = []
-  const currentCount = 100
-
-  const result = calcReqRps(currentCount, previousRequests)
-  assert.strictEqual(result, 100)
-})
-
-test('calcReqRps handles zero current count', () => {
-  const previousRequests: RequestDataPoint[] = [{
-    date: '2024-01-01T00:00:00.000Z',
-    count: 50,
-    rps: 0
-  }]
-  const currentCount = 0
-
-  const result = calcReqRps(currentCount, previousRequests)
-  assert.strictEqual(result, 50)
-})
-
-test('calcReqRps handles zero previous count', () => {
-  const previousRequests: RequestDataPoint[] = [{
-    date: '2024-01-01T00:00:00.000Z',
-    count: 0,
-    rps: 0
-  }]
-  const currentCount = 50
-
-  const result = calcReqRps(currentCount, previousRequests)
-  assert.strictEqual(result, 50)
-})
-
-test('calcReqRps uses most recent request count from array', () => {
-  const previousRequests: RequestDataPoint[] = [
-    {
-      date: '2024-01-01T00:00:00.000Z',
-      count: 50,
-      rps: 0
-    },
-    {
-      date: '2024-01-01T00:00:01.000Z',
-      count: 75,
-      rps: 0
-    },
-    {
-      date: '2024-01-01T00:00:02.000Z',
-      count: 100,
-      rps: 0
-    }
-  ]
-  const currentCount = 150
-
-  const result = calcReqRps(currentCount, previousRequests)
-  assert.strictEqual(result, 50)
-})
-
-test('calcReqRps handles request spikes and dips correctly', () => {
-  const previousRequests: RequestDataPoint[] = [
-    { date: '2024-01-01T00:00:00.000Z', count: 100, rps: 10 },
-    { date: '2024-01-01T00:00:01.000Z', count: 200, rps: 100 },
-    { date: '2024-01-01T00:00:02.000Z', count: 150, rps: 0 }
-  ]
-
-  let result = calcReqRps(300, previousRequests)
-  assert.strictEqual(result, 150)
-
-  result = calcReqRps(100, previousRequests)
-  assert.strictEqual(result, 50)
 })
