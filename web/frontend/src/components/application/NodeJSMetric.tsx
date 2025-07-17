@@ -12,7 +12,7 @@ import type { GetRuntimesPidMetricsResponseOK } from 'src/client/backend-types'
 
 type DataValues = GetRuntimesPidMetricsResponseOK[keyof GetRuntimesPidMetricsResponseOK]
 
-export type MetricType = 'mem' | 'cpu' | 'latency' | 'req'
+export type MetricType = 'mem' | 'cpu' | 'latency' | 'req' | 'kafka'
 
 interface NodeJSMetricProps {
   title: string;

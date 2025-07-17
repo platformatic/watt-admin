@@ -1,0 +1,53 @@
+.color-0 {
+  stroke: #C61BE2;  
+  color: #C61BE2;
+}
+
+.color-1 {
+  stroke: #2588E4;
+  color: #2588E4;
+}
+
+.color-2 {
+  stroke: #5A3CFF;
+  color: #5A3CFF;
+}
+
+.color-3 {
+  stroke: #FA6221;  
+  color: #FA6221;
+}
+
+.color-4 {
+  stroke: #FEB928;
+  color: #FEB928;
+}
+
+.color-5 {
+  stroke: #44FFEC;  
+  color: #44FFEC;
+}
+
+.background-color-0 {
+  background: #C61BE2;
+}
+
+.background-color-1 {
+  background: #2588E4;
+}
+
+.background-color-2 {
+  background: #5A3CFF;
+}
+
+.background-color-3 {
+  background: #FA6221;  
+}
+
+.background-color-4 {
+  background: #FEB928;
+}
+
+.background-color-5 {
+  background: #44FFEC;
+}

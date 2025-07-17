@@ -6,11 +6,12 @@ import typographyStyles from '../../styles/Typography.module.css'
 import commonStyles from '../../styles/CommonStyles.module.css'
 import { BorderedBox, Icons } from '@platformatic/ui-components'
 import NodeJSMetric from './NodeJSMetric'
-import { REFRESH_INTERVAL_METRICS, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS, REQ_UNIT_METRICS } from '../../ui-constants'
+import { REFRESH_INTERVAL_METRICS, MEMORY_UNIT_METRICS, LATENCY_UNIT_METRICS, CPU_UNIT_METRICS, REQ_UNIT_METRICS, KAFKA_UNIT_METRICS, KAFKA_OPTIONS_METRICS, REQ_OPTIONS_METRICS, LATENCY_OPTIONS_METRICS, CPU_OPTIONS_METRICS, MEMORY_OPTIONS_METRICS } from '../../ui-constants'
 import { getApiMetricsPod } from '../../api'
 import useAdminStore from '../../useAdminStore'
 import type { GetRuntimesPidMetricsResponseOK } from 'src/client/backend-types'
 import ErrorComponent from '../errors/ErrorComponent'
+import { getKafkaType } from '../../utilities/getters'
 
 export const getEmptyMetrics = (): GetRuntimesPidMetricsResponseOK => ({ dataMem: [], dataCpu: [], dataLatency: [], dataReq: [], dataKafka: [] })
 
@@ -19,6 +20,7 @@ function NodeJSMetrics (): React.ReactElement {
   const [initialLoading, setInitialLoading] = useState(true)
   const [allData, setAllData] = useState<GetRuntimesPidMetricsResponseOK>(getEmptyMetrics())
   const { runtimePid } = useAdminStore()
+  const [hasKafkaData, setHasKafkaData] = useState(false)
 
   const getData = async (): Promise<void> => {
     try {
@@ -26,6 +28,7 @@ function NodeJSMetrics (): React.ReactElement {
         const data = await getApiMetricsPod(runtimePid)
         setAllData(data)
         setError(undefined)
+        setHasKafkaData(getKafkaType(data.dataKafka))
       }
     } catch (error) {
       setError(error)
@@ -65,19 +68,7 @@ function NodeJSMetrics (): React.ReactElement {
             metricURL='mem'
             dataValues={allData.dataMem}
             initialLoading={initialLoading}
-            options={[{
-              label: 'RSS',
-              internalKey: 'rss',
-              unit: MEMORY_UNIT_METRICS
-            }, {
-              label: 'Total Heap',
-              internalKey: 'totalHeap',
-              unit: MEMORY_UNIT_METRICS
-            }, {
-              label: 'Heap Used',
-              internalKey: 'usedHeap',
-              unit: MEMORY_UNIT_METRICS
-            }]}
+            options={MEMORY_OPTIONS_METRICS}
           />
           <NodeJSMetric
             title='CPU & ELU Average'
@@ -85,15 +76,7 @@ function NodeJSMetrics (): React.ReactElement {
             dataValues={allData.dataCpu}
             initialLoading={initialLoading}
             unit={`(${CPU_UNIT_METRICS})`}
-            options={[{
-              label: 'CPU',
-              internalKey: 'cpu',
-              unit: CPU_UNIT_METRICS
-            }, {
-              label: 'ELU',
-              internalKey: 'eventLoop',
-              unit: CPU_UNIT_METRICS
-            }]}
+            options={CPU_OPTIONS_METRICS}
           />
           <NodeJSMetric
             title='Entrypoint Latency'
@@ -101,19 +84,7 @@ function NodeJSMetrics (): React.ReactElement {
             dataValues={allData.dataLatency}
             initialLoading={initialLoading}
             unit={`(${LATENCY_UNIT_METRICS})`}
-            options={[{
-              label: 'P90',
-              internalKey: 'p90',
-              unit: LATENCY_UNIT_METRICS
-            }, {
-              label: 'P95',
-              internalKey: 'p95',
-              unit: LATENCY_UNIT_METRICS
-            }, {
-              label: 'P99',
-              internalKey: 'p99',
-              unit: LATENCY_UNIT_METRICS
-            }]}
+            options={LATENCY_OPTIONS_METRICS}
           />
           <NodeJSMetric
             title='Requests'
@@ -121,12 +92,17 @@ function NodeJSMetrics (): React.ReactElement {
             dataValues={allData.dataReq}
             initialLoading={initialLoading}
             unit={`(${REQ_UNIT_METRICS})`}
-            options={[{
-              label: 'RPS',
-              internalKey: 'rps',
-              unit: REQ_UNIT_METRICS
-            }]}
+            options={REQ_OPTIONS_METRICS}
           />
+          {hasKafkaData &&
+            <NodeJSMetric
+              title='Kafka'
+              metricURL='kafka'
+              dataValues={allData.dataKafka}
+              initialLoading={initialLoading}
+              unit={`(${KAFKA_UNIT_METRICS})`}
+              options={KAFKA_OPTIONS_METRICS}
+            />}
         </div>
       </div>
     </BorderedBox>
