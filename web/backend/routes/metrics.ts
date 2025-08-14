@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import { metricResponseSchema, MetricsResponse, pidParamSchema } from '../schemas'
+import { getPidToLoad } from '../utils/runtimes'
 
 export default async function (fastify: FastifyInstance) {
   const typedFastify = fastify.withTypeProvider<JsonSchemaToTsProvider>()
@@ -9,7 +10,8 @@ export default async function (fastify: FastifyInstance) {
   typedFastify.get('/runtimes/:pid/metrics', {
     schema: { params: pidParamSchema, response: { 200: metricResponseSchema } },
   }, async ({ params: { pid } }) => {
-    return typedFastify.mappedMetrics[pid]?.aggregated || emptyMetrics
+    const pidToLoad = fastify.loaded.mode === 'load' ? getPidToLoad(fastify.loaded.runtimes) : pid
+    return fastify.mappedMetrics[pidToLoad]?.aggregated || emptyMetrics
   })
 
   typedFastify.get('/runtimes/:pid/metrics/:serviceId', {

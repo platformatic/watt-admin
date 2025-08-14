@@ -108,6 +108,29 @@ export type PostRuntimesPidRestartResponseOK = unknown
 export type PostRuntimesPidRestartResponses =
   FullResponse<PostRuntimesPidRestartResponseOK, 200>
 
+export type GetModeRequest = {
+  query?: {
+    'all'?: boolean;
+  }
+}
+
+/**
+ * Default Response
+ */
+export type GetModeResponseOK = { 'path': string; 'mode': 'live' | 'record:start' | 'record:stop' | 'load'; 'runtimes'?: Array<{ 'pid': number; 'cwd': string; 'argv': Array<string>; 'uptimeSeconds': number; 'execPath': string; 'nodeVersion': string; 'projectDir': string; 'packageName': string; 'packageVersion': string; 'url': string; 'platformaticVersion': string; 'selected': boolean }> }
+export type GetModeResponses =
+  FullResponse<GetModeResponseOK, 200>
+
+export type PostModeRequest = {
+  body: {
+    'mode': 'live' | 'record:start' | 'record:stop' | 'load';
+  }
+}
+
+export type PostModeResponseOK = unknown
+export type PostModeResponses =
+  FullResponse<PostModeResponseOK, 200>
+
 
 
 export interface Backend {
@@ -154,6 +177,16 @@ export interface Backend {
    * @returns the API response
    */
   postRuntimesPidRestart(req: PostRuntimesPidRestartRequest): Promise<PostRuntimesPidRestartResponses>;
+  /**
+   * @param req - request parameters object
+   * @returns the API response
+   */
+  getMode(req: GetModeRequest): Promise<GetModeResponses>;
+  /**
+   * @param req - request parameters object
+   * @returns the API response
+   */
+  postMode(req: PostModeRequest): Promise<PostModeResponses>;
 }
 type PlatformaticFrontendClient = Omit<Backend, 'setBaseUrl'>
 type BuildOptions = {

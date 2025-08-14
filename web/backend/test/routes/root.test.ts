@@ -21,6 +21,23 @@ test('no runtime running', async (t) => {
   })
   assert.strictEqual(health.statusCode, 200)
   assert.deepEqual(health.json(), { status: 'KO' })
+
+  const initialMode = await server.inject({ url: '/mode' })
+  assert.strictEqual(initialMode.statusCode, 200)
+  assert.strictEqual(initialMode.json().mode, 'live', 'initial mode')
+
+  const { statusCode } = await server.inject({ url: '/mode', method: 'POST', body: { mode: 'record:start' } })
+  assert.strictEqual(statusCode, 200)
+
+  const updatedMode = await server.inject({ url: '/mode' })
+  assert.strictEqual(updatedMode.statusCode, 200)
+  assert.strictEqual(updatedMode.json().mode, 'record:start', 'updated mode')
+
+  const restoreMode = await server.inject({ url: '/mode', method: 'POST', body: { mode: 'live' } })
+  assert.strictEqual(restoreMode.statusCode, 200)
+
+  const { json } = await server.inject({ url: '/mode' })
+  assert.strictEqual(json().mode, 'live', 'restored mode')
 })
 
 test('runtime is running', async (t) => {

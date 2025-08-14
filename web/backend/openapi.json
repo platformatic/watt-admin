@@ -1109,6 +1109,146 @@
           }
         }
       }
+    },
+    "/mode": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "in": "query",
+            "name": "all",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "live",
+                        "record:start",
+                        "record:stop",
+                        "load"
+                      ]
+                    },
+                    "runtimes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "pid": {
+                            "type": "integer"
+                          },
+                          "cwd": {
+                            "type": "string"
+                          },
+                          "argv": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "uptimeSeconds": {
+                            "type": "number"
+                          },
+                          "execPath": {
+                            "type": "string"
+                          },
+                          "nodeVersion": {
+                            "type": "string"
+                          },
+                          "projectDir": {
+                            "type": "string"
+                          },
+                          "packageName": {
+                            "type": "string"
+                          },
+                          "packageVersion": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "platformaticVersion": {
+                            "type": "string"
+                          },
+                          "selected": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "pid",
+                          "cwd",
+                          "argv",
+                          "uptimeSeconds",
+                          "execPath",
+                          "nodeVersion",
+                          "projectDir",
+                          "packageName",
+                          "packageVersion",
+                          "url",
+                          "platformaticVersion",
+                          "selected"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "mode"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "live",
+                      "record:start",
+                      "record:stop",
+                      "load"
+                    ]
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
     }
   },
   "servers": [

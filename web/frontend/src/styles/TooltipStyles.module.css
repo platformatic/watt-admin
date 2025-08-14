@@ -2,3 +2,10 @@
   @apply font-inter font-light text-[0.75rem] leading-[1.125rem] text-rich-black p-2 border-0 z-20 w-max;
   background-color: white !important;
 }
+
+.tooltipSmallStyle {
+  @apply font-inter font-light text-[0.6rem] leading-[1rem] text-rich-black p-1 border-0 z-10 w-max;
+  margin-left: -50px;
+  opacity: .9;
+  background-color: white;
+}

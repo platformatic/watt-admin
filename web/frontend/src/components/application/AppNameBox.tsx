@@ -7,7 +7,7 @@ import tooltipStyles from '../../styles/TooltipStyles.module.css'
 import { Icons, BorderedBox, Button, PlatformaticIcon, Tooltip } from '@platformatic/ui-components'
 import { STATUS_STOPPED, STATUS_RUNNING } from '../../ui-constants'
 import ApplicationStatusPills from '../ui/ApplicationStatusPills'
-import { restartApiApplication, isWattpmVersionOutdated } from '../../api'
+import { restartApiApplication, isWattpmVersionOutdated, updateMode, fetchMode } from '../../api'
 
 export interface ApiApplication {
   id: number;
@@ -18,28 +18,34 @@ export interface ApiApplication {
 }
 
 interface AppNameBoxProps {
-  onErrorOccurred?: (error: unknown) => void;
+  onErrorOccurred: (error: unknown) => void;
+  onModeUpdated: () => void;
   apiApplication?: ApiApplication;
 }
 
 function AppNameBox ({
-  onErrorOccurred = () => {},
+  onErrorOccurred,
+  onModeUpdated,
   apiApplication
 }: AppNameBoxProps): React.ReactElement | null {
   const [appStatus, setAppStatus] = useState(STATUS_STOPPED)
   const [changingRestartStatus, setChangingRestartStatus] = useState(false)
   const [outdatedVersion, setOutdatedVersion] = useState(false)
+  const [recordMode, setRecordMode] = useState<'start' | 'stop'>('start')
+  const [loadMode, setLoadMode] = useState<'load' | 'live'>('load')
+  const [path, setPath] = useState('')
+
+  const fetchData = async (): Promise<void> => {
+    try {
+      const outdated = await isWattpmVersionOutdated(apiApplication?.pltVersion)
+      setOutdatedVersion(outdated)
+      setPath((await fetchMode()).path)
+    } catch (e) {
+      onErrorOccurred(e)
+    }
+  }
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        const outdated = await isWattpmVersionOutdated(apiApplication?.pltVersion)
-        setOutdatedVersion(outdated)
-      } catch (e) {
-        onErrorOccurred(e)
-      }
-    }
-
     if (apiApplication?.id) {
       setAppStatus(STATUS_RUNNING)
       fetchData()
@@ -104,6 +110,45 @@ function AppNameBox ({
                   disabled={appStatus === STATUS_STOPPED}
                 />
                 )}
+
+            <Tooltip
+              tooltipClassName={tooltipStyles.tooltipSmallStyle}
+              content={`File: ${path}`}
+              immediateActive={false}
+            >
+              <Button
+                type='button'
+                label={`Record ${recordMode}`}
+                onClick={async () => {
+                  await updateMode(`record:${recordMode}`)
+                  await fetchData()
+                  setRecordMode(recordMode === 'start' ? 'stop' : 'start')
+                  onModeUpdated()
+                }}
+                color={WHITE}
+                backgroundColor={TRANSPARENT}
+                paddingClass={commonStyles.smallButtonPadding}
+                platformaticIcon={{ iconName: recordMode === 'start' ? 'DownloadIcon' : 'StopIcon', color: WHITE }}
+                textClass={typographyStyles.desktopButtonSmall}
+                internalOverHandling
+              />
+            </Tooltip>
+
+            <Button
+              type='button'
+              label={loadMode === 'load' ? 'Load' : 'Live'}
+              onClick={async () => {
+                await updateMode(loadMode)
+                await fetchData()
+                setLoadMode(loadMode === 'load' ? 'live' : 'load')
+                onModeUpdated()
+              }}
+              color={WHITE}
+              backgroundColor={TRANSPARENT}
+              paddingClass={commonStyles.smallButtonPadding}
+              platformaticIcon={{ iconName: loadMode === 'load' ? 'UploadFileIcon' : 'LiveIcon', color: WHITE }}
+              textClass={typographyStyles.desktopButtonSmall}
+            />
           </div>
         </div>
         <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth} ${styles.appInnerBox}`}>

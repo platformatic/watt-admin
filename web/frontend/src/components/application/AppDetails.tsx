@@ -12,19 +12,20 @@ const AppDetails: React.FC = () => {
   const [apiApplication, setApiApplication] = useState<ApiApplication>({ id: 0, lastStarted: '', name: '', url: '' })
   const { setRuntimePid } = useAdminStore()
 
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        const response = await getApiApplication()
-        if (response.id) {
-          setApiApplication(response)
-          setRuntimePid(response.id)
-          setError(undefined)
-        }
-      } catch (error) {
-        setError(error)
+  const fetchData = async (): Promise<void> => {
+    try {
+      const response = await getApiApplication()
+      if (response.id) {
+        setApiApplication(response)
+        setRuntimePid(response.id)
+        setError(undefined)
       }
+    } catch (error) {
+      setError(error)
     }
+  }
+
+  useEffect(() => {
     fetchData()
   }, [])
 
@@ -35,7 +36,7 @@ const AppDetails: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.containerElement}>
-        <AppNameBox onErrorOccurred={setError} apiApplication={apiApplication} />
+        <AppNameBox onModeUpdated={fetchData} onErrorOccurred={setError} apiApplication={apiApplication} />
         <ServicesBox />
         <NodeJSMetrics />
       </div>

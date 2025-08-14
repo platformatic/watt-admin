@@ -1,12 +1,10 @@
 import { CpuDataPoint, KafkaDataPoint, LatencyDataPoint, MemoryDataPoint, MetricsResponse, RequestDataPoint, SingleMetricResponse, UndiciDataPoint, WebsocketDataPoint } from '../schemas'
+import { MAX_STORED_METRICS } from './constants'
 
 export type MappedMetrics = Record<number, {
   aggregated: MetricsResponse,
   services: Record<string, Record<'all' | number, MetricsResponse>>
 }>
-
-// This is to avoid the mapped metrics array from growing indefinitely (and therefore a memory leak)
-const MAX_STORED_METRICS = 20
 
 export const websocketMetricMap = {
   active_ws_composer_connections: 'connections',

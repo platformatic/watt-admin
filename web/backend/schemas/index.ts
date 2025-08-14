@@ -2,6 +2,9 @@ import { type FromSchema } from 'json-schema-to-ts'
 
 const dateSchema = { type: 'string', format: 'date-time' } as const
 
+export const modeSchema = { type: 'string', enum: ['live', 'record:start', 'record:stop', 'load'] } as const
+export type Mode = FromSchema<typeof modeSchema>
+
 const memoryDataPointSchema = {
   type: 'object',
   additionalProperties: false,

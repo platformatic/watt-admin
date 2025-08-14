@@ -283,6 +283,85 @@ const _postRuntimesPidRestart = async (url: string, request: Types.PostRuntimesP
 export const postRuntimesPidRestart: Backend['postRuntimesPidRestart'] = async (request: Types.PostRuntimesPidRestartRequest): Promise<Types.PostRuntimesPidRestartResponses> => {
   return await _postRuntimesPidRestart(baseUrl, request)
 }
+const _getMode = async (url: string, request: Types.GetModeRequest): Promise<Types.GetModeResponses> => {
+  const queryParameters: (keyof NonNullable<Types.GetModeRequest['query']>)[] = ['all']
+  const searchParams = new URLSearchParams()
+  if (request.query) {
+    queryParameters.forEach((qp) => {
+      const queryValue = request.query?.[qp]
+      if (queryValue) {
+        if (Array.isArray(queryValue)) {
+          queryValue.forEach((p) => searchParams.append(qp, p))
+        } else {
+          searchParams.append(qp, queryValue.toString())
+        }
+      }
+      delete request.query?.[qp]
+    })
+  }
+
+  const headers: HeadersInit = {
+    ...defaultHeaders
+  }
+
+  const response = await fetch(`${url}/mode?${searchParams.toString()}`, {
+    headers,
+    ...defaultFetchParams
+  })
+
+  const jsonResponses = [200]
+  if (jsonResponses.includes(response.status)) {
+    return {
+      statusCode: response.status as 200,
+      headers: headersToJSON(response.headers),
+      body: await response.json()
+    }
+  }
+  const responseType = response.headers.get('content-type')?.startsWith('application/json') ? 'json' : 'text'
+  return {
+    statusCode: response.status as 200,
+    headers: headersToJSON(response.headers),
+    body: await response[responseType]()
+  }
+}
+
+export const getMode: Backend['getMode'] = async (request: Types.GetModeRequest): Promise<Types.GetModeResponses> => {
+  return await _getMode(baseUrl, request)
+}
+const _postMode = async (url: string, request: Types.PostModeRequest): Promise<Types.PostModeResponses> => {
+  const body = 'body' in request ? (request.body) : undefined
+  const isFormData = body instanceof FormData
+  const headers: HeadersInit = {
+    ...defaultHeaders,
+    ...(isFormData || body === undefined) ? {} : defaultJsonType
+  }
+
+  const response = await fetch(`${url}/mode`, {
+    method: 'POST',
+    body: isFormData ? body : JSON.stringify(body),
+    headers,
+    ...defaultFetchParams
+  })
+
+  const textResponses = [200]
+  if (textResponses.includes(response.status)) {
+    return {
+      statusCode: response.status as 200,
+      headers: headersToJSON(response.headers),
+      body: await response.text()
+    }
+  }
+  const responseType = response.headers.get('content-type')?.startsWith('application/json') ? 'json' : 'text'
+  return {
+    statusCode: response.status as 200,
+    headers: headersToJSON(response.headers),
+    body: await response[responseType]()
+  }
+}
+
+export const postMode: Backend['postMode'] = async (request: Types.PostModeRequest): Promise<Types.PostModeResponses> => {
+  return await _postMode(baseUrl, request)
+}
 type BuildOptions = {
   headers?: object
 }
@@ -299,6 +378,8 @@ export default function build (url: string, options?: BuildOptions) {
     getRuntimesPidHealth: _getRuntimesPidHealth.bind(url, ...arguments),
     getRuntimesPidServices: _getRuntimesPidServices.bind(url, ...arguments),
     getRuntimesPidOpenapiServiceId: _getRuntimesPidOpenapiServiceId.bind(url, ...arguments),
-    postRuntimesPidRestart: _postRuntimesPidRestart.bind(url, ...arguments)
+    postRuntimesPidRestart: _postRuntimesPidRestart.bind(url, ...arguments),
+    getMode: _getMode.bind(url, ...arguments),
+    postMode: _postMode.bind(url, ...arguments)
   }
 }
