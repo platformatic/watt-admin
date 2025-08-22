@@ -10,3 +10,5 @@ export const getServiceEntrypoint = (service: ServiceData): boolean => 'entrypoi
 export const getOptionMetricsLabel = (input: { label: string }[]) => input.map(({ label }) => label)
 
 export const getKafkaType = (services: GetRuntimesPidServicesResponseOK['services']): boolean => services.some(service => 'type' in service && service.type === 'kafka-hooks')
+
+export const getOfflineMode = () => import.meta.url.startsWith('file:///')

@@ -4,6 +4,7 @@ import { buildServer } from '@platformatic/service'
 import { test } from 'node:test'
 import { spawn } from 'node:child_process'
 import { FastifyInstance } from 'fastify'
+import { MS_WAITING } from '../utils/constants'
 
 type testfn = Parameters<typeof test>[0]
 type TestContext = Parameters<Exclude<testfn, undefined>>[0]
@@ -14,11 +15,11 @@ export async function loadMetrics (server: FastifyInstance): Promise<void> {
     let timeoutId: NodeJS.Timeout
 
     const check = () => {
-      if (Object.keys(server.mappedMetrics).length > 0) {
+      if (Object.keys(server.loaded.metrics).length > 0) {
         clearTimeout(timeoutId)
         resolve()
       } else {
-        timeoutId = setTimeout(check, 1000)
+        timeoutId = setTimeout(check, MS_WAITING)
       }
 
       if (count > 4) {

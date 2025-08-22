@@ -14,8 +14,7 @@ import ErrorComponent from '../errors/ErrorComponent'
 import { getServiceSelected } from '../../utilities/getters'
 
 const ServicesLogs: React.FC = () => {
-  const globalState = useAdminStore()
-  const { setCurrentPage, runtimePid } = globalState
+  const { setCurrentPage, runtimePid, mode } = useAdminStore()
   const [error, setError] = useState<unknown>(undefined)
   const [selectAllServices, setSelectAllServices] = useState(true)
   const [colorPod, setColorPod] = useState(WHITE)
@@ -33,7 +32,7 @@ const ServicesLogs: React.FC = () => {
     const fetchData = async (): Promise<void> => {
       try {
         if (runtimePid) {
-          const response = await getServices(runtimePid)
+          const response = await getServices(runtimePid, mode)
           setServices(response.map((service: ServiceData) => ({ ...service, selected: true })))
           setError(undefined)
         }

@@ -50,13 +50,13 @@ function ServicesMetrics ({
   const [initialLoading, setInitialLoading] = useState(true)
   const [serviceData, setServiceData] = useState<GetRuntimesPidMetricsResponseOK>(getEmptyMetrics())
   const [allData, setAllData] = useState<GetRuntimesPidMetricsResponseOK>(getEmptyMetrics())
-  const { runtimePid } = useAdminStore()
+  const { runtimePid, mode } = useAdminStore()
 
   const getData = async (): Promise<void> => {
     try {
       if (serviceId && runtimePid) {
-        const detailedMetricsPromise = (threadIndex && threadIndex !== 'all') ? getApiMetricsPodWorker(runtimePid, serviceId, threadIndex - 1) : getApiMetricsPodService(runtimePid, serviceId)
-        const [runtimeData, serviceData] = await Promise.all([getApiMetricsPod(runtimePid), detailedMetricsPromise])
+        const detailedMetricsPromise = (threadIndex && threadIndex !== 'all') ? getApiMetricsPodWorker(runtimePid, serviceId, threadIndex - 1, mode) : getApiMetricsPodService(runtimePid, serviceId, mode)
+        const [runtimeData, serviceData] = await Promise.all([getApiMetricsPod(runtimePid, mode), detailedMetricsPromise])
         setAllData(runtimeData)
         setServiceData(serviceData)
         setError(undefined)

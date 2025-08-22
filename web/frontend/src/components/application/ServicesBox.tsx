@@ -111,7 +111,7 @@ function ServicesBox (): React.ReactElement {
   const [error, setError] = useState<unknown>(undefined)
   const navigate = useNavigate()
   const [services, setServices] = useState<ServiceData[]>([])
-  const { runtimePid } = useAdminStore()
+  const { runtimePid, mode } = useAdminStore()
   const [selectedService, setSelectedService] = useState<string>('')
   const [openapi, setOpenapi] = useState<unknown>()
 
@@ -119,7 +119,7 @@ function ServicesBox (): React.ReactElement {
     const fetchData = async (): Promise<void> => {
       try {
         if (runtimePid) {
-          const response = await getServices(runtimePid)
+          const response = await getServices(runtimePid, mode)
           setServices(response)
           setError(undefined)
         }

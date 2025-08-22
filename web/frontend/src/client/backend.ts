@@ -283,6 +283,40 @@ const _postRuntimesPidRestart = async (url: string, request: Types.PostRuntimesP
 export const postRuntimesPidRestart: Backend['postRuntimesPidRestart'] = async (request: Types.PostRuntimesPidRestartRequest): Promise<Types.PostRuntimesPidRestartResponses> => {
   return await _postRuntimesPidRestart(baseUrl, request)
 }
+const _postRecord = async (url: string, request: Types.PostRecordRequest): Promise<Types.PostRecordResponses> => {
+  const body = 'body' in request ? (request.body) : undefined
+  const isFormData = body instanceof FormData
+  const headers: HeadersInit = {
+    ...defaultHeaders,
+    ...(isFormData || body === undefined) ? {} : defaultJsonType
+  }
+
+  const response = await fetch(`${url}/record`, {
+    method: 'POST',
+    body: isFormData ? body : JSON.stringify(body),
+    headers,
+    ...defaultFetchParams
+  })
+
+  const textResponses = [200]
+  if (textResponses.includes(response.status)) {
+    return {
+      statusCode: response.status as 200,
+      headers: headersToJSON(response.headers),
+      body: await response.text()
+    }
+  }
+  const responseType = response.headers.get('content-type')?.startsWith('application/json') ? 'json' : 'text'
+  return {
+    statusCode: response.status as 200,
+    headers: headersToJSON(response.headers),
+    body: await response[responseType]()
+  }
+}
+
+export const postRecord: Backend['postRecord'] = async (request: Types.PostRecordRequest): Promise<Types.PostRecordResponses> => {
+  return await _postRecord(baseUrl, request)
+}
 type BuildOptions = {
   headers?: object
 }
@@ -299,6 +333,7 @@ export default function build (url: string, options?: BuildOptions) {
     getRuntimesPidHealth: _getRuntimesPidHealth.bind(url, ...arguments),
     getRuntimesPidServices: _getRuntimesPidServices.bind(url, ...arguments),
     getRuntimesPidOpenapiServiceId: _getRuntimesPidOpenapiServiceId.bind(url, ...arguments),
-    postRuntimesPidRestart: _postRuntimesPidRestart.bind(url, ...arguments)
+    postRuntimesPidRestart: _postRuntimesPidRestart.bind(url, ...arguments),
+    postRecord: _postRecord.bind(url, ...arguments)
   }
 }

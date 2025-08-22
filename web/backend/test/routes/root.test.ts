@@ -81,6 +81,11 @@ test('runtime is running', async (t) => {
   assert.strictEqual(serviceInvalidOpenapi.statusCode, 500, 'service OpenAPI endpoint')
   assert.strictEqual(typeof serviceInvalidOpenapi.json().code, 'string')
 
+  assert.strictEqual(server.loaded.mode, undefined, 'initial mode')
+  const initialMode = await server.inject({ url: '/record', method: 'POST', body: { mode: 'start' } })
+  assert.strictEqual(initialMode.statusCode, 200)
+  assert.strictEqual(server.loaded.mode, 'start', 'updated mode')
+
   const restart = await server.inject({
     method: 'POST',
     url: `/runtimes/${runtimePid}/restart`,

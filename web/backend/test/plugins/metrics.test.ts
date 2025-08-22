@@ -6,7 +6,7 @@ import { MetricsResponse } from '../../schemas'
 test('metrics without runtime', async (t) => {
   const server = await getServer(t)
   assert.ok('_idleTimeout' in server.metricsInterval, 'interval for metrics are defined')
-  const metricsKeys = Object.keys(server.mappedMetrics)
+  const metricsKeys = Object.keys(server.loaded.metrics)
   assert.ok(metricsKeys.length === 0, 'mapped metrics are defined, and are empty')
 })
 
@@ -16,9 +16,9 @@ test('metrics with runtime', async (t) => {
   await startWatt(t)
   const server = await getServer(t)
   await loadMetrics(server)
-  const [pid] = Object.keys(server.mappedMetrics)
+  const [pid] = Object.keys(server.loaded.metrics)
   const servicePID = parseInt(pid)
-  assert.ok(Array.isArray(server.mappedMetrics[servicePID].aggregated.dataCpu))
+  assert.ok(Array.isArray(server.loaded.metrics[servicePID].aggregated.dataCpu))
 
   const res = await server.inject({
     url: `/runtimes/${pid}/metrics`

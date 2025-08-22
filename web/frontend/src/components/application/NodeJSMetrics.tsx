@@ -17,12 +17,12 @@ function NodeJSMetrics (): React.ReactElement {
   const [error, setError] = useState<unknown>(undefined)
   const [initialLoading, setInitialLoading] = useState(true)
   const [allData, setAllData] = useState<GetRuntimesPidMetricsResponseOK>(getEmptyMetrics())
-  const { runtimePid } = useAdminStore()
+  const { runtimePid, mode } = useAdminStore()
 
   const getData = async (): Promise<void> => {
     try {
       if (runtimePid) {
-        const data = await getApiMetricsPod(runtimePid)
+        const data = await getApiMetricsPod(runtimePid, mode)
         setAllData(data)
         setError(undefined)
       }

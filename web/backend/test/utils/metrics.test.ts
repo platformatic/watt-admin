@@ -4,6 +4,7 @@ import proxyquire from 'proxyquire'
 import { FastifyBaseLogger, FastifyInstance } from 'fastify'
 import { metricFixtures } from '../fixtures/metrics'
 import { RuntimeServices } from '@platformatic/control'
+import { MAX_STORED_METRICS } from '../../utils/constants'
 
 const calcPath = '../../utils/metrics'
 
@@ -36,7 +37,7 @@ class RuntimeApiClient {
 }
 
 const debug = mock.fn<FastifyBaseLogger['debug']>()
-const getMockFastify = () => ({ mappedMetrics: {}, log: { debug } }) as unknown as FastifyInstance
+const getMockFastify = () => ({ loaded: { metrics: {} }, log: { debug } }) as unknown as FastifyInstance
 
 test('getMetrics handles runtime client errors gracefully', async () => {
   class ErrorThrowingClient extends RuntimeApiClient {
@@ -52,7 +53,7 @@ test('getMetrics handles runtime client errors gracefully', async () => {
     }
   })
 
-  const fastify = { mappedMetrics: {}, log: { debug, warn } } as unknown as FastifyInstance
+  const fastify = { loaded: { metrics: {} }, log: { debug, warn } } as unknown as FastifyInstance
   await calculateErrorMetrics(fastify)
 
   assert.strictEqual(warn.mock.calls.length, 1)
@@ -82,10 +83,10 @@ test('getMetrics handles services with single worker correctly', async () => {
   const fastify = getMockFastify()
   await calculateSingleWorker(fastify)
 
-  assert.ok(fastify.mappedMetrics[1234])
-  assert.ok(fastify.mappedMetrics[1234].services['singleWorker'])
-  assert.ok(fastify.mappedMetrics[1234].services['singleWorker'].all)
-  assert.strictEqual(Object.keys(fastify.mappedMetrics[1234].services['singleWorker']).length, 1,
+  assert.ok(fastify.loaded.metrics[1234])
+  assert.ok(fastify.loaded.metrics[1234].services['singleWorker'])
+  assert.ok(fastify.loaded.metrics[1234].services['singleWorker'].all)
+  assert.strictEqual(Object.keys(fastify.loaded.metrics[1234].services['singleWorker']).length, 1,
     'Single worker service should only have "all" metrics and no worker-specific metrics')
 })
 
@@ -97,7 +98,7 @@ test('getMetrics collects and aggregates metrics correctly', async () => {
   const fastify = getMockFastify()
   await getMetrics(fastify)
 
-  const mockedMetrics = fastify.mappedMetrics[1234]
+  const mockedMetrics = fastify.loaded.metrics[1234]
   const metricService1 = mockedMetrics.services['type1']
   const metricService2 = mockedMetrics.services['type4']
   assert.ok(mockedMetrics)
@@ -262,8 +263,8 @@ test('getMetrics handles empty metrics correctly', async () => {
   const fastify = getMockFastify()
   await calculateEmptyMetrics(fastify)
 
-  assert.ok(fastify.mappedMetrics[1234])
-  const service1Metrics = fastify.mappedMetrics[1234].services['type1']
+  assert.ok(fastify.loaded.metrics[1234])
+  const service1Metrics = fastify.loaded.metrics[1234].services['type1']
 
   assert.strictEqual(service1Metrics.all.dataMem[0].rss, 0)
   assert.strictEqual(service1Metrics.all.dataMem[0].totalHeap, 0)
@@ -307,15 +308,15 @@ test('getMetrics handles missing services', async () => {
   const fastify = getMockFastify()
   await calculateNoServices(fastify)
 
-  assert.ok(fastify.mappedMetrics[1234])
-  assert.deepStrictEqual(fastify.mappedMetrics[1234].services, {})
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataMem.length === 1)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataCpu.length === 1)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataLatency.length === 1)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataReq.length === 1)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataKafka.length === 1)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataWebsocket.length === 1)
-  assert.ok(fastify.mappedMetrics[1234].aggregated.dataUndici.length === 1)
+  assert.ok(fastify.loaded.metrics[1234])
+  assert.deepStrictEqual(fastify.loaded.metrics[1234].services, {})
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataMem.length === 1)
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataCpu.length === 1)
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataLatency.length === 1)
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataReq.length === 1)
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataKafka.length === 1)
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataWebsocket.length === 1)
+  assert.ok(fastify.loaded.metrics[1234].aggregated.dataUndici.length === 1)
 })
 
 test('getMetrics respects MAX_STORED_METRICS limit', async () => {
@@ -324,41 +325,41 @@ test('getMetrics respects MAX_STORED_METRICS limit', async () => {
   })
 
   const fastify = getMockFastify()
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < MAX_STORED_METRICS + 10; i++) {
     await calculateLimitedMetrics(fastify)
   }
 
-  Object.values(fastify.mappedMetrics[1234].services).forEach(service => {
-    assert.strictEqual(service.all.dataMem.length, 20, 'Service memory metrics should be limited to 20 entries')
-    assert.strictEqual(service.all.dataCpu.length, 20, 'Service CPU metrics should be limited to 20 entries')
-    assert.strictEqual(service.all.dataLatency.length, 20, 'Service latency metrics should be limited to 20 entries')
-    assert.strictEqual(service.all.dataReq.length, 20, 'Service req metrics should be limited to 20 entries')
-    assert.strictEqual(service.all.dataKafka.length, 20, 'Service kafka metrics should be limited to 20 entries')
-    assert.strictEqual(service.all.dataUndici.length, 20, 'Service undici metrics should be limited to 20 entries')
-    assert.strictEqual(service.all.dataWebsocket.length, 20, 'Service websocket metrics should be limited to 20 entries')
+  Object.values(fastify.loaded.metrics[1234].services).forEach(service => {
+    assert.strictEqual(service.all.dataMem.length, MAX_STORED_METRICS, 'Service memory metrics should be limited')
+    assert.strictEqual(service.all.dataCpu.length, MAX_STORED_METRICS, 'Service CPU metrics should be limited')
+    assert.strictEqual(service.all.dataLatency.length, MAX_STORED_METRICS, 'Service latency metrics should be limited')
+    assert.strictEqual(service.all.dataReq.length, MAX_STORED_METRICS, 'Service req metrics should be limited')
+    assert.strictEqual(service.all.dataKafka.length, MAX_STORED_METRICS, 'Service kafka metrics should be limited')
+    assert.strictEqual(service.all.dataUndici.length, MAX_STORED_METRICS, 'Service undici metrics should be limited')
+    assert.strictEqual(service.all.dataWebsocket.length, MAX_STORED_METRICS, 'Service websocket metrics should be limited')
 
-    assert.strictEqual(service[0].dataMem.length, 20, 'Worker 0 memory metrics should be limited to 20 entries')
-    assert.strictEqual(service[0].dataCpu.length, 20, 'Worker 0 CPU metrics should be limited to 20 entries')
-    assert.strictEqual(service[0].dataLatency.length, 20, 'Worker 0 latency metrics should be limited to 20 entries')
-    assert.strictEqual(service[0].dataReq.length, 20, 'Worker 0 req metrics should be limited to 20 entries')
-    assert.strictEqual(service[0].dataKafka.length, 20, 'Worker 0 kafka metrics should be limited to 20 entries')
-    assert.strictEqual(service[0].dataUndici.length, 20, 'Worker 0 undici metrics should be limited to 20 entries')
-    assert.strictEqual(service[0].dataWebsocket.length, 20, 'Worker 0 websocket metrics should be limited to 20 entries')
+    assert.strictEqual(service[0].dataMem.length, MAX_STORED_METRICS, 'Worker 0 memory metrics should be limited')
+    assert.strictEqual(service[0].dataCpu.length, MAX_STORED_METRICS, 'Worker 0 CPU metrics should be limited')
+    assert.strictEqual(service[0].dataLatency.length, MAX_STORED_METRICS, 'Worker 0 latency metrics should be limited')
+    assert.strictEqual(service[0].dataReq.length, MAX_STORED_METRICS, 'Worker 0 req metrics should be limited')
+    assert.strictEqual(service[0].dataKafka.length, MAX_STORED_METRICS, 'Worker 0 kafka metrics should be limited')
+    assert.strictEqual(service[0].dataUndici.length, MAX_STORED_METRICS, 'Worker 0 undici metrics should be limited')
+    assert.strictEqual(service[0].dataWebsocket.length, MAX_STORED_METRICS, 'Worker 0 websocket metrics should be limited')
 
-    assert.strictEqual(service[1].dataMem.length, 20, 'Worker 1 memory metrics should be limited to 20 entries')
-    assert.strictEqual(service[1].dataCpu.length, 20, 'Worker 1 CPU metrics should be limited to 20 entries')
-    assert.strictEqual(service[1].dataLatency.length, 20, 'Worker 1 latency metrics should be limited to 20 entries')
-    assert.strictEqual(service[1].dataReq.length, 20, 'Worker 1 req metrics should be limited to 20 entries')
-    assert.strictEqual(service[1].dataKafka.length, 20, 'Worker 1 kafka metrics should be limited to 20 entries')
-    assert.strictEqual(service[1].dataUndici.length, 20, 'Worker 1 undici metrics should be limited to 20 entries')
-    assert.strictEqual(service[1].dataWebsocket.length, 20, 'Worker 1 websocket metrics should be limited to 20 entries')
+    assert.strictEqual(service[1].dataMem.length, MAX_STORED_METRICS, 'Worker 1 memory metrics should be limited')
+    assert.strictEqual(service[1].dataCpu.length, MAX_STORED_METRICS, 'Worker 1 CPU metrics should be limited')
+    assert.strictEqual(service[1].dataLatency.length, MAX_STORED_METRICS, 'Worker 1 latency metrics should be limited')
+    assert.strictEqual(service[1].dataReq.length, MAX_STORED_METRICS, 'Worker 1 req metrics should be limited')
+    assert.strictEqual(service[1].dataKafka.length, MAX_STORED_METRICS, 'Worker 1 kafka metrics should be limited')
+    assert.strictEqual(service[1].dataUndici.length, MAX_STORED_METRICS, 'Worker 1 undici metrics should be limited')
+    assert.strictEqual(service[1].dataWebsocket.length, MAX_STORED_METRICS, 'Worker 1 websocket metrics should be limited')
   })
 
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataMem.length, 20, 'Aggregated memory metrics should be limited to 20 entries')
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataCpu.length, 20, 'Aggregated CPU metrics should be limited to 20 entries')
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataLatency.length, 20, 'Aggregated latency metrics should be limited to 20 entries')
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataReq.length, 20, 'Aggregated req metrics should be limited to 20 entries')
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataKafka.length, 20, 'Aggregated kafka metrics should be limited to 20 entries')
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataUndici.length, 20, 'Aggregated undici metrics should be limited to 20 entries')
-  assert.strictEqual(fastify.mappedMetrics[1234].aggregated.dataWebsocket.length, 20, 'Aggregated websocket metrics should be limited to 20 entries')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataMem.length, MAX_STORED_METRICS, 'Aggregated memory metrics should be limited')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataCpu.length, MAX_STORED_METRICS, 'Aggregated CPU metrics should be limited')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataLatency.length, MAX_STORED_METRICS, 'Aggregated latency metrics should be limited')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataReq.length, MAX_STORED_METRICS, 'Aggregated req metrics should be limited')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataKafka.length, MAX_STORED_METRICS, 'Aggregated kafka metrics should be limited')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataUndici.length, MAX_STORED_METRICS, 'Aggregated undici metrics should be limited')
+  assert.strictEqual(fastify.loaded.metrics[1234].aggregated.dataWebsocket.length, MAX_STORED_METRICS, 'Aggregated websocket metrics should be limited')
 })

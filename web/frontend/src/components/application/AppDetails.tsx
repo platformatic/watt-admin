@@ -10,21 +10,22 @@ import { getApiApplication } from '../../api'
 const AppDetails: React.FC = () => {
   const [error, setError] = useState<unknown>(undefined)
   const [apiApplication, setApiApplication] = useState<ApiApplication>({ id: 0, lastStarted: '', name: '', url: '' })
-  const { setRuntimePid } = useAdminStore()
+  const { setRuntimePid, mode } = useAdminStore()
+
+  const fetchData = async (): Promise<void> => {
+    try {
+      const response = await getApiApplication(mode)
+      if (response.id) {
+        setApiApplication(response)
+        setRuntimePid(response.id)
+        setError(undefined)
+      }
+    } catch (error) {
+      setError(error)
+    }
+  }
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        const response = await getApiApplication()
-        if (response.id) {
-          setApiApplication(response)
-          setRuntimePid(response.id)
-          setError(undefined)
-        }
-      } catch (error) {
-        setError(error)
-      }
-    }
     fetchData()
   }, [])
 
@@ -35,7 +36,7 @@ const AppDetails: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.containerElement}>
-        <AppNameBox onErrorOccurred={setError} apiApplication={apiApplication} />
+        <AppNameBox onModeUpdated={fetchData} onErrorOccurred={setError} apiApplication={apiApplication} />
         <ServicesBox />
         <NodeJSMetrics />
       </div>

@@ -8,9 +8,7 @@ export default async function (fastify: FastifyInstance) {
 
   typedFastify.get('/runtimes/:pid/metrics', {
     schema: { params: pidParamSchema, response: { 200: metricResponseSchema } },
-  }, async ({ params: { pid } }) => {
-    return typedFastify.mappedMetrics[pid]?.aggregated || emptyMetrics
-  })
+  }, async ({ params: { pid } }) => fastify.loaded.metrics[pid]?.aggregated || emptyMetrics)
 
   typedFastify.get('/runtimes/:pid/metrics/:serviceId', {
     schema: {
@@ -25,7 +23,7 @@ export default async function (fastify: FastifyInstance) {
       response: { 200: metricResponseSchema }
     }
   }, async ({ params: { pid, serviceId } }) => {
-    return fastify.mappedMetrics[pid]?.services[serviceId]?.all || emptyMetrics
+    return fastify.loaded.metrics[pid]?.services[serviceId]?.all || emptyMetrics
   })
 
   typedFastify.get('/runtimes/:pid/metrics/:serviceId/:workerId', {
@@ -42,6 +40,6 @@ export default async function (fastify: FastifyInstance) {
       response: { 200: metricResponseSchema }
     }
   }, async ({ params: { pid, serviceId, workerId } }) => {
-    return fastify.mappedMetrics[pid]?.services[serviceId]?.[workerId] || emptyMetrics
+    return fastify.loaded.metrics[pid]?.services[serviceId]?.[workerId] || emptyMetrics
   })
 }

@@ -11,6 +11,7 @@ import {
   isWebsocketMetricName
 } from '../../utils/metrics-helpers'
 import { MemoryDataPoint } from '../../schemas'
+import { MAX_STORED_METRICS } from '../../utils/constants'
 
 test('isKafkaMetricName returns true for valid kafka metric names', () => {
   assert.strictEqual(isKafkaMetricName('kafka_producers'), true)
@@ -68,7 +69,7 @@ test('addMetricDataPoint adds multiple data points', () => {
 })
 
 test('addMetricDataPoint removes oldest when MAX_STORED_METRICS is reached', () => {
-  const metrics = Array.from({ length: 20 }, (_, i) => ({
+  const metrics = Array.from({ length: MAX_STORED_METRICS }, (_, i) => ({
     date: `2023-01-${i + 1}`,
     rss: i * 10,
     totalHeap: i * 20,
@@ -81,9 +82,9 @@ test('addMetricDataPoint removes oldest when MAX_STORED_METRICS is reached', () 
 
   addMetricDataPoint(metrics, newDataPoint)
 
-  assert.strictEqual(metrics.length, 20)
+  assert.strictEqual(metrics.length, MAX_STORED_METRICS)
   assert.strictEqual(metrics[0].date, '2023-01-2', 'First item was removed')
-  assert.deepStrictEqual(metrics[19], newDataPoint, 'New item is at the end')
+  assert.deepStrictEqual(metrics[MAX_STORED_METRICS - 1], newDataPoint, 'New item is at the end')
 })
 
 test('initMetricsObject creates object with correct structure and date', () => {
@@ -222,7 +223,7 @@ test('initMetricsResponse creates empty arrays when only date provided', () => {
 })
 
 test('initServiceMetrics creates service metrics structure when service does not exist', () => {
-  const mappedMetrics: MappedMetrics = {
+  const metrics: MappedMetrics = {
     1234: {
       aggregated: initMetricsResponse(),
       services: {}
@@ -230,20 +231,20 @@ test('initServiceMetrics creates service metrics structure when service does not
   }
 
   initServiceMetrics({
-    mappedMetrics,
+    metrics,
     pid: 1234,
     serviceId: 'test-service',
     workers: 3,
     areMultipleWorkersEnabled: false
   })
 
-  assert.strictEqual(typeof mappedMetrics[1234].services['test-service'], 'object')
-  assert.strictEqual(typeof mappedMetrics[1234].services['test-service'].all, 'object')
+  assert.strictEqual(typeof metrics[1234].services['test-service'], 'object')
+  assert.strictEqual(typeof metrics[1234].services['test-service'].all, 'object')
 })
 
 test('initServiceMetrics does not overwrite existing service metrics', () => {
   const existingMetrics = initMetricsResponse()
-  const mappedMetrics: MappedMetrics = {
+  const metrics: MappedMetrics = {
     1234: {
       aggregated: initMetricsResponse(),
       services: {
@@ -255,18 +256,18 @@ test('initServiceMetrics does not overwrite existing service metrics', () => {
   }
 
   initServiceMetrics({
-    mappedMetrics,
+    metrics,
     pid: 1234,
     serviceId: 'test-service',
     workers: 3,
     areMultipleWorkersEnabled: false
   })
 
-  assert.strictEqual(mappedMetrics[1234].services['test-service'].all, existingMetrics)
+  assert.strictEqual(metrics[1234].services['test-service'].all, existingMetrics)
 })
 
 test('initServiceMetrics creates worker-specific metrics when multiple workers enabled', () => {
-  const mappedMetrics: MappedMetrics = {
+  const metrics: MappedMetrics = {
     1234: {
       aggregated: initMetricsResponse(),
       services: {}
@@ -274,20 +275,20 @@ test('initServiceMetrics creates worker-specific metrics when multiple workers e
   }
 
   initServiceMetrics({
-    mappedMetrics,
+    metrics,
     pid: 1234,
     serviceId: 'test-service',
     workers: 3,
     areMultipleWorkersEnabled: true
   })
 
-  assert.strictEqual(typeof mappedMetrics[1234].services['test-service'][0], 'object')
-  assert.strictEqual(typeof mappedMetrics[1234].services['test-service'][1], 'object')
-  assert.strictEqual(typeof mappedMetrics[1234].services['test-service'][2], 'object')
+  assert.strictEqual(typeof metrics[1234].services['test-service'][0], 'object')
+  assert.strictEqual(typeof metrics[1234].services['test-service'][1], 'object')
+  assert.strictEqual(typeof metrics[1234].services['test-service'][2], 'object')
 })
 
 test('initServiceMetrics does not create worker-specific metrics when multiple workers disabled', () => {
-  const mappedMetrics: MappedMetrics = {
+  const metrics: MappedMetrics = {
     1234: {
       aggregated: initMetricsResponse(),
       services: {}
@@ -295,14 +296,14 @@ test('initServiceMetrics does not create worker-specific metrics when multiple w
   }
 
   initServiceMetrics({
-    mappedMetrics,
+    metrics,
     pid: 1234,
     serviceId: 'test-service',
     workers: 3,
     areMultipleWorkersEnabled: false
   })
 
-  assert.strictEqual(mappedMetrics[1234].services['test-service'][0], undefined)
-  assert.strictEqual(mappedMetrics[1234].services['test-service'][1], undefined)
-  assert.strictEqual(mappedMetrics[1234].services['test-service'][2], undefined)
+  assert.strictEqual(metrics[1234].services['test-service'][0], undefined)
+  assert.strictEqual(metrics[1234].services['test-service'][1], undefined)
+  assert.strictEqual(metrics[1234].services['test-service'][2], undefined)
 })

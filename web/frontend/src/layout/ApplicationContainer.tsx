@@ -8,6 +8,7 @@ import styles from './HomeContainer.module.css'
 import SideBar from '../components/ui/SideBar'
 import useAdminStore from '../useAdminStore'
 import { useNavigate } from 'react-router-dom'
+import { getOfflineMode } from '../utilities/getters'
 
 interface ApplicationContainerProps {
   children?: ReactNode;
@@ -50,7 +51,8 @@ function ApplicationContainer ({ children }: ApplicationContainerProps): React.R
           name: POD_LOGS_PATH,
           label: 'Logs',
           iconName: 'CLIIcon',
-          onClick: () => handleNavigation('Logs', POD_LOGS_PATH)
+          onClick: () => handleNavigation('Logs', POD_LOGS_PATH),
+          disabled: getOfflineMode()
         }]}
         bottomItems={[{
           name: 'Documentation',

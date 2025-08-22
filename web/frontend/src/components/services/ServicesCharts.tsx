@@ -15,8 +15,7 @@ import { getServiceWorkers } from '../../utilities/getters'
 import { hasMultipleWorkers, ThreadIndex } from '../../utilities/threads'
 
 const ServicesCharts: React.FC = () => {
-  const globalState = useAdminStore()
-  const { setCurrentPage, runtimePid } = globalState
+  const { setCurrentPage, runtimePid, mode } = useAdminStore()
   const [error, setError] = useState<unknown>(undefined)
   const [showAggregatedMetrics, setShowAggregatedMetrics] = useState(true)
   const [services, setServices] = useState<ServiceData[]>([])
@@ -31,7 +30,7 @@ const ServicesCharts: React.FC = () => {
     const fetchData = async (): Promise<void> => {
       try {
         if (runtimePid) {
-          const response = await getServices(runtimePid)
+          const response = await getServices(runtimePid, mode)
           setServices(response)
           setServiceSelected(response[0])
           setError(undefined)

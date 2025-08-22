@@ -5,7 +5,7 @@ import { bytesToMB } from './bytes'
 import { getReqRps } from './rps'
 import { addMetricDataPoint, initMetricsObject, initMetricsResponse, initServiceMetrics, isKafkaMetricName, isUndiciMetricName, isWebsocketMetricName, kafkaMetricMap, undiciMetricMap, websocketMetricMap } from './metrics-helpers'
 
-export const getMetrics = async ({ mappedMetrics, log }: FastifyInstance): Promise<void> => {
+export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance): Promise<void> => {
   try {
     const api = new RuntimeApiClient()
     const runtimes = await api.getRuntimes()
@@ -15,8 +15,8 @@ export const getMetrics = async ({ mappedMetrics, log }: FastifyInstance): Promi
       let aggregatedRss = 0
 
       const runtimeMetrics = await api.getRuntimeMetrics(pid, { format: 'json' })
-      if (!mappedMetrics[pid]) {
-        mappedMetrics[pid] = { services: {}, aggregated: initMetricsResponse() }
+      if (!metrics[pid]) {
+        metrics[pid] = { services: {}, aggregated: initMetricsResponse() }
       }
 
       const { services, entrypoint } = await api.getRuntimeServices(pid)
@@ -25,7 +25,7 @@ export const getMetrics = async ({ mappedMetrics, log }: FastifyInstance): Promi
         const workers = 'workers' in service && service?.workers ? service.workers : 1
         const areMultipleWorkersEnabled = workers > 1
         const isEntrypointService = entrypoint === serviceId
-        initServiceMetrics({ mappedMetrics, pid, serviceId, workers, areMultipleWorkersEnabled })
+        initServiceMetrics({ metrics, pid, serviceId, workers, areMultipleWorkersEnabled })
         const workerMetrics = initMetricsResponse(date, workers)
         const serviceMetrics = initMetricsObject(date)
 
@@ -128,11 +128,11 @@ export const getMetrics = async ({ mappedMetrics, log }: FastifyInstance): Promi
                 } else {
                   if (areMultipleWorkersEnabled) {
                     workerMetrics.dataReq[workerId].count = count
-                    const rps = getReqRps(count, mappedMetrics[pid].services[serviceId][workerId].dataReq)
+                    const rps = getReqRps(count, metrics[pid].services[serviceId][workerId].dataReq)
                     workerMetrics.dataReq[workerId].rps = rps
                   }
                   serviceMetrics.dataReq.count += count
-                  const rps = getReqRps(serviceMetrics.dataReq.count, mappedMetrics[pid].services[serviceId].all.dataReq)
+                  const rps = getReqRps(serviceMetrics.dataReq.count, metrics[pid].services[serviceId].all.dataReq)
                   serviceMetrics.dataReq.rps = rps
 
                   if (isEntrypointService) {
@@ -178,13 +178,13 @@ export const getMetrics = async ({ mappedMetrics, log }: FastifyInstance): Promi
         if (areMultipleWorkersEnabled) {
           for (let i = 0; i < workers; i++) {
             workerMetrics.dataMem[i].rss = aggregatedRss
-            requiredMetricKeys.forEach(key => addMetricDataPoint(mappedMetrics[pid].services[serviceId][i][key], workerMetrics[key][i]))
+            requiredMetricKeys.forEach(key => addMetricDataPoint(metrics[pid].services[serviceId][i][key], workerMetrics[key][i]))
           }
         }
 
-        requiredMetricKeys.forEach(key => addMetricDataPoint(mappedMetrics[pid].services[serviceId].all[key], serviceMetrics[key]))
+        requiredMetricKeys.forEach(key => addMetricDataPoint(metrics[pid].services[serviceId].all[key], serviceMetrics[key]))
       }
-      requiredMetricKeys.forEach(key => addMetricDataPoint(mappedMetrics[pid].aggregated[key], aggregatedMetrics[key]))
+      requiredMetricKeys.forEach(key => addMetricDataPoint(metrics[pid].aggregated[key], aggregatedMetrics[key]))
     }
   } catch (error) {
     log.warn(error, 'Unable to get runtime metrics. Retry will start soon...')

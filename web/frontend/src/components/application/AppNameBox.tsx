@@ -7,7 +7,9 @@ import tooltipStyles from '../../styles/TooltipStyles.module.css'
 import { Icons, BorderedBox, Button, PlatformaticIcon, Tooltip } from '@platformatic/ui-components'
 import { STATUS_STOPPED, STATUS_RUNNING } from '../../ui-constants'
 import ApplicationStatusPills from '../ui/ApplicationStatusPills'
-import { restartApiApplication, isWattpmVersionOutdated } from '../../api'
+import { restartApiApplication, isWattpmVersionOutdated, updateMode } from '../../api'
+import useAdminStore from '../../useAdminStore'
+import { getOfflineMode } from '../../utilities/getters'
 
 export interface ApiApplication {
   id: number;
@@ -18,30 +20,33 @@ export interface ApiApplication {
 }
 
 interface AppNameBoxProps {
-  onErrorOccurred?: (error: unknown) => void;
+  onErrorOccurred: (error: unknown) => void;
+  onModeUpdated: () => void;
   apiApplication?: ApiApplication;
 }
 
 function AppNameBox ({
-  onErrorOccurred = () => {},
+  onErrorOccurred,
+  onModeUpdated,
   apiApplication
 }: AppNameBoxProps): React.ReactElement | null {
+  const { mode, setMode, record, setRecord } = useAdminStore()
   const [appStatus, setAppStatus] = useState(STATUS_STOPPED)
   const [changingRestartStatus, setChangingRestartStatus] = useState(false)
   const [outdatedVersion, setOutdatedVersion] = useState(false)
 
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        const outdated = await isWattpmVersionOutdated(apiApplication?.pltVersion)
-        setOutdatedVersion(outdated)
-      } catch (e) {
-        onErrorOccurred(e)
-      }
+  const fetchData = async (): Promise<void> => {
+    try {
+      const outdated = await isWattpmVersionOutdated(mode, apiApplication?.pltVersion)
+      setOutdatedVersion(outdated)
+    } catch (e) {
+      onErrorOccurred(e)
     }
+  }
 
+  useEffect(() => {
     if (apiApplication?.id) {
-      setAppStatus(STATUS_RUNNING)
+      setAppStatus(getOfflineMode() ? STATUS_STOPPED : STATUS_RUNNING)
       fetchData()
     }
   }, [apiApplication?.id])
@@ -104,6 +109,38 @@ function AppNameBox ({
                   disabled={appStatus === STATUS_STOPPED}
                 />
                 )}
+
+            {!getOfflineMode() &&
+              <><Button
+                type='button'
+                label={`Record ${record}`}
+                onClick={async () => {
+                  await updateMode(record)
+                  await fetchData()
+                  setRecord(record === 'start' ? 'stop' : 'start')
+                  onModeUpdated()
+                }}
+                color={WHITE}
+                backgroundColor={TRANSPARENT}
+                paddingClass={commonStyles.smallButtonPadding}
+                platformaticIcon={{ iconName: record === 'start' ? 'DownloadIcon' : 'StopIcon', color: WHITE }}
+                textClass={typographyStyles.desktopButtonSmall}
+                internalOverHandling
+                />
+                <Button
+                  type='button'
+                  label={mode === 'load' ? 'Live' : 'Load'}
+                  onClick={() => {
+                    setMode(mode === 'load' ? 'live' : 'load')
+                    onModeUpdated()
+                  }}
+                  color={WHITE}
+                  backgroundColor={TRANSPARENT}
+                  paddingClass={commonStyles.smallButtonPadding}
+                  platformaticIcon={{ iconName: mode === 'load' ? 'UploadFileIcon' : 'LiveIcon', color: WHITE }}
+                  textClass={typographyStyles.desktopButtonSmall}
+                />
+              </>}
           </div>
         </div>
         <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth} ${styles.appInnerBox}`}>
