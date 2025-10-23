@@ -33,6 +33,7 @@
     "@platformatic/wattpm-pprof-capture": "^3.13.0",
     "@scalar/api-reference-react": "^0.7.55",
     "@vitejs/plugin-react": "^5.0.4",
+    "amaro": "^1.1.4",
     "autoprefixer": "^10.4.21",
     "close-with-grace": "^2.3.0",
     "d3": "^7.9.0",
