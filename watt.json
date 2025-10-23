@@ -7,13 +7,21 @@
   "logger": {
     "level": "info"
   },
-  "autoload": {
-    "path": "web",
-    "mappings": {
-      "backend": {
-        "id": "backend",
-        "useHttp": true
-      }
+  "entrypoint": "composer",
+  "applications": [
+    {
+      "id": "backend",
+      "path": "./web/backend",
+      "useHttp": true,
+      "nodeOptions": "--import=amaro/strip"
+    },
+    {
+      "id": "composer",
+      "path": "./web/composer"
+    },
+    {
+      "id": "frontend",
+      "path": "./web/frontend"
     }
-  }
+  ]
 }
