@@ -8,6 +8,7 @@ import type { CloseWithGraceAsyncCallback } from 'close-with-grace'
 interface MockServer {
   started: boolean
   start(): Promise<string>
+  close(): Promise<void>
 }
 
 interface RequestOptions {
@@ -53,6 +54,9 @@ describe('start', () => {
     start: async function () {
       this.started = true
       return 'http://localhost:3000'
+    },
+    close: async function () {
+      this.started = false
     }
   }
 
@@ -194,5 +198,8 @@ describe('start', () => {
     const [execCommand] = execAsyncMock.mock.calls[0].arguments
     assert.ok(execCommand.includes('open') || execCommand.includes('start'), 'execAsync command should contain "open" or "start"')
     assert.ok(execCommand.includes('index.html'), 'execAsync command should contain "index.html"')
+
+    // 7. Check if the server was stopped
+    assert.strictEqual(mockServer.started, false, 'Server should be stopped')
   })
 })
