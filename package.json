@@ -32,7 +32,7 @@
     "@platformatic/ui-components": "^0.19.1",
     "@platformatic/vite": "^3.11.0",
     "@platformatic/wattpm-pprof-capture": "^3.15.0",
-    "@scalar/api-reference-react": "^0.7.55",
+    "@scalar/api-reference-react": "^0.8.0",
     "@vitejs/plugin-react": "^5.0.4",
     "amaro": "^1.1.4",
     "autoprefixer": "^10.4.21",
