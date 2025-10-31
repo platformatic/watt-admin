@@ -241,4 +241,63 @@ describe('start', () => {
       globalThis.setTimeout = originalSetTimeout
     }
   })
+
+  it('should prevent double shutdown when multiple SIGINT signals are received', async () => {
+    // Set parseArgs result to enable recording
+    parseArgsResult = { values: { record: true } }
+
+    const pid = 'test-runtime-multi-sigint'
+
+    // Track shutdown calls
+    let shutdownCount = 0
+    const originalClose = mockServer.close
+    mockServer.close = mock.fn(async () => {
+      shutdownCount++
+      await originalClose.call(mockServer)
+    })
+
+    // Mock setTimeout to prevent actual 10-minute timeout
+    const originalSetTimeout = globalThis.setTimeout
+    globalThis.setTimeout = mock.fn((callback: () => void, delay: number) => {
+      if (delay === 600000) {
+        return {} as NodeJS.Timeout
+      }
+      return originalSetTimeout(callback, delay)
+    }) as typeof setTimeout
+
+    try {
+      const { start } = await import('../lib/start.js')
+      await start(mockClient, pid)
+
+      // Verify SIGINT listener is registered
+      assert.strictEqual(process.listenerCount('SIGINT'), 1, 'Should have one SIGINT listener')
+
+      // First SIGINT - should trigger shutdown
+      process.emit('SIGINT')
+      await new Promise(resolve => setImmediate(resolve))
+
+      // During shutdown, there should be an ignoring handler
+      const listenerCountDuringShutdown = process.listenerCount('SIGINT')
+
+      // Send second SIGINT during shutdown
+      process.emit('SIGINT')
+      await new Promise(resolve => setImmediate(resolve))
+
+      // Send third SIGINT to be sure
+      process.emit('SIGINT')
+      await new Promise(resolve => setImmediate(resolve))
+      await new Promise(resolve => setImmediate(resolve))
+
+      // Verify shutdown was only called once
+      const closeMock = mockServer.close as MockFunction<() => Promise<void>>
+      assert.strictEqual(closeMock.mock.calls.length, 1, 'Server close should only be called once despite multiple SIGINT signals')
+      assert.strictEqual(shutdownCount, 1, 'Shutdown should only happen once')
+
+      // Verify all SIGINT listeners are cleaned up
+      assert.strictEqual(process.listenerCount('SIGINT'), 0, 'All SIGINT listeners should be removed after shutdown')
+    } finally {
+      globalThis.setTimeout = originalSetTimeout
+      mockServer.close = originalClose
+    }
+  })
 })
