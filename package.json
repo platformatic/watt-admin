@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@platformatic/watt-admin",
-  "version": "0.6.0-alpha.4",
+  "version": "0.6.0-alpha.5",
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "wattpm dev",
@@ -25,13 +25,13 @@
     "@fastify/websocket": "^11.2.0",
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
     "@inquirer/prompts": "^7.8.6",
-    "@platformatic/control": "^3.11.0",
-    "@platformatic/gateway": "^3.11.0",
-    "@platformatic/runtime": "^3.11.0",
-    "@platformatic/service": "^3.11.0",
+    "@platformatic/control": "^3.15.0",
+    "@platformatic/gateway": "^3.15.0",
+    "@platformatic/runtime": "^3.15.0",
+    "@platformatic/service": "^3.15.0",
     "@platformatic/ui-components": "^0.19.1",
     "@platformatic/vite": "^3.11.0",
-    "@platformatic/wattpm-pprof-capture": "^3.13.0",
+    "@platformatic/wattpm-pprof-capture": "^3.15.0",
     "@scalar/api-reference-react": "^0.7.55",
     "@vitejs/plugin-react": "^5.0.4",
     "amaro": "^1.1.4",
@@ -53,7 +53,7 @@
     "use-error-boundary": "^2.0.6",
     "vite": "^7.1.9",
     "vite-plugin-singlefile": "^2.3.0",
-    "wattpm": "^3.11.0",
+    "wattpm": "^3.15.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
