@@ -59,7 +59,7 @@
   "devDependencies": {
     "@playwright/test": "^1.56.0",
     "@types/d3": "^7.4.3",
-    "@types/node": "^22",
+    "@types/node": "^24.0.0",
     "@types/react-dom": "^19.2.1",
     "@types/split2": "^4.2.3",
     "@types/ws": "^8.18.1",
