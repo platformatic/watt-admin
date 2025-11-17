@@ -24,7 +24,7 @@
   "dependencies": {
     "@fastify/websocket": "^11.2.0",
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
-    "@inquirer/prompts": "^7.8.6",
+    "@inquirer/prompts": "^8.0.0",
     "@platformatic/control": "^3.15.0",
     "@platformatic/gateway": "^3.15.0",
     "@platformatic/runtime": "^3.15.0",
