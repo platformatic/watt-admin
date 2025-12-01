@@ -9,12 +9,12 @@
     "start": "wattpm start",
     "typecheck": "cd web/backend && tsc && cd ../frontend && tsc",
     "client:openapi": "cd web/backend && node --experimental-strip-types utils/client.openapi.ts",
-    "client:generate": "./node_modules/.bin/massimo ./web/backend/openapi.json --name backend --folder web/frontend/src/client --language ts --frontend --full --skip-config-update --props-optional",
+    "client:generate": "massimo ./web/backend/openapi.json --name backend --folder web/frontend/src/client --language ts --frontend --full --skip-config-update --props-optional",
     "test": "npm run test:cli && npm run test:e2e && npm run test:backend && npm run test:frontend",
     "test:cli": "node --test --experimental-test-module-mocks --test-timeout 60000 test/*.test.ts",
     "test:backend": "node --test --experimental-test-module-mocks --test-timeout 60000 --test-concurrency 1 web/backend/**/*.test.ts",
     "test:frontend": "cd web/frontend && vitest run",
-    "pretest:e2e": "./node_modules/.bin/playwright install chromium",
+    "pretest:e2e": "playwright install chromium",
     "test:e2e": "cd web/frontend && playwright test",
     "test:e2e:ui": "npm run test:e2e -- --ui",
     "clean": "rm -rf ./web/*/dist ./playwright-report ./test-results",
@@ -72,6 +72,6 @@
     "vitest": "^3.2.4"
   },
   "bin": {
-    "watt-admin": "./cli.js"
+    "watt-admin": "cli.js"
   }
 }
