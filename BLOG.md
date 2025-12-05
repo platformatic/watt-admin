@@ -19,7 +19,38 @@ With the new recording capabilities, Watt Admin can now:
 - **📦 Create offline bundles**: Package everything into a single HTML file
 - **🤝 Share effortlessly**: Send the bundle to anyone—no setup required
 
+<!-- TODO: Screenshot - Hero image showing the Watt Admin dashboard with metrics and flame graph -->
+
 ## How It Works
+
+### Metrics Recording
+
+At the core of every recording session is comprehensive metrics collection. Watt Admin captures a complete picture of your application's health and performance:
+
+**Memory Metrics**
+- **RSS (Resident Set Size)**: Total process memory usage
+- **Heap Usage**: Total heap, used heap, new space, and old space—essential for tracking memory leaks and garbage collection behavior
+
+**CPU & Event Loop**
+- **CPU Usage**: Per-thread CPU utilization percentage
+- **Event Loop Utilization (ELU)**: How busy your event loop is—a key indicator of Node.js application health
+
+**HTTP Performance**
+- **Request Count & RPS**: Total requests and throughput over time
+- **Latency Percentiles**: P90, P95, and P99 response times to understand your tail latency
+
+**HTTP Client (Undici)**
+- **Connection Pool Stats**: Idle, open, pending, queued, and active sockets
+- Track how your application communicates with external services
+
+**Additional Metrics**
+- **WebSocket Connections**: Active WebSocket connection count
+- **Kafka Metrics**: Produced/consumed messages, producers, consumers, and DLQ stats (if using Kafka)
+- **Event Loop Resources**: Active handles and requests in the event loop
+
+All metrics are sampled every second and stored for the duration of your recording session (up to 600 data points). When you stop recording, this entire metrics history is bundled into the HTML file, giving you a complete timeline to analyze.
+
+<!-- TODO: Screenshot - Metrics dashboard showing memory, CPU, latency, and request charts -->
 
 ### CPU Profiling
 
@@ -38,6 +69,8 @@ Run your application through the scenario you want to analyze, then press `Ctrl+
 
 The resulting flame graph shows you exactly which functions are consuming CPU cycles, making it easy to spot optimization opportunities.
 
+<!-- TODO: Screenshot - CPU flame graph showing function call hierarchy and time spent -->
+
 ### Heap Profiling
 
 Track down memory leaks and understand allocation patterns:
@@ -53,6 +86,8 @@ Heap profiling reveals:
 - Object retention paths
 
 Perfect for debugging those mysterious memory issues that only appear under specific conditions.
+
+<!-- TODO: Screenshot - Heap allocation flame graph showing memory allocation patterns -->
 
 ## Real-World Use Cases
 
@@ -90,14 +125,20 @@ The generated HTML bundle is truly self-contained—it includes:
 
 No external dependencies. No network requests. Just open and explore.
 
+<!-- TODO: Screenshot - The self-contained HTML bundle showing metrics history and flame graph tabs -->
+
 ## Getting Started
+
+### Prerequisites
+
+**Important**: Watt Admin is designed specifically for applications running on [Platformatic Watt](https://docs.platformatic.dev). If you don't have a Watt application yet, follow the [Quick Start Guide](https://docs.platformatic.dev/getting-started/quick-start) to create one.
 
 ### Installation
 
-If you haven't already, install Watt Admin:
+Install Watt Admin globally:
 
 ```bash
-npm install -g @platformatic/watt-admin
+npm i @platformatic/watt-admin -g
 ```
 
 Or use it directly with npx:
@@ -120,14 +161,6 @@ npx wattpm admin --record --profile cpu
 4. **Analyze** the automatically-opened HTML bundle
 
 5. **Share** the bundle file with your team
-
-### Custom Port
-
-Recording mode works with custom ports too:
-
-```bash
-watt-admin --port 3000 --record --profile heap
-```
 
 ## Under the Hood: How Recording Works
 
@@ -161,7 +194,7 @@ We'd love to hear your feedback! Try recording mode and let us know what you thi
 Recording and profiling are available now in Watt Admin. Update to the latest version:
 
 ```bash
-npm install -g @platformatic/watt-admin@latest
+npm i @platformatic/watt-admin -g
 ```
 
 Then start profiling:
