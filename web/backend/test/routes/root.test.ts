@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert'
 import { getServer, startWatt } from '../helper.ts'
+import { readFile, rm, readdir, mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 test('no runtime running', async (t) => {
   const server = await getServer(t)
@@ -147,4 +150,48 @@ test('record endpoint accepts outputPath as directory path', async (t) => {
   })
   assert.strictEqual(stopRes.statusCode, 200, 'should accept directory path')
   assert.strictEqual(server.loaded.mode, 'stop', 'stop mode')
+})
+
+test('record creates file with embedded JSON at custom outputPath', async (t) => {
+  await startWatt(t)
+  const server = await getServer(t)
+  const res = await server.inject({ url: '/runtimes?includeAdmin=true' })
+  const [runtime] = res.json()
+  const runtimePid = runtime.pid
+
+  // Create a temp directory for output
+  const tempDir = join(tmpdir(), `watt-admin-test-${Date.now()}`)
+  await mkdir(tempDir, { recursive: true })
+  t.after(async () => {
+    await rm(tempDir, { recursive: true, force: true })
+  })
+
+  // Start recording
+  const startRes = await server.inject({
+    url: `/record/${runtimePid}`,
+    method: 'POST',
+    body: { mode: 'start', profile: 'cpu' }
+  })
+  assert.strictEqual(startRes.statusCode, 200, 'start recording should succeed')
+  assert.strictEqual(server.loaded.mode, 'start', 'mode should be start')
+
+  // Stop recording with custom outputPath (directory)
+  const stopRes = await server.inject({
+    url: `/record/${runtimePid}`,
+    method: 'POST',
+    body: { mode: 'stop', profile: 'cpu', outputPath: tempDir }
+  })
+  assert.strictEqual(stopRes.statusCode, 200, 'stop recording should succeed')
+  assert.strictEqual(server.loaded.mode, 'stop', 'mode should be stop')
+
+  // Find the generated file in custom directory
+  const files = await readdir(tempDir)
+  const generatedFile = files.find(f => f.startsWith('watt-admin-') && f.endsWith('.html'))
+
+  assert.ok(generatedFile, 'Generated file should exist in custom directory')
+
+  // Verify file content contains the embedded JSON
+  const content = await readFile(join(tempDir, generatedFile), 'utf8')
+  assert.ok(content.includes('window.LOADED_JSON='), 'File should contain embedded JSON')
+  assert.ok(content.includes('</html>'), 'File should be valid HTML')
 })
