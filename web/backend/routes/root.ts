@@ -167,7 +167,7 @@ export default async function (fastify: FastifyInstance) {
         required: ['mode', 'profile']
       }
     }
-  }, async ({ body: { mode, profile: type, outputPath }, params: { pid } }) => {
+  }, async ({ body: { mode, profile: type, outputPath }, params: { pid } }, reply) => {
     const from = fastify.loaded.mode
     const to = mode
     if (!checkRecordState({ from, to })) {
@@ -186,14 +186,20 @@ export default async function (fastify: FastifyInstance) {
 
     if (mode === 'stop') {
       try {
+        reply.log.trace({ pid, type, outputPath }, 'Stopping recording and generating output')
         const runtimes = getSelectableRuntimes(await api.getRuntimes(), false)
-        const services = await api.getRuntimeApplications(getPidToLoad(runtimes))
+        reply.log.trace({ pid }, 'Fetching services from runtime')
+        const pidToLoad = pid || getPidToLoad(runtimes)
+        reply.log.trace({ pidToLoad }, 'Determined PID to load for recording')
+        const services = await api.getRuntimeApplications(pidToLoad)
 
         const profile: Record<string, Uint8Array> = {}
         for (const { id } of applications) {
           const profileData = Buffer.from(await api.stopApplicationProfiling(pid, id, { type }))
           profile[id] = new Uint8Array(profileData)
         }
+
+        reply.log.trace({ pid, type }, 'Profiling data collected from runtime')
 
         const loadedJson = JSON.stringify({ runtimes, services, metrics: fastify.loaded.metrics[getPidToLoad(runtimes)], profile, type })
 
@@ -217,11 +223,12 @@ export default async function (fastify: FastifyInstance) {
         }
 
         // Ensure we never overwrite an existing file
+        reply.log.trace({ targetPath }, 'Saving recording to output path')
         const uniquePath = await getUniqueFilePath(targetPath)
         await writeFile(uniquePath, outputHtml, 'utf8')
-        fastify.log.info({ path: uniquePath }, 'Recording saved')
+        reply.log.info({ path: uniquePath }, 'Recording saved')
       } catch (err) {
-        fastify.log.error({ err }, 'Unable to save the loaded JSON')
+        reply.log.error({ err }, 'Unable to save the loaded JSON')
       }
     }
   })
