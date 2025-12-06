@@ -5,7 +5,7 @@
     "port": "{PORT}"
   },
   "logger": {
-    "level": "error"
+    "level": "info"
   },
   "entrypoint": "composer",
   "applications": [
