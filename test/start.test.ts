@@ -2,6 +2,7 @@ import { RuntimeApiClient } from '@platformatic/control'
 import { describe, it, beforeEach, afterEach, mock } from 'node:test'
 import assert from 'node:assert'
 import * as util from 'util'
+import { setImmediate as immediate } from 'node:timers/promises'
 
 interface MockServer {
   started: boolean
@@ -86,7 +87,8 @@ describe('start', () => {
           statusCode: 200,
           body: {
             dump: async () => {},
-            text: async () => 'success'
+            text: async () => 'success',
+            json: async () => ({ path: 'profile-data/index.html' })
           }
         }
       }
@@ -211,8 +213,8 @@ describe('start', () => {
       process.emit('SIGINT')
 
       // Wait for async operations to complete
-      await new Promise(resolve => setImmediate(resolve))
-      await new Promise(resolve => setImmediate(resolve))
+      await immediate()
+      await immediate()
 
       // 5. Check if the 'stop' record request was made
       assert.strictEqual(requestMock.mock.calls.length, 2, 'Should have made a second request to stop recording')
@@ -274,19 +276,19 @@ describe('start', () => {
 
       // First SIGINT - should trigger shutdown
       process.emit('SIGINT')
-      await new Promise(resolve => setImmediate(resolve))
+      await immediate()
 
       // During shutdown, there should be an ignoring handler
       const listenerCountDuringShutdown = process.listenerCount('SIGINT')
 
       // Send second SIGINT during shutdown
       process.emit('SIGINT')
-      await new Promise(resolve => setImmediate(resolve))
+      await immediate()
 
       // Send third SIGINT to be sure
       process.emit('SIGINT')
-      await new Promise(resolve => setImmediate(resolve))
-      await new Promise(resolve => setImmediate(resolve))
+      await immediate()
+      await immediate()
 
       // Verify shutdown was only called once
       const closeMock = mockServer.close as MockFunction<() => Promise<void>>

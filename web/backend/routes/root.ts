@@ -6,6 +6,7 @@ import { writeFile, readFile } from 'fs/promises'
 import { checkRecordState } from '../utils/states.ts'
 import { join } from 'path'
 import { pidParamSchema, selectableRuntimeSchema, modeSchema, profileSchema } from '../schemas/index.ts'
+import { generateDefaultFilename, getUniqueFilePath } from '../utils/output.ts'
 
 const __dirname = import.meta.dirname
 
@@ -80,7 +81,7 @@ export default async function (fastify: FastifyInstance) {
               items: {
                 anyOf: [
                   {
-                    additionalProperties: false,
+                    additionalProperties: true,
                     type: 'object',
                     required: ['id', 'type', 'status', 'version', 'localUrl', 'entrypoint', 'dependencies'],
                     properties: {
@@ -158,11 +159,15 @@ export default async function (fastify: FastifyInstance) {
       body: {
         type: 'object',
         additionalProperties: false,
-        properties: { mode: modeSchema, profile: profileSchema },
+        properties: {
+          mode: modeSchema,
+          profile: profileSchema,
+          outputPath: { type: 'string', description: 'Directory or file path for the output HTML. Defaults to cwd with auto-generated filename.' }
+        },
         required: ['mode', 'profile']
       }
     }
-  }, async ({ body: { mode, profile: type }, params: { pid } }) => {
+  }, async ({ body: { mode, profile: type, outputPath }, params: { pid } }, reply) => {
     const from = fastify.loaded.mode
     const to = mode
     if (!checkRecordState({ from, to })) {
@@ -181,23 +186,71 @@ export default async function (fastify: FastifyInstance) {
 
     if (mode === 'stop') {
       try {
+        reply.log.trace({ pid, type, outputPath }, 'Stopping recording and generating output')
         const runtimes = getSelectableRuntimes(await api.getRuntimes(), false)
-        const services = await api.getRuntimeApplications(getPidToLoad(runtimes))
+        reply.log.trace({ pid }, 'Fetching services from runtime')
+        const pidToLoad = pid || getPidToLoad(runtimes)
+        reply.log.trace({ pidToLoad }, 'Determined PID to load for recording')
+        const services = await api.getRuntimeApplications(pidToLoad)
 
         const profile: Record<string, Uint8Array> = {}
         for (const { id } of applications) {
           const profileData = Buffer.from(await api.stopApplicationProfiling(pid, id, { type }))
-          await writeFile(join(__dirname, '..', '..', 'frontend', 'dist', `${fastify.loaded.type}-profile-${id}.pb`), profileData)
           profile[id] = new Uint8Array(profileData)
         }
+
+        reply.log.trace({ pid, type }, 'Profiling data collected from runtime')
 
         const loadedJson = JSON.stringify({ runtimes, services, metrics: fastify.loaded.metrics[getPidToLoad(runtimes)], profile, type })
 
         const scriptToAppend = `  <script>window.LOADED_JSON=${loadedJson}</script>\n</body>`
-        const bundlePath = join(__dirname, '..', '..', 'frontend', 'dist', 'index.html')
-        await writeFile(bundlePath, (await readFile(bundlePath, 'utf8')).replace('</body>', scriptToAppend), 'utf8')
+        const templatePath = join(__dirname, '..', '..', 'frontend', 'dist', 'index.html')
+        const fontsDir = join(__dirname, '..', '..', 'frontend', 'dist', 'fonts')
+        let templateHtml = await readFile(templatePath, 'utf8')
+
+        // Inline fonts as base64 data URIs for offline usage
+        const fontFiles = [
+          { path: 'Inter/Inter-VariableFont_wght.ttf', url: './fonts/Inter/Inter-VariableFont_wght.ttf' },
+          { path: 'Roboto_Mono/RobotoMono-VariableFont_wght.ttf', url: './fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf' }
+        ]
+        for (const font of fontFiles) {
+          try {
+            const fontData = await readFile(join(fontsDir, font.path))
+            const base64Font = fontData.toString('base64')
+            const dataUri = `data:font/ttf;base64,${base64Font}`
+            templateHtml = templateHtml.replaceAll(font.url, dataUri)
+          } catch (err) {
+            reply.log.warn({ err, font: font.path }, 'Failed to inline font')
+          }
+        }
+
+        // Remove font preload links (not needed with inlined fonts)
+        templateHtml = templateHtml.replace(/<link rel="preload"[^>]*\.ttf"[^>]*>/g, '')
+
+        const outputHtml = templateHtml.replace('</body>', scriptToAppend)
+
+        // Determine output file path
+        let targetPath: string
+        if (outputPath) {
+          // If outputPath ends with .html, use it as-is; otherwise treat as directory
+          if (outputPath.endsWith('.html')) {
+            targetPath = outputPath
+          } else {
+            targetPath = join(outputPath, generateDefaultFilename())
+          }
+        } else {
+          // Default to current working directory
+          targetPath = join(process.cwd(), generateDefaultFilename())
+        }
+
+        // Ensure we never overwrite an existing file
+        reply.log.trace({ targetPath }, 'Saving recording to output path')
+        const uniquePath = await getUniqueFilePath(targetPath)
+        await writeFile(uniquePath, outputHtml, 'utf8')
+        reply.log.info({ path: uniquePath }, 'Recording saved')
+        return { path: uniquePath }
       } catch (err) {
-        fastify.log.error({ err }, 'Unable to save the loaded JSON')
+        reply.log.error({ err }, 'Unable to save the loaded JSON')
       }
     }
   })

@@ -21,6 +21,7 @@ function ApplicationContainer ({ children }: ApplicationContainerProps): React.R
     setNavigation,
     currentPage,
     setCurrentPage,
+    mode,
   } = globalState
   const navigate = useNavigate()
 
@@ -43,12 +44,14 @@ function ApplicationContainer ({ children }: ApplicationContainerProps): React.R
           label: 'Overview',
           iconName: 'AppDetailsIcon',
           onClick: () => handleNavigation('Overview', HOME_PATH)
-        }, {
+        },
+        ...(mode !== 'live' ? [{
           name: POD_FLAMEGRAPH_PATH,
           label: 'Flamegraph',
           iconName: 'MetricsIcon',
           onClick: () => handleNavigation('Flamegraph', POD_FLAMEGRAPH_PATH)
-        }, {
+        }] : []),
+        {
           name: POD_SERVICES_PATH,
           label: 'Metrics',
           iconName: 'NodeJSMetricsIcon',

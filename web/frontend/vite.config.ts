@@ -15,6 +15,7 @@ export default defineConfig({
     cssCodeSplit: false,
     assetsInlineLimit: 0,
     chunkSizeWarningLimit: 100000000,
+    sourcemap: 'inline'
   },
   server: {
     host: '127.0.0.1'

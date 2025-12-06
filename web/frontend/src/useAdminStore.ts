@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { getOfflineMode } from './utilities/getters'
 import type { RecordMode } from './api'
 
 interface NavigationType {
@@ -33,7 +34,7 @@ const initialState: ValuesAdminState = {
   currentPage: '',
   runtimePid: undefined,
   currentWindowWidth: 0,
-  mode: 'live',
+  mode: getOfflineMode() ? 'load' : 'live',
   record: 'start'
 }
 

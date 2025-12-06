@@ -96,14 +96,6 @@ test.describe('Basic E2E tests', () => {
     await page.getByText('Live').click()
     expect(await getMetricValue(page, 'rss')).toBeGreaterThanOrEqual(0)
 
-    await page.locator('button[title="Flamegraph"]').click()
-    await page.getByText('frontend').click()
-    await page.getByText('backend').click()
-    await page.getByText('composer').click()
-    await expect(page.getByText('Flamegraph')).toBeVisible()
-    await expect(page.getByText('frames')).toBeVisible()
-    await page.goto('/#/')
-
     // services
     await page.goto('/#/services')
     await page.getByText('Show Aggregated Metrics').waitFor()
