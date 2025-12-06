@@ -81,7 +81,7 @@ export type GetRuntimesPidServicesRequest = {
 /**
  * Default Response
  */
-export type GetRuntimesPidServicesResponseOK = { 'entrypoint': string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint': boolean; 'workers'?: number; 'url'?: string; 'dependencies': Array<string> } | { 'id': string; 'status': string }> }
+export type GetRuntimesPidServicesResponseOK = { 'entrypoint': string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint': boolean; 'workers'?: number; 'url'?: string; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
 export type GetRuntimesPidServicesResponses =
   FullResponse<GetRuntimesPidServicesResponseOK, 200>
 
@@ -115,6 +115,10 @@ export type PostRecordPidRequest = {
   body: {
     'mode': 'start' | 'stop';
     'profile': 'cpu' | 'heap';
+    /**
+     * Directory or file path for the output HTML. Defaults to cwd with auto-generated filename.
+     */
+    'outputPath'?: string;
   }
 }
 
