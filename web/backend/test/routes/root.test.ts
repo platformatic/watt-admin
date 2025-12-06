@@ -107,3 +107,44 @@ test('runtime is running', async (t) => {
   })
   assert.strictEqual(restart.statusCode, 200, 'check for restart endpoint')
 })
+
+test('record endpoint accepts outputPath parameter', async (t) => {
+  await startWatt(t)
+  const server = await getServer(t)
+  const res = await server.inject({ url: '/runtimes?includeAdmin=true' })
+  const [runtime] = res.json()
+  const runtimePid = runtime.pid
+
+  // Start recording
+  await server.inject({ url: `/record/${runtimePid}`, method: 'POST', body: { mode: 'start', profile: 'cpu' } })
+  assert.strictEqual(server.loaded.mode, 'start', 'start mode')
+
+  // Stop recording with outputPath parameter - should be accepted without validation error
+  const stopRes = await server.inject({
+    url: `/record/${runtimePid}`,
+    method: 'POST',
+    body: { mode: 'stop', profile: 'cpu', outputPath: '/tmp/test-output.html' }
+  })
+  assert.strictEqual(stopRes.statusCode, 200, 'outputPath parameter should be accepted')
+  assert.strictEqual(server.loaded.mode, 'stop', 'stop mode')
+})
+
+test('record endpoint accepts outputPath as directory path', async (t) => {
+  await startWatt(t)
+  const server = await getServer(t)
+  const res = await server.inject({ url: '/runtimes?includeAdmin=true' })
+  const [runtime] = res.json()
+  const runtimePid = runtime.pid
+
+  // Start recording first
+  await server.inject({ url: `/record/${runtimePid}`, method: 'POST', body: { mode: 'start', profile: 'cpu' } })
+
+  // Stop with outputPath as directory (no .html extension)
+  const stopRes = await server.inject({
+    url: `/record/${runtimePid}`,
+    method: 'POST',
+    body: { mode: 'stop', profile: 'cpu', outputPath: '/tmp/recordings' }
+  })
+  assert.strictEqual(stopRes.statusCode, 200, 'should accept directory path')
+  assert.strictEqual(server.loaded.mode, 'stop', 'stop mode')
+})

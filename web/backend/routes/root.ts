@@ -6,6 +6,7 @@ import { writeFile, readFile } from 'fs/promises'
 import { checkRecordState } from '../utils/states.ts'
 import { join } from 'path'
 import { pidParamSchema, selectableRuntimeSchema, modeSchema, profileSchema } from '../schemas/index.ts'
+import { generateDefaultFilename, getUniqueFilePath } from '../utils/output.ts'
 
 const __dirname = import.meta.dirname
 
@@ -158,11 +159,15 @@ export default async function (fastify: FastifyInstance) {
       body: {
         type: 'object',
         additionalProperties: false,
-        properties: { mode: modeSchema, profile: profileSchema },
+        properties: {
+          mode: modeSchema,
+          profile: profileSchema,
+          outputPath: { type: 'string', description: 'Directory or file path for the output HTML. Defaults to cwd with auto-generated filename.' }
+        },
         required: ['mode', 'profile']
       }
     }
-  }, async ({ body: { mode, profile: type }, params: { pid } }) => {
+  }, async ({ body: { mode, profile: type, outputPath }, params: { pid } }) => {
     const from = fastify.loaded.mode
     const to = mode
     if (!checkRecordState({ from, to })) {
@@ -187,15 +192,34 @@ export default async function (fastify: FastifyInstance) {
         const profile: Record<string, Uint8Array> = {}
         for (const { id } of applications) {
           const profileData = Buffer.from(await api.stopApplicationProfiling(pid, id, { type }))
-          await writeFile(join(__dirname, '..', '..', 'frontend', 'dist', `${fastify.loaded.type}-profile-${id}.pb`), profileData)
           profile[id] = new Uint8Array(profileData)
         }
 
         const loadedJson = JSON.stringify({ runtimes, services, metrics: fastify.loaded.metrics[getPidToLoad(runtimes)], profile, type })
 
         const scriptToAppend = `  <script>window.LOADED_JSON=${loadedJson}</script>\n</body>`
-        const bundlePath = join(__dirname, '..', '..', 'frontend', 'dist', 'index.html')
-        await writeFile(bundlePath, (await readFile(bundlePath, 'utf8')).replace('</body>', scriptToAppend), 'utf8')
+        const templatePath = join(__dirname, '..', '..', 'frontend', 'dist', 'index.html')
+        const templateHtml = await readFile(templatePath, 'utf8')
+        const outputHtml = templateHtml.replace('</body>', scriptToAppend)
+
+        // Determine output file path
+        let targetPath: string
+        if (outputPath) {
+          // If outputPath ends with .html, use it as-is; otherwise treat as directory
+          if (outputPath.endsWith('.html')) {
+            targetPath = outputPath
+          } else {
+            targetPath = join(outputPath, generateDefaultFilename())
+          }
+        } else {
+          // Default to current working directory
+          targetPath = join(process.cwd(), generateDefaultFilename())
+        }
+
+        // Ensure we never overwrite an existing file
+        const uniquePath = await getUniqueFilePath(targetPath)
+        await writeFile(uniquePath, outputHtml, 'utf8')
+        fastify.log.info({ path: uniquePath }, 'Recording saved')
       } catch (err) {
         fastify.log.error({ err }, 'Unable to save the loaded JSON')
       }
