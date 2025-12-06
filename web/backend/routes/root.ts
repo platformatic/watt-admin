@@ -205,7 +205,28 @@ export default async function (fastify: FastifyInstance) {
 
         const scriptToAppend = `  <script>window.LOADED_JSON=${loadedJson}</script>\n</body>`
         const templatePath = join(__dirname, '..', '..', 'frontend', 'dist', 'index.html')
-        const templateHtml = await readFile(templatePath, 'utf8')
+        const fontsDir = join(__dirname, '..', '..', 'frontend', 'dist', 'fonts')
+        let templateHtml = await readFile(templatePath, 'utf8')
+
+        // Inline fonts as base64 data URIs for offline usage
+        const fontFiles = [
+          { path: 'Inter/Inter-VariableFont_wght.ttf', url: './fonts/Inter/Inter-VariableFont_wght.ttf' },
+          { path: 'Roboto_Mono/RobotoMono-VariableFont_wght.ttf', url: './fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf' }
+        ]
+        for (const font of fontFiles) {
+          try {
+            const fontData = await readFile(join(fontsDir, font.path))
+            const base64Font = fontData.toString('base64')
+            const dataUri = `data:font/ttf;base64,${base64Font}`
+            templateHtml = templateHtml.replaceAll(font.url, dataUri)
+          } catch (err) {
+            reply.log.warn({ err, font: font.path }, 'Failed to inline font')
+          }
+        }
+
+        // Remove font preload links (not needed with inlined fonts)
+        templateHtml = templateHtml.replace(/<link rel="preload"[^>]*\.ttf"[^>]*>/g, '')
+
         const outputHtml = templateHtml.replace('</body>', scriptToAppend)
 
         // Determine output file path
