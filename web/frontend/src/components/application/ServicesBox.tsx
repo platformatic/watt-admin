@@ -120,6 +120,7 @@ function ServicesBox (): React.ReactElement {
       try {
         if (runtimePid) {
           const response = await getServices(runtimePid, mode)
+          console.log('Fetched services:', response)
           setServices(response)
           setError(undefined)
         }

@@ -1033,7 +1033,7 @@
                       "items": {
                         "anyOf": [
                           {
-                            "additionalProperties": false,
+                            "additionalProperties": true,
                             "type": "object",
                             "required": [
                               "id",
@@ -1181,6 +1181,10 @@
                       "cpu",
                       "heap"
                     ]
+                  },
+                  "outputPath": {
+                    "type": "string",
+                    "description": "Directory or file path for the output HTML. Defaults to cwd with auto-generated filename."
                   }
                 },
                 "required": [

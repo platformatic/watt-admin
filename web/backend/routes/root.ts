@@ -81,7 +81,7 @@ export default async function (fastify: FastifyInstance) {
               items: {
                 anyOf: [
                   {
-                    additionalProperties: false,
+                    additionalProperties: true,
                     type: 'object',
                     required: ['id', 'type', 'status', 'version', 'localUrl', 'entrypoint', 'dependencies'],
                     properties: {
@@ -227,6 +227,7 @@ export default async function (fastify: FastifyInstance) {
         const uniquePath = await getUniqueFilePath(targetPath)
         await writeFile(uniquePath, outputHtml, 'utf8')
         reply.log.info({ path: uniquePath }, 'Recording saved')
+        return { path: uniquePath }
       } catch (err) {
         reply.log.error({ err }, 'Unable to save the loaded JSON')
       }
