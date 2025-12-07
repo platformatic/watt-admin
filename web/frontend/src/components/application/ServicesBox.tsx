@@ -11,7 +11,7 @@ import type { ServiceData } from '../../types'
 import ErrorComponent from '../errors/ErrorComponent'
 import { HOME_PATH } from '../../ui-constants'
 import { useNavigate } from 'react-router-dom'
-import { getServiceEntrypoint } from '../../utilities/getters'
+import { getServiceEntrypoint, getOfflineMode } from '../../utilities/getters'
 
 interface ServiceDetailPanelProps {
   openapi: unknown;
@@ -67,6 +67,7 @@ interface ServiceProps {
 }
 
 function Service ({ service, onServiceClick }: ServiceProps): React.ReactElement {
+  const isOffline = getOfflineMode()
   return (
     <div className={`${commonStyles.tinyFlexRow} ${styles.serviceBox}`}>
       <BorderedBox
@@ -75,10 +76,10 @@ function Service ({ service, onServiceClick }: ServiceProps): React.ReactElement
         backgroundColor={RICH_BLACK}
         backgroundColorOpacity={OPACITY_100}
         internalOverHandling
-        backgroundColorOpacityOver={OPACITY_15}
-        backgroundColorOver={WHITE}
-        clickable
-        onClick={() => onServiceClick(service.id)}
+        backgroundColorOpacityOver={isOffline ? OPACITY_100 : OPACITY_15}
+        backgroundColorOver={isOffline ? RICH_BLACK : WHITE}
+        clickable={!isOffline}
+        onClick={isOffline ? undefined : () => onServiceClick(service.id)}
       >
         <div className={`${commonStyles.tinyFlexRow} ${commonStyles.fullWidth} ${commonStyles.flexGrow} ${styles.serviceContentRow}`}>
           <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth}`}>
@@ -100,7 +101,7 @@ function Service ({ service, onServiceClick }: ServiceProps): React.ReactElement
             </div>
             <div className={`${typographyStyles.desktopBodySmallest} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>{'type' in service && <span>Service Type: {service.type}</span>} &nbsp;</div>
           </div>
-          <span className={`${typographyStyles.opacity70}`}><Icons.InternalLinkIcon color={WHITE} size={SMALL} /></span>
+          {!isOffline && <span className={`${typographyStyles.opacity70}`}><Icons.InternalLinkIcon color={WHITE} size={SMALL} /></span>}
         </div>
       </BorderedBox>
     </div>
