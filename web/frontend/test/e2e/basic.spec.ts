@@ -96,6 +96,11 @@ test.describe('Basic E2E tests', () => {
     await page.getByText('Live').click()
     expect(await getMetricValue(page, 'rss')).toBeGreaterThanOrEqual(0)
 
+    // Flamegraph button should be visible but disabled (no profile data in live mode)
+    const flamegraphButton = page.locator('button[title="Flamegraph"]')
+    await expect(flamegraphButton).toBeVisible()
+    await expect(flamegraphButton).toBeDisabled()
+
     // services
     await page.goto('/#/services')
     await page.getByText('Show Aggregated Metrics').waitFor()

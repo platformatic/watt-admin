@@ -24,6 +24,16 @@ const getDataLoaded = () => {
 
 export const getType = () => getDataLoaded().type
 
+export const hasProfiles = (): boolean => {
+  if (!getOfflineMode()) return false
+  try {
+    const profiles = getDataLoaded().profile
+    return profiles && Object.keys(profiles).length > 0
+  } catch {
+    return false
+  }
+}
+
 export const getResource = async (id: string) => {
   return getOfflineMode() ? Profile.decode(new Uint8Array(Object.values(getDataLoaded().profile[id]))) : await fetchProfile(`${getType()}-profile-${id}.pb`)
 }
