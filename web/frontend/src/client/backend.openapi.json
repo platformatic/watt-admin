@@ -1208,7 +1208,21 @@
         ],
         "responses": {
           "200": {
-            "description": "Default Response"
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Path to the saved recording HTML file"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

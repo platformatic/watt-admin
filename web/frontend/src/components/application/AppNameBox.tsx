@@ -30,10 +30,17 @@ function AppNameBox ({
   onModeUpdated,
   apiApplication
 }: AppNameBoxProps): React.ReactElement | null {
-  const { mode, setMode, record, setRecord, runtimePid } = useAdminStore()
+  const { mode, record, setRecord, runtimePid } = useAdminStore()
   const [appStatus, setAppStatus] = useState(STATUS_STOPPED)
   const [changingRestartStatus, setChangingRestartStatus] = useState(false)
   const [latestVersion, setLatestVersion] = useState('')
+  const [savedFilePath, setSavedFilePath] = useState<string | null>(null)
+
+  const handleCopyPath = async (): Promise<void> => {
+    if (savedFilePath) {
+      await navigator.clipboard.writeText(savedFilePath)
+    }
+  }
 
   const fetchData = async (): Promise<void> => {
     try {
@@ -67,6 +74,7 @@ function AppNameBox ({
   const outdatedVersion = latestVersion !== apiApplication?.pltVersion
 
   return (
+    <>
     <BorderedBox classes={`${styles.borderexBoxContainer}`} backgroundColor={BLACK_RUSSIAN} color={TRANSPARENT}>
       <div className={`${commonStyles.smallFlexBlock} ${commonStyles.fullWidth}`}>
         <div className={`${commonStyles.smallFlexResponsiveRow} ${commonStyles.fullWidth}`}>
@@ -115,12 +123,17 @@ function AppNameBox ({
                 type='button'
                 label={`Record ${record}`}
                 onClick={async () => {
-                  await updateMode(runtimePid, record)
-                  await fetchData()
-                  setRecord(record === 'start' ? 'stop' : 'start')
-                  onModeUpdated()
-                  if (record === 'stop') {
-                    window.location.reload()
+                  try {
+                    const result = await updateMode(runtimePid, record)
+                    await fetchData()
+                    setRecord(record === 'start' ? 'stop' : 'start')
+                    onModeUpdated()
+                    const body = result.body as { path?: string } | undefined
+                    if (record === 'stop' && body?.path) {
+                      setSavedFilePath(body.path)
+                    }
+                  } catch (error) {
+                    onErrorOccurred(error)
                   }
                 }}
                 color={WHITE}
@@ -129,19 +142,6 @@ function AppNameBox ({
                 platformaticIcon={{ iconName: record === 'start' ? 'DownloadIcon' : 'StopIcon', color: WHITE }}
                 textClass={typographyStyles.desktopButtonSmall}
                 internalOverHandling
-                />
-                <Button
-                  type='button'
-                  label={mode === 'load' ? 'Live' : 'Load'}
-                  onClick={() => {
-                    setMode(mode === 'load' ? 'live' : 'load')
-                    onModeUpdated()
-                  }}
-                  color={WHITE}
-                  backgroundColor={TRANSPARENT}
-                  paddingClass={commonStyles.smallButtonPadding}
-                  platformaticIcon={{ iconName: mode === 'load' ? 'UploadFileIcon' : 'LiveIcon', color: WHITE }}
-                  textClass={typographyStyles.desktopButtonSmall}
                 />
               </>}
           </div>
@@ -183,6 +183,33 @@ function AppNameBox ({
         </div>
       </div>
     </BorderedBox>
+      {savedFilePath && (
+        <div className={styles.modalOverlay} onClick={() => setSavedFilePath(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <span className={`${typographyStyles.desktopBodyLargeSemibold} ${typographyStyles.textWhite}`}>Recording Saved</span>
+              <PlatformaticIcon iconName='CloseIcon' color={WHITE} size={SMALL} onClick={() => setSavedFilePath(null)} internalOverHandling />
+            </div>
+            <div className={styles.modalBody}>
+              <p className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite}`}>Recording opened in your browser. File saved at:</p>
+              <div className={styles.pathContainer}>
+                <code className={styles.filePath}>{savedFilePath}</code>
+                <Button
+                  type='button'
+                  label='Copy'
+                  onClick={handleCopyPath}
+                  color={WHITE}
+                  backgroundColor={TRANSPARENT}
+                  paddingClass={commonStyles.smallButtonPadding}
+                  platformaticIcon={{ iconName: 'CopyPasteIcon', color: WHITE }}
+                  textClass={typographyStyles.desktopButtonSmall}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

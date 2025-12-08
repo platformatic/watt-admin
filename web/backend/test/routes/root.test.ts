@@ -195,3 +195,4 @@ test('record creates file with embedded JSON at custom outputPath', async (t) =>
   assert.ok(content.includes('window.LOADED_JSON='), 'File should contain embedded JSON')
   assert.ok(content.includes('</html>'), 'File should be valid HTML')
 })
+

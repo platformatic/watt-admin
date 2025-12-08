@@ -2,7 +2,11 @@ import type { FastifyInstance } from 'fastify'
 import type { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import { RuntimeApiClient } from '@platformatic/control'
 import { getPidToLoad, getSelectableRuntimes } from '../utils/runtimes.ts'
-import { writeFile, readFile } from 'fs/promises'
+import { writeFile, readFile } from 'node:fs/promises'
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
+
+const execAsync = promisify(exec)
 import { checkRecordState } from '../utils/states.ts'
 import { join } from 'path'
 import { pidParamSchema, selectableRuntimeSchema, modeSchema, profileSchema } from '../schemas/index.ts'
@@ -165,6 +169,15 @@ export default async function (fastify: FastifyInstance) {
           outputPath: { type: 'string', description: 'Directory or file path for the output HTML. Defaults to cwd with auto-generated filename.' }
         },
         required: ['mode', 'profile']
+      },
+      response: {
+        200: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            path: { type: 'string', description: 'Path to the saved recording HTML file' }
+          }
+        }
       }
     }
   }, async ({ body: { mode, profile: type, outputPath }, params: { pid } }, reply) => {
@@ -182,6 +195,7 @@ export default async function (fastify: FastifyInstance) {
       }
       fastify.loaded.type = type
       fastify.loaded.metrics = {}
+      return {}
     }
 
     if (mode === 'stop') {
@@ -248,6 +262,15 @@ export default async function (fastify: FastifyInstance) {
         const uniquePath = await getUniqueFilePath(targetPath)
         await writeFile(uniquePath, outputHtml, 'utf8')
         reply.log.info({ path: uniquePath }, 'Recording saved')
+
+        // Open the file in the default browser (skip during CI/tests)
+        if (!process.env.CI && !process.env.NODE_TEST_CONTEXT) {
+          const openCommand = process.platform === 'win32' ? 'start' : 'open'
+          execAsync(`${openCommand} "${uniquePath}"`)
+            .then(() => reply.log.info({ path: uniquePath }, 'Recording opened in browser'))
+            .catch((err) => reply.log.warn({ err, path: uniquePath }, 'Failed to open recording in browser'))
+        }
+
         return { path: uniquePath }
       } catch (err) {
         reply.log.error({ err }, 'Unable to save the loaded JSON')

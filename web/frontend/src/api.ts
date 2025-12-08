@@ -17,7 +17,7 @@ type LoadedJson = { type: Type, profile: Record<string, Record<string, number>>,
 
 const getDataLoaded = () => {
   if (!('LOADED_JSON' in window)) {
-    throw new Error(`No JSON data loaded in ${JSON.stringify(window)}`)
+    throw new Error('No JSON data loaded in window.LOADED_JSON')
   }
   return (window as Window & typeof globalThis & { LOADED_JSON: LoadedJson }).LOADED_JSON
 }

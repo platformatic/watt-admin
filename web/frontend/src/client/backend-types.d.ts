@@ -122,7 +122,10 @@ export type PostRecordPidRequest = {
   }
 }
 
-export type PostRecordPidResponseOK = unknown
+/**
+ * Default Response
+ */
+export type PostRecordPidResponseOK = { 'path'?: string }
 export type PostRecordPidResponses =
   FullResponse<PostRecordPidResponseOK, 200>
 

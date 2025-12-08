@@ -87,14 +87,9 @@ test.describe('Basic E2E tests', () => {
     expect(await getMetricValue(page, 'open')).toBeGreaterThanOrEqual(0)
     await page.getByText('Record stop').click({ timeout: 1000 })
 
-    await page.waitForLoadState('load') // reload
-    await expect(page.getByText('Record start')).toBeVisible()
-    await page.getByText('Load').click()
-    expect(await getMetricValue(page, 'rss')).toBeGreaterThanOrEqual(0)
-
-    await expect(page.getByText('Live')).toBeVisible()
-    await page.getByText('Live').click()
-    expect(await getMetricValue(page, 'rss')).toBeGreaterThanOrEqual(0)
+    // Wait for the modal to appear showing the recording was saved
+    await expect(page.getByText('Recording Saved')).toBeVisible()
+    await page.getByText('Recording Saved').click() // close modal by clicking outside
 
     // Flamegraph button should be visible but disabled (no profile data in live mode)
     const flamegraphButton = page.locator('button[title="Flamegraph"]')
