@@ -19,7 +19,7 @@ With the new recording capabilities, Watt Admin can now:
 - **📦 Create offline bundles**: Package everything into a single HTML file
 - **🤝 Share effortlessly**: Send the bundle to anyone—no setup required
 
-<!-- TODO: Screenshot - Hero image showing the Watt Admin dashboard with metrics and flame graph -->
+![Watt Admin dashboard with metrics](screenshot-metrics-dashboard.png)
 
 ## How It Works
 
@@ -33,7 +33,7 @@ At the core of every recording session is comprehensive metrics collection. Watt
 
 **CPU & Event Loop**
 - **CPU Usage**: Per-thread CPU utilization percentage
-- **Event Loop Utilization (ELU)**: How busy your event loop is—a key indicator of Node.js application health
+- **Event Loop Utilization (ELU)**: How busy your event loop is _the_ key indicator of Node.js application health
 
 **HTTP Performance**
 - **Request Count & RPS**: Total requests and throughput over time
@@ -50,7 +50,7 @@ At the core of every recording session is comprehensive metrics collection. Watt
 
 All metrics are sampled every second and stored for the duration of your recording session (up to 600 data points). When you stop recording, this entire metrics history is bundled into the HTML file, giving you a complete timeline to analyze.
 
-<!-- TODO: Screenshot - Metrics dashboard showing memory, CPU, latency, and request charts -->
+![Metrics dashboard showing memory, CPU, and other charts](screenshot-services-metrics.png)
 
 ### CPU Profiling
 
@@ -69,7 +69,7 @@ Run your application through the scenario you want to analyze, then press `Ctrl+
 
 The resulting flame graph shows you exactly which functions are consuming CPU cycles, making it easy to spot optimization opportunities.
 
-<!-- TODO: Screenshot - CPU flame graph showing function call hierarchy and time spent -->
+![CPU flame graph showing function call hierarchy](screenshot-cpu-flamegraph.png)
 
 ### Heap Profiling
 
@@ -87,7 +87,7 @@ Heap profiling reveals:
 
 Perfect for debugging those mysterious memory issues that only appear under specific conditions.
 
-<!-- TODO: Screenshot - Heap allocation flame graph showing memory allocation patterns -->
+![Heap allocation flame graph](screenshot-heap-flamegraph.png)
 
 ## Real-World Use Cases
 
@@ -125,7 +125,7 @@ The generated HTML bundle is truly self-contained—it includes:
 
 No external dependencies. No network requests. Just open and explore.
 
-<!-- TODO: Screenshot - The self-contained HTML bundle showing metrics history and flame graph tabs -->
+![Self-contained HTML bundle with metrics and flame graph](screenshot-metrics-dashboard.png)
 
 ## Getting Started
 
