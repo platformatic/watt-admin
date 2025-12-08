@@ -17,12 +17,22 @@ type LoadedJson = { type: Type, profile: Record<string, Record<string, number>>,
 
 const getDataLoaded = () => {
   if (!('LOADED_JSON' in window)) {
-    throw new Error(`No JSON data loaded in ${JSON.stringify(window)}`)
+    throw new Error('No JSON data loaded in window.LOADED_JSON')
   }
   return (window as Window & typeof globalThis & { LOADED_JSON: LoadedJson }).LOADED_JSON
 }
 
 export const getType = () => getDataLoaded().type
+
+export const hasProfiles = (): boolean => {
+  if (!getOfflineMode()) return false
+  try {
+    const profiles = getDataLoaded().profile
+    return profiles && Object.keys(profiles).length > 0
+  } catch {
+    return false
+  }
+}
 
 export const getResource = async (id: string) => {
   return getOfflineMode() ? Profile.decode(new Uint8Array(Object.values(getDataLoaded().profile[id]))) : await fetchProfile(`${getType()}-profile-${id}.pb`)
@@ -54,7 +64,12 @@ export const isWattpmVersionOutdated = async (mode: Mode) => {
 }
 
 export const getServices = async (pid: number, mode: Mode) => {
-  const { applications } = isLoadMode(mode) ? getDataLoaded().services : (await getRuntimesPidServices({ path: { pid } })).body
+  if (isLoadMode(mode)) {
+    console.log('Getting services from loaded data', getDataLoaded().services)
+    return getDataLoaded().services.applications
+  }
+  const runtimePidServices = await getRuntimesPidServices({ path: { pid } })
+  const { applications } = runtimePidServices.body
   return applications
 }
 

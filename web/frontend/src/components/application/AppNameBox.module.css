@@ -23,3 +23,48 @@
 .appInnerBox {
   @apply pl-[32px]
 }
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background-color: #1a1a2e;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 42rem;
+  width: 100%;
+  margin: 0 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.pathContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #0d0d1a;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+}
+.filePath {
+  flex: 1;
+  font-size: 0.875rem;
+  color: white;
+  font-family: monospace;
+  word-break: break-all;
+  user-select: all;
+}
