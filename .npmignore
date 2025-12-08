@@ -15,3 +15,4 @@ CLAUDE.md
 **/tsconfig.json
 web/frontend/vite.config.ts
 web/frontend/vitest.config.ts
+watt-admin-*
