@@ -191,7 +191,7 @@ export default async function (fastify: FastifyInstance) {
     fastify.loaded.mode = mode
     if (mode === 'start') {
       for (const { id } of applications) {
-        await api.startApplicationProfiling(pid, id, { type })
+        await api.startApplicationProfiling(pid, id, { type, sourceMaps: true })
       }
       fastify.loaded.type = type
       fastify.loaded.metrics = {}
