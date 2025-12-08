@@ -15,5 +15,7 @@ CLAUDE.md
 **/tsconfig.json
 web/frontend/vite.config.ts
 web/frontend/vitest.config.ts
+web/frontend/playwright.config.ts
+web/frontend/postcss.config.ts
 watt-admin-*
 .claude

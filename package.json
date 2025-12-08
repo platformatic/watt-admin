@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@platformatic/watt-admin",
-  "version": "0.6.0-alpha.11",
+  "version": "0.6.0-alpha.12",
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "wattpm dev",
