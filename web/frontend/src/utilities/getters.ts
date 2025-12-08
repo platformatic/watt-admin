@@ -12,3 +12,4 @@ export const getOptionMetricsLabel = (input: { label: string }[]) => input.map((
 export const getKafkaType = (services: GetRuntimesPidServicesResponseOK['applications']): boolean => services.some(service => 'type' in service && service.type === 'kafka-hooks')
 
 export const getOfflineMode = () => import.meta.url.startsWith('file:///')
+

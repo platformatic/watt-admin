@@ -10,6 +10,7 @@ import SideBar from '../components/ui/SideBar'
 import useAdminStore from '../useAdminStore'
 import { useNavigate } from 'react-router-dom'
 import { getOfflineMode } from '../utilities/getters'
+import { hasProfiles } from '../api'
 
 interface ApplicationContainerProps {
   children?: ReactNode;
@@ -47,7 +48,8 @@ function ApplicationContainer ({ children }: ApplicationContainerProps): React.R
           name: POD_FLAMEGRAPH_PATH,
           label: 'Flamegraph',
           iconName: 'MetricsIcon',
-          onClick: () => handleNavigation('Flamegraph', POD_FLAMEGRAPH_PATH)
+          onClick: () => handleNavigation('Flamegraph', POD_FLAMEGRAPH_PATH),
+          disabled: !hasProfiles()
         }, {
           name: POD_SERVICES_PATH,
           label: 'Metrics',
