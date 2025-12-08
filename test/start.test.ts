@@ -157,9 +157,9 @@ describe('start', () => {
     assert.strictEqual(mockServer.started, true, 'Server should be started')
     assert.strictEqual(createMock.mock.calls.length, 1, 'create should be called once')
 
-    // Verify setupSignals: false is passed to create
+    // Verify setupSignals: false and isProduction: true are passed to create
     const [, , createOptions] = createMock.mock.calls[0].arguments
-    assert.deepStrictEqual(createOptions, { setupSignals: false }, 'setupSignals should be false')
+    assert.deepStrictEqual(createOptions, { setupSignals: false, isProduction: true }, 'create options should have setupSignals: false and isProduction: true')
 
     // Reset server state and mocks for second part of test
     mockServer.started = false
