@@ -13,4 +13,3 @@ export const getKafkaType = (services: GetRuntimesPidServicesResponseOK['applica
 
 export const getOfflineMode = () => import.meta.url.startsWith('file:///')
 
-console.log('getOfflineMode', getOfflineMode())
