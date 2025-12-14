@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@releases/v4.0.0
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - name: npm ci
         uses: nick-fields/retry@v3.0.2
         with:
