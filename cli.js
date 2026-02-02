@@ -41,10 +41,10 @@ async function getLocationDetails (client, runtime) {
 }
 
 let client
-export default async function main () {
+export default async function main (socket) {
   try {
     // Get available runtimes
-    client = new RuntimeApiClient()
+    client = new RuntimeApiClient(socket)
 
     const runtimes = await client.getRuntimes()
 
@@ -138,7 +138,7 @@ export default async function main () {
 
 // Execute the main function if this script is run directly
 if (esmain(import.meta)) {
-  main().then((selectedRuntime) => {
+  main(process.argv[2]).then((selectedRuntime) => {
     if (!selectedRuntime) {
       return
     }
