@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-'use strict'
-
-import esmain from 'es-main'
-import { RuntimeApiClient } from '@platformatic/control'
 import { select } from '@inquirer/prompts'
+import { RuntimeApiClient } from '@platformatic/control'
+import { parseArgs } from 'node:util'
 import { start } from './lib/start.js'
 
 async function getLocationDetails (client, runtime) {
@@ -40,11 +38,22 @@ async function getLocationDetails (client, runtime) {
   }
 }
 
-let client
-export default async function main (socket) {
+function getSocket () {
+  const {
+    values: { socket }
+  } = parseArgs({
+    options: {
+      socket: { type: 'string', short: 'S' }
+    }
+  })
+
+  return socket
+}
+
+export default async function main () {
   try {
     // Get available runtimes
-    client = new RuntimeApiClient(socket)
+    const client = new RuntimeApiClient({ socket: getSocket() })
 
     const runtimes = await client.getRuntimes()
 
@@ -114,8 +123,7 @@ export default async function main (socket) {
       console.log(`PID: ${selectedRuntime.pid}`)
       console.log(`Working directory: ${locationDetails.cwd}`)
 
-      if (locationDetails.configPath !== 'Unknown' &&
-          locationDetails.configPath !== 'Unknown (config not available)') {
+      if (locationDetails.configPath !== 'Unknown' && locationDetails.configPath !== 'Unknown (config not available)') {
         console.log(`Configuration path: ${locationDetails.configPath}`)
       }
 
@@ -136,17 +144,25 @@ export default async function main (socket) {
   }
 }
 
-// Execute the main function if this script is run directly
-if (esmain(import.meta)) {
-  main(process.argv[2]).then((selectedRuntime) => {
-    if (!selectedRuntime) {
-      return
+export async function cli () {
+  try {
+    const runtime = await main()
+
+    console.log(runtime)
+    if (runtime) {
+      const client = new RuntimeApiClient({ socket: getSocket() })
+
+      console.log('Starting Watt admin...')
+      console.log('--------')
+      return await start(client, runtime.pid)
     }
-    console.log('Starting Watt admin...')
-    console.log('--------')
-    return start(client, selectedRuntime.pid)
-  }).catch(error => {
+  } catch (error) {
     console.error('Fatal error:', error)
     process.exit(1)
-  })
+  }
+}
+
+// Execute the main function if this script is run directly
+if (import.meta.main) {
+  await cli()
 }
