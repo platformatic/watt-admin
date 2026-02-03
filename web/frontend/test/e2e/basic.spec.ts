@@ -135,8 +135,7 @@ test.describe('Basic E2E tests', () => {
     await page.getByText('App Entrypoint').click()
     await page.getByText('Platformatic Gateway').waitFor()
     await page
-      .locator('[id="tag/default/get/api/runtimes"]')
-      .locator('.show-api-client-button')
+      .getByRole('button', { name: 'Test Request(get /api/runtimes)' })
       .click()
     await sendScalarReq(page)
     await page.getByText('200 OK').waitFor()
@@ -146,8 +145,7 @@ test.describe('Basic E2E tests', () => {
     await page.getByText('Service Type: service').click()
     await page.getByText('This is a service built on top of Platformatic').waitFor()
     await page
-      .locator('[id="tag/default/get/runtimes"]')
-      .locator('.show-api-client-button')
+      .getByRole('button', { name: 'Test Request(get /runtimes)' })
       .click()
     await sendScalarReq(page)
     await page.getByText('200 OK').waitFor()
