@@ -1,4 +1,3 @@
-import { RuntimeApiClient } from '@platformatic/control'
 import { describe, it, beforeEach, afterEach, mock } from 'node:test'
 import assert from 'node:assert'
 import * as util from 'util'
@@ -277,9 +276,6 @@ describe('start', () => {
       // First SIGINT - should trigger shutdown
       process.emit('SIGINT')
       await immediate()
-
-      // During shutdown, there should be an ignoring handler
-      const listenerCountDuringShutdown = process.listenerCount('SIGINT')
 
       // Send second SIGINT during shutdown
       process.emit('SIGINT')

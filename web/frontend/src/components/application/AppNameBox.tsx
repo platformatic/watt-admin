@@ -75,114 +75,114 @@ function AppNameBox ({
 
   return (
     <>
-    <BorderedBox classes={`${styles.borderexBoxContainer}`} backgroundColor={BLACK_RUSSIAN} color={TRANSPARENT}>
-      <div className={`${commonStyles.smallFlexBlock} ${commonStyles.fullWidth}`}>
-        <div className={`${commonStyles.smallFlexResponsiveRow} ${commonStyles.fullWidth}`}>
-          <div className={`${commonStyles.tinyFlexResponsiveRow} ${commonStyles.fullWidth}`}>
-            <div className={commonStyles.tinyFlexRow}>
-              <Icons.AppIcon
-                color={WHITE}
-                size={MEDIUM}
-              />
-              <div className={styles.applicationName}>
-                <p className={`${typographyStyles.desktopBodyLargeSemibold} ${typographyStyles.textWhite} ${typographyStyles.ellipsis}`}>{apiApplication.name}</p>
+      <BorderedBox classes={`${styles.borderexBoxContainer}`} backgroundColor={BLACK_RUSSIAN} color={TRANSPARENT}>
+        <div className={`${commonStyles.smallFlexBlock} ${commonStyles.fullWidth}`}>
+          <div className={`${commonStyles.smallFlexResponsiveRow} ${commonStyles.fullWidth}`}>
+            <div className={`${commonStyles.tinyFlexResponsiveRow} ${commonStyles.fullWidth}`}>
+              <div className={commonStyles.tinyFlexRow}>
+                <Icons.AppIcon
+                  color={WHITE}
+                  size={MEDIUM}
+                />
+                <div className={styles.applicationName}>
+                  <p className={`${typographyStyles.desktopBodyLargeSemibold} ${typographyStyles.textWhite} ${typographyStyles.ellipsis}`}>{apiApplication.name}</p>
+                </div>
+              </div>
+              {appStatus && <ApplicationStatusPills status={appStatus} />}
+            </div>
+            <div className={styles.buttonContainer}>
+              {changingRestartStatus
+                ? (
+                  <Button
+                    type='button'
+                    label='Restarting...'
+                    onClick={() => {}}
+                    color={WHITE}
+                    backgroundColor={TRANSPARENT}
+                    paddingClass={commonStyles.smallButtonPadding}
+                    platformaticIcon={{ iconName: 'RestartIcon', color: WHITE }}
+                    textClass={typographyStyles.desktopButtonSmall}
+                  />
+                  )
+                : (
+                  <Button
+                    type='button'
+                    label='Restart'
+                    onClick={() => handleRestartApplication()}
+                    color={WHITE}
+                    backgroundColor={TRANSPARENT}
+                    paddingClass={commonStyles.smallButtonPadding}
+                    platformaticIcon={{ iconName: 'RestartIcon', color: WHITE }}
+                    textClass={typographyStyles.desktopButtonSmall}
+                    disabled={appStatus === STATUS_STOPPED}
+                  />
+                  )}
+
+              {!getOfflineMode() &&
+                <><Button
+                  type='button'
+                  label={`Record ${record}`}
+                  onClick={async () => {
+                    try {
+                      const result = await updateMode(runtimePid, record)
+                      await fetchData()
+                      setRecord(record === 'start' ? 'stop' : 'start')
+                      onModeUpdated()
+                      const body = result.body as { path?: string } | undefined
+                      if (record === 'stop' && body?.path) {
+                        setSavedFilePath(body.path)
+                      }
+                    } catch (error) {
+                      onErrorOccurred(error)
+                    }
+                  }}
+                  color={WHITE}
+                  backgroundColor={TRANSPARENT}
+                  paddingClass={commonStyles.smallButtonPadding}
+                  platformaticIcon={{ iconName: record === 'start' ? 'DownloadIcon' : 'StopIcon', color: WHITE }}
+                  textClass={typographyStyles.desktopButtonSmall}
+                  internalOverHandling
+                  />
+                </>}
+            </div>
+          </div>
+          <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth} ${styles.appInnerBox}`}>
+            <div className={styles.rowContainer}>
+              <div className={`${commonStyles.smallFlexResponsiveRow}`}>
+                {!apiApplication.pltVersion
+                  ? (<span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>Current Watt Version: -</span>)
+                  : (
+                    <>
+                      <div className={`${commonStyles.tinyFlexRow} ${commonStyles.itemsCenter}`}>
+                        <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>Current Watt Version: </span>
+                        {apiApplication.pltVersion
+                          ? (
+                            <>
+                              <span className={`${typographyStyles.desktopBodySmall} ${outdatedVersion ? typographyStyles.textWarningYellow : typographyStyles.textWhite}`}>{apiApplication.pltVersion}</span>
+                              {outdatedVersion && (
+                                <Tooltip
+                                  tooltipClassName={tooltipStyles.tooltipDarkStyle}
+                                  content={(<span>New Watt version available: <span className={`${typographyStyles.semibold}`}>{latestVersion}</span>.</span>)}
+                                  offset={24}
+                                  immediateActive={false}
+                                >
+                                  <PlatformaticIcon iconName='AlertIcon' color={WARNING_YELLOW} size={SMALL} internalOverHandling />
+                                </Tooltip>
+                              )}
+                            </>)
+                          : (<span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>-</span>)}
+                        <span className={`${typographyStyles.desktopBodySmallest} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}> &nbsp; | &nbsp; </span>
+                        <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>URL:</span>
+                        <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite}`}>{apiApplication.url} </span>
+                        <PlatformaticIcon iconName='ExpandIcon' color={WHITE} size={SMALL} onClick={() => window.open(apiApplication.url, '_blank')} internalOverHandling disabled={apiApplication.url === ''} />
+                      </div>
+                    </>
+                    )}
               </div>
             </div>
-            {appStatus && <ApplicationStatusPills status={appStatus} />}
-          </div>
-          <div className={styles.buttonContainer}>
-            {changingRestartStatus
-              ? (
-                <Button
-                  type='button'
-                  label='Restarting...'
-                  onClick={() => {}}
-                  color={WHITE}
-                  backgroundColor={TRANSPARENT}
-                  paddingClass={commonStyles.smallButtonPadding}
-                  platformaticIcon={{ iconName: 'RestartIcon', color: WHITE }}
-                  textClass={typographyStyles.desktopButtonSmall}
-                />
-                )
-              : (
-                <Button
-                  type='button'
-                  label='Restart'
-                  onClick={() => handleRestartApplication()}
-                  color={WHITE}
-                  backgroundColor={TRANSPARENT}
-                  paddingClass={commonStyles.smallButtonPadding}
-                  platformaticIcon={{ iconName: 'RestartIcon', color: WHITE }}
-                  textClass={typographyStyles.desktopButtonSmall}
-                  disabled={appStatus === STATUS_STOPPED}
-                />
-                )}
-
-            {!getOfflineMode() &&
-              <><Button
-                type='button'
-                label={`Record ${record}`}
-                onClick={async () => {
-                  try {
-                    const result = await updateMode(runtimePid, record)
-                    await fetchData()
-                    setRecord(record === 'start' ? 'stop' : 'start')
-                    onModeUpdated()
-                    const body = result.body as { path?: string } | undefined
-                    if (record === 'stop' && body?.path) {
-                      setSavedFilePath(body.path)
-                    }
-                  } catch (error) {
-                    onErrorOccurred(error)
-                  }
-                }}
-                color={WHITE}
-                backgroundColor={TRANSPARENT}
-                paddingClass={commonStyles.smallButtonPadding}
-                platformaticIcon={{ iconName: record === 'start' ? 'DownloadIcon' : 'StopIcon', color: WHITE }}
-                textClass={typographyStyles.desktopButtonSmall}
-                internalOverHandling
-                />
-              </>}
           </div>
         </div>
-        <div className={`${commonStyles.tinyFlexBlock} ${commonStyles.fullWidth} ${styles.appInnerBox}`}>
-          <div className={styles.rowContainer}>
-            <div className={`${commonStyles.smallFlexResponsiveRow}`}>
-              {!apiApplication.pltVersion
-                ? (<span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>Current Watt Version: -</span>)
-                : (
-                  <>
-                    <div className={`${commonStyles.tinyFlexRow} ${commonStyles.itemsCenter}`}>
-                      <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>Current Watt Version: </span>
-                      {apiApplication.pltVersion
-                        ? (
-                          <>
-                            <span className={`${typographyStyles.desktopBodySmall} ${outdatedVersion ? typographyStyles.textWarningYellow : typographyStyles.textWhite}`}>{apiApplication.pltVersion}</span>
-                            {outdatedVersion && (
-                              <Tooltip
-                                tooltipClassName={tooltipStyles.tooltipDarkStyle}
-                                content={(<span>New Watt version available: <span className={`${typographyStyles.semibold}`}>{latestVersion}</span>.</span>)}
-                                offset={24}
-                                immediateActive={false}
-                              >
-                                <PlatformaticIcon iconName='AlertIcon' color={WARNING_YELLOW} size={SMALL} internalOverHandling />
-                              </Tooltip>
-                            )}
-                          </>)
-                        : (<span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>-</span>)}
-                      <span className={`${typographyStyles.desktopBodySmallest} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}> &nbsp; | &nbsp; </span>
-                      <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>URL:</span>
-                      <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite}`}>{apiApplication.url} </span>
-                      <PlatformaticIcon iconName='ExpandIcon' color={WHITE} size={SMALL} onClick={() => window.open(apiApplication.url, '_blank')} internalOverHandling disabled={apiApplication.url === ''} />
-                    </div>
-                  </>
-                  )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </BorderedBox>
+      </BorderedBox>
       {savedFilePath && (
         <div className={styles.modalOverlay} onClick={() => setSavedFilePath(null)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

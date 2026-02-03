@@ -1,16 +1,16 @@
-import type { FastifyInstance } from 'fastify'
 import type { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts'
 import { RuntimeApiClient } from '@platformatic/control'
-import { getPidToLoad, getSelectableRuntimes } from '../utils/runtimes.ts'
-import { writeFile, readFile } from 'node:fs/promises'
+import type { FastifyInstance } from 'fastify'
 import { exec } from 'node:child_process'
+import { readFile, writeFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
+import { join } from 'path'
+import { modeSchema, pidParamSchema, profileSchema, selectableRuntimeSchema } from '../schemas/index.ts'
+import { generateDefaultFilename, getUniqueFilePath } from '../utils/output.ts'
+import { getPidToLoad, getSelectableRuntimes } from '../utils/runtimes.ts'
+import { checkRecordState } from '../utils/states.ts'
 
 const execAsync = promisify(exec)
-import { checkRecordState } from '../utils/states.ts'
-import { join } from 'path'
-import { pidParamSchema, selectableRuntimeSchema, modeSchema, profileSchema } from '../schemas/index.ts'
-import { generateDefaultFilename, getUniqueFilePath } from '../utils/output.ts'
 
 const __dirname = import.meta.dirname
 
