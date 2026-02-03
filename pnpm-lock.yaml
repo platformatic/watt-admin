@@ -147,6 +147,9 @@ importers:
       react:
         specifier: ^19.2.0
         version: 19.2.4
+      semver:
+        specifier: ^7.7.3
+        version: 7.7.3
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

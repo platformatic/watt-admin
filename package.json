@@ -2,6 +2,9 @@
   "type": "module",
   "name": "@platformatic/watt-admin",
   "version": "1.1.0",
+  "repository": {
+    "url": "https://github.com/platformatic/watt-admin"
+  },
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "wattpm dev",
@@ -71,6 +74,7 @@
     "neostandard": "^0.12.2",
     "playwright": "^1.56.0",
     "react": "^19.2.0",
+    "semver": "^7.7.3",
     "typescript": "^5.9.3",
     "vitest": "^4.0.0",
     "ws": "^8.19.0"
