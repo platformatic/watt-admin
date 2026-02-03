@@ -1,5 +1,13 @@
-import { describe, it, before, after, mock } from 'node:test'
+import type { RuntimeApiClient } from '@platformatic/control'
 import assert from 'node:assert'
+import { after, before, describe, it, mock } from 'node:test'
+import * as util from 'util'
+
+interface ParseArgsResult {
+  values: {
+    socket?: string
+  }
+}
 
 describe('CLI Integration', () => {
   const mockRuntimes = [
@@ -21,6 +29,8 @@ describe('CLI Integration', () => {
 
   // Setup for test
   let consoleOutput: string[] = []
+  let parseArgsResult: ParseArgsResult = { values: {} }
+  let runtimeApi: RuntimeApiClient & { socket?: string }
   const originalConsoleLog = console.log
 
   before(() => {
@@ -32,8 +42,21 @@ describe('CLI Integration', () => {
     mock.module('@platformatic/control', {
       namedExports: {
         RuntimeApiClient: class {
-          async getRuntimes () { return mockRuntimes }
-          async getRuntimeConfig () { return { path: '/test/config.json' } }
+          socket?: string
+
+          constructor (options: { socket?: string }) {
+            this.socket = options.socket
+            runtimeApi = this as unknown as RuntimeApiClient & { socket?: string }
+          }
+
+          async getRuntimes () {
+            return mockRuntimes
+          }
+
+          async getRuntimeConfig () {
+            return { path: '/test/config.json' }
+          }
+
           async close () {}
         }
       }
@@ -42,6 +65,13 @@ describe('CLI Integration', () => {
     mock.module('@inquirer/prompts', {
       namedExports: {
         select: async () => mockRuntimes[1] // Always select the second runtime
+      }
+    })
+
+    mock.module('util', {
+      namedExports: {
+        ...util,
+        parseArgs: (): ParseArgsResult => parseArgsResult
       }
     })
   })
@@ -61,5 +91,18 @@ describe('CLI Integration', () => {
     assert.deepStrictEqual(result, mockRuntimes[1])
     assert.ok(consoleOutput.some(output => output.includes('app-2')))
     assert.ok(consoleOutput.some(output => output.includes('2222')))
+  })
+
+  it('should accept the socket option', async () => {
+    parseArgsResult = { values: { socket: 'foo.sock' } }
+    const { cli } = await import('../cli.js')
+
+    // Call the main function
+    const runtime = await cli()
+
+    // @ts-expect-error Not typed yet
+    await runtime.close()
+
+    assert.deepStrictEqual(runtimeApi.socket, 'foo.sock')
   })
 })
