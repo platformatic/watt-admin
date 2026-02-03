@@ -62,6 +62,9 @@ importers:
       fastify:
         specifier: ^5.6.1
         version: 5.7.2
+      json-schema-to-ts:
+        specifier: ^3.1.1
+        version: 3.1.1
       pprof-format:
         specifier: ^2.2.1
         version: 2.2.1

@@ -41,6 +41,7 @@
     "d3": "^7.9.0",
     "dayjs": "^1.11.18",
     "fastify": "^5.6.1",
+    "json-schema-to-ts": "^3.1.1",
     "pprof-format": "^2.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
