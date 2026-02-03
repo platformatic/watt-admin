@@ -21,22 +21,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@releases/v4.0.0
-      - uses: actions/setup-node@v6
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - name: Use supported Node.js Version
+        uses: actions/setup-node@v6
         with:
           node-version: 24
-      - name: npm ci
-        uses: nick-fields/retry@v3.0.2
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+      - name: Restore cached dependencies
+        uses: actions/cache@v3
         with:
-          max_attempts: 10
-          timeout_minutes: 15
-          retry_on: error
-          command: npm ci
-      - name: Update client
-        run: npm run client:openapi && npm run client:generate
-      - name: Check types
-        run: npm run typecheck
-      - name: Run build
-        run: npm run build
-      - name: Run tests
-        run: npm test
+          path: ~/.pnpm-store
+          key: node-modules-${{ hashFiles('package.json') }}
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run Tests
+        run: pnpm run ci
