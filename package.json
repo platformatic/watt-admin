@@ -66,6 +66,7 @@
     "@types/ws": "^8.18.1",
     "eslint": "^9.37.0",
     "fastify-tsconfig": "^3.0.0",
+    "glob": "^13.0.1",
     "massimo-cli": "^1.0.1",
     "neostandard": "^0.12.2",
     "playwright": "^1.56.0",
