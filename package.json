@@ -2,6 +2,9 @@
   "type": "module",
   "name": "@platformatic/watt-admin",
   "version": "1.1.0",
+  "repository": {
+    "url": "https://github.com/platformatic/watt-admin"
+  },
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "wattpm dev",
