@@ -103,7 +103,7 @@ importers:
         version: 3.37.0
       zustand:
         specifier: ^5.0.8
-        version: 5.0.11(@types/react@19.2.13)(react@19.2.4)
+        version: 5.0.11(@types/react@19.2.14)(react@19.2.4)
     devDependencies:
       '@playwright/test':
         specifier: ^1.56.0
@@ -116,10 +116,10 @@ importers:
         version: 24.10.13
       '@types/react':
         specifier: ^19.2.10
-        version: 19.2.13
+        version: 19.2.14
       '@types/react-dom':
         specifier: ^19.2.1
-        version: 19.2.3(@types/react@19.2.13)
+        version: 19.2.3(@types/react@19.2.14)
       '@types/split2':
         specifier: ^4.2.3
         version: 4.2.3
@@ -1667,8 +1667,8 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
-  '@types/react@19.2.13':
-    resolution: {integrity: sha512-KkiJeU6VbYbUOp5ITMIc7kBfqlYkKA5KhEHVrGMmUUMt7NeaZg65ojdPk+FtNrBAOXNVM5QM72jnADjM+XVRAQ==}
+  '@types/react@19.2.14':
+    resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
 
   '@types/split2@4.2.3':
     resolution: {integrity: sha512-59OXIlfUsi2k++H6CHgUQKEb2HKRokUA39HY1i1dS8/AIcqVjtAAFdf8u+HxTWK/4FUHMJQlKSZ4I6irCBJ1Zw==}
@@ -7204,11 +7204,11 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
-  '@types/react-dom@19.2.3(@types/react@19.2.13)':
+  '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
-      '@types/react': 19.2.13
+      '@types/react': 19.2.14
 
-  '@types/react@19.2.13':
+  '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.3
 
@@ -11153,9 +11153,9 @@ snapshots:
 
   zod@4.3.6: {}
 
-  zustand@5.0.11(@types/react@19.2.13)(react@19.2.4):
+  zustand@5.0.11(@types/react@19.2.14)(react@19.2.4):
     optionalDependencies:
-      '@types/react': 19.2.13
+      '@types/react': 19.2.14
       react: 19.2.4
 
   zwitch@2.0.4: {}
