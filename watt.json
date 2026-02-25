@@ -2,7 +2,7 @@
   "$schema": "https://schemas.platformatic.dev/wattpm/3.11.0.json",
   "server": {
     "hostname": "127.0.0.1",
-    "port": "{PORT}"
+    "port": "{WATT_ADMIN_PORT}"
   },
   "logger": {
     "level": "info"
