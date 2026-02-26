@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const PORT = process.env.PORT || '5042'
+const PORT = process.env.WATT_ADMIN_PORT || '5042'
 const baseURL = `http://127.0.0.1:${PORT}`
 const timeout = 60000
 
@@ -21,7 +21,7 @@ export default defineConfig({
     timeout,
     stdout: 'pipe',
     stderr: 'pipe',
-    env: { PORT, INCLUDE_ADMIN: '1', CI: '1' }
+    env: { WATT_ADMIN_PORT: PORT, INCLUDE_ADMIN: '1', CI: '1' }
   },
   timeout
 })

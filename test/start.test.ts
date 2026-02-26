@@ -68,7 +68,7 @@ describe('start', () => {
   beforeEach(() => {
     mockServer.started = false
     delete process.env.SELECTED_RUNTIME
-    delete process.env.PORT
+    delete process.env.WATT_ADMIN_PORT
 
     // Default parseArgs result
     parseArgsResult = { values: {} }
