@@ -30,8 +30,8 @@ importers:
         specifier: ^3.36.0
         version: 3.41.0(typescript@5.9.3)
       '@platformatic/ui-components':
-        specifier: ^0.19.1
-        version: 0.19.5
+        specifier: ^0.20.0
+        version: 0.20.0
       '@platformatic/vite':
         specifier: ^3.11.0
         version: 3.41.0
@@ -88,7 +88,7 @@ importers:
         version: 3.4.19(yaml@2.8.2)
       undici:
         specifier: ^7.16.0
-        version: 7.24.1
+        version: 7.24.3
       use-error-boundary:
         specifier: ^2.0.6
         version: 2.0.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1207,8 +1207,8 @@ packages:
     resolution: {integrity: sha512-c7TVD5/81eAcSzIu+gCg3DcmjbJzi9SJZWGl7G9VrAuIb/lGzab742VBqilM4IVdPLFvNb8oz4Wf54455scVHw==}
     engines: {node: '>=22.19.0'}
 
-  '@platformatic/ui-components@0.19.5':
-    resolution: {integrity: sha512-AVDjKhVOL1hTGSFUW+is63w0Z5D/ameQkpkWcZYd+Q6qTuQRxTIN32w/zd2MsG2v+jpqEfi9JGr64TY0tyK9bA==}
+  '@platformatic/ui-components@0.20.0':
+    resolution: {integrity: sha512-X+hgvyrYltN0ZquwYFjVaHianvMcGMgxH/Rzf9hfAljm1eIK9C3nA/P00UZqJZgGEoNkJ1xlQvSYTLtVWhRtBA==}
 
   '@platformatic/undici-cache-memory@0.8.4':
     resolution: {integrity: sha512-/JVfPhyUW0GQkmr5lGAGOgh0lpJbTcLG8VB2uNqgNgH1fhPPFAM0l4pLSyeDzpTj2r/GJPLqhzvCgangnSHfoQ==}
@@ -4679,16 +4679,16 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@6.24.0:
-    resolution: {integrity: sha512-lVLNosgqo5EkGqh5XUDhGfsMSoO8K0BAN0TyJLvwNRSl4xWGZlCVYsAIpa/OpA3TvmnM01GWcoKmc3ZWo5wKKA==}
+  undici@6.24.1:
+    resolution: {integrity: sha512-sC+b0tB1whOCzbtlx20fx3WgCXwkW627p4EA9uM+/tNNPkSS+eSEld6pAs9nDv7WbY1UUljBMYPtu9BCOrCWKA==}
     engines: {node: '>=18.17'}
 
   undici@7.18.2:
     resolution: {integrity: sha512-y+8YjDFzWdQlSE9N5nzKMT3g4a5UBX1HKowfdXh0uvAnTaqqwqB92Jt4UXBAeKekDs5IaDKyJFR4X1gYVCgXcw==}
     engines: {node: '>=20.18.1'}
 
-  undici@7.24.1:
-    resolution: {integrity: sha512-5xoBibbmnjlcR3jdqtY2Lnx7WbrD/tHlT01TmvqZUFVc9Q1w4+j5hbnapTqbcXITMH1ovjq/W7BkqBilHiVAaA==}
+  undici@7.24.3:
+    resolution: {integrity: sha512-eJdUmK/Wrx2d+mnWWmwwLRyA7OQCkLap60sk3dOK4ViZR7DKwwptwuIvFBg2HaiP9ESaEdhtpSymQPvytpmkCA==}
     engines: {node: '>=20.18.1'}
 
   unhead@2.1.12:
@@ -5477,7 +5477,7 @@ snapshots:
       fast-querystring: 1.1.2
       fastify-plugin: 5.1.0
       toad-cache: 3.7.0
-      undici: 7.24.1
+      undici: 7.24.3
 
   '@fastify/send@4.1.0':
     dependencies:
@@ -6194,7 +6194,7 @@ snapshots:
       pino-abstract-transport: 2.0.0
       semver: 7.7.4
       split2: 4.2.0
-      undici: 7.24.1
+      undici: 7.24.3
       ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
@@ -6209,7 +6209,7 @@ snapshots:
       pino: 9.14.0
       pino-pretty: 13.1.3
       table: 6.9.0
-      undici: 7.24.1
+      undici: 7.24.3
       ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
@@ -6277,7 +6277,7 @@ snapshots:
       pino-pretty: 13.1.3
       rfdc: 1.4.1
       semgrator: 0.3.0
-      undici: 7.24.1
+      undici: 7.24.3
     transitivePeerDependencies:
       - bufferutil
       - chokidar
@@ -6293,7 +6293,7 @@ snapshots:
       execa: 9.6.1
       fastify: 5.8.2
       pino: 9.14.0
-      undici: 7.24.1
+      undici: 7.24.3
     transitivePeerDependencies:
       - supports-color
 
@@ -6305,7 +6305,7 @@ snapshots:
       mercurius: 16.8.0(graphql@16.13.1)
       metaline: 1.1.0
       pino: 9.14.0
-      undici: 7.24.1
+      undici: 7.24.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -6354,7 +6354,7 @@ snapshots:
       long: 5.3.2
       prom-client: 15.1.3
       protobufjs: 7.5.4
-      undici: 6.24.0
+      undici: 6.24.1
 
   '@platformatic/runtime@3.41.0':
     dependencies:
@@ -6388,7 +6388,7 @@ snapshots:
       semgrator: 0.3.0
       sonic-boom: 4.2.1
       systeminformation: 5.31.4
-      undici: 7.24.1
+      undici: 7.24.3
       undici-thread-interceptor: 1.3.1
       ws: 8.19.0
     transitivePeerDependencies:
@@ -6438,7 +6438,7 @@ snapshots:
       pino-pretty: 13.1.3
       rfdc: 1.4.1
       semgrator: 0.3.0
-      undici: 7.24.1
+      undici: 7.24.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -6465,7 +6465,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@platformatic/ui-components@0.19.5':
+  '@platformatic/ui-components@0.20.0':
     dependencies:
       autoprefixer: 10.4.27(postcss@8.5.8)
       d3: 7.9.0
@@ -6493,7 +6493,7 @@ snapshots:
     dependencies:
       '@datadog/pprof': 5.13.5
       '@fastify/error': 4.2.0
-      undici: 7.24.1
+      undici: 7.24.3
 
   '@playwright/test@1.58.2':
     dependencies:
@@ -9278,7 +9278,7 @@ snapshots:
       minimist: 1.2.8
       pino: 9.14.0
       pino-pretty: 13.1.3
-      undici: 7.24.1
+      undici: 7.24.3
       yaml: 2.8.2
 
   massimo@1.2.0:
@@ -9287,7 +9287,7 @@ snapshots:
       '@fastify/error': 4.2.0
       ajv: 8.18.0
       camelcase: 6.3.0
-      undici: 7.24.1
+      undici: 7.24.3
 
   math-intrinsics@1.1.0: {}
 
@@ -10812,17 +10812,17 @@ snapshots:
       fastq: 1.20.1
       hyperid: 3.3.0
       light-my-request: 6.6.0
-      undici: 7.24.1
+      undici: 7.24.3
 
   undici-types@6.21.0: {}
 
   undici-types@7.16.0: {}
 
-  undici@6.24.0: {}
+  undici@6.24.1: {}
 
   undici@7.18.2: {}
 
-  undici@7.24.1: {}
+  undici@7.24.3: {}
 
   unhead@2.1.12:
     dependencies:
