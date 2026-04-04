@@ -87,8 +87,8 @@ importers:
         specifier: ^3.4.18
         version: 3.4.19(yaml@2.8.2)
       undici:
-        specifier: ^7.16.0
-        version: 7.24.4
+        specifier: ^8.0.0
+        version: 8.0.2
       use-error-boundary:
         specifier: ^2.0.6
         version: 2.0.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -4688,6 +4688,10 @@ packages:
   undici@7.24.4:
     resolution: {integrity: sha512-BM/JzwwaRXxrLdElV2Uo6cTLEjhSb3WXboncJamZ15NgUURmvlXvxa6xkwIOILIjPNo9i8ku136ZvWV0Uly8+w==}
     engines: {node: '>=20.18.1'}
+
+  undici@8.0.2:
+    resolution: {integrity: sha512-B9MeU5wuFhkFAuNeA19K2GDFcQXZxq33fL0nRy2Aq30wdufZbyyvxW3/ChaeipXVfy/wUweZyzovQGk39+9k2w==}
+    engines: {node: '>=22.19.0'}
 
   unhead@2.1.12:
     resolution: {integrity: sha512-iTHdWD9ztTunOErtfUFk6Wr11BxvzumcYJ0CzaSCBUOEtg+DUZ9+gnE99i8QkLFT2q1rZD48BYYGXpOZVDLYkA==}
@@ -10820,6 +10824,8 @@ snapshots:
   undici@7.18.2: {}
 
   undici@7.24.4: {}
+
+  undici@8.0.2: {}
 
   unhead@2.1.12:
     dependencies:
