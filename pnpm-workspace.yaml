@@ -1,0 +1,5 @@
+allowBuilds:
+  '@datadog/pprof': true
+  esbuild: true
+  protobufjs: true
+  vue-demi: true
