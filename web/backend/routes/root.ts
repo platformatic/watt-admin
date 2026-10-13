@@ -72,7 +72,8 @@ export default async function (fastify: FastifyInstance) {
         200: {
           type: 'object',
           additionalProperties: false,
-          required: ['entrypoint', 'production', 'applications'],
+          // v4 runtimes have no entrypoint.
+          required: ['production', 'applications'],
           properties: {
             entrypoint: {
               type: 'string'
@@ -87,7 +88,7 @@ export default async function (fastify: FastifyInstance) {
                   {
                     additionalProperties: true,
                     type: 'object',
-                    required: ['id', 'type', 'status', 'version', 'localUrl', 'entrypoint', 'dependencies'],
+                    required: ['id', 'type', 'status', 'version', 'localUrl', 'dependencies'],
                     properties: {
                       id: {
                         type: 'string'
@@ -110,8 +111,10 @@ export default async function (fastify: FastifyInstance) {
                       workers: {
                         type: 'number'
                       },
+                      // v4 reports null for applications that serve only over the mesh.
                       url: {
-                        type: 'string'
+                        type: 'string',
+                        nullable: true
                       },
                       dependencies: {
                         type: 'array',

@@ -1,0 +1,43 @@
+.container {
+  @apply relative w-full flex-1 min-h-[140px];
+}
+/* Positioned so that the measured size of the container never depends on the chart. */
+.chart {
+  @apply absolute inset-0 block overflow-visible;
+}
+.grid {
+  @apply stroke-white/10;
+}
+.axis {
+  @apply fill-white/60 text-[10px];
+}
+.region {
+  @apply fill-white/60 text-[9px] tracking-wider;
+}
+.series {
+  fill: none;
+  stroke-width: 1.7px;
+}
+.dashed {
+  stroke-dasharray: 6 4;
+}
+.now {
+  @apply stroke-white/70;
+}
+.init {
+  @apply stroke-white/30;
+  stroke-dasharray: 6 4;
+}
+.hatch {
+  @apply stroke-white/5;
+  stroke-width: 2px;
+}
+.crosshair {
+  @apply stroke-white/40;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+.tooltip {
+  @apply absolute z-10 px-2 py-1 rounded bg-white text-rich-black pointer-events-none whitespace-nowrap;
+  transform: translate(-50%, calc(-100% - 8px));
+}

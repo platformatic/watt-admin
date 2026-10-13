@@ -6,7 +6,8 @@ import {
   HOME_PATH,
   POD_SERVICES_PATH,
   POD_LOGS_PATH,
-  POD_FLAMEGRAPH_PATH
+  POD_FLAMEGRAPH_PATH,
+  POD_SCALER_PATH
 } from './ui-constants'
 import { LoadingSpinnerV2 } from '@platformatic/ui-components'
 import loadingSpinnerStyles from './styles/LoadingSpinnerStyles.module.css'
@@ -20,6 +21,7 @@ import AppDetails from './components/application/AppDetails'
 import ServicesLogs from './components/services/ServicesLogs'
 import ServicesCharts from './components/services/ServicesCharts'
 import ServicesFlamegraph from './components/services/ServicesFlamegraph'
+import Scaler from './components/scaler/Scaler'
 
 interface ErrorBoundaryResult {
   ErrorBoundary: React.ComponentType<{ children: React.ReactNode }>;
@@ -124,6 +126,16 @@ export default function App (): React.ReactElement {
               <RouteContainer>
                 <ApplicationContainer>
                   <ServicesCharts />
+                </ApplicationContainer>
+              </RouteContainer>
+            }
+          />
+          <Route
+            path={POD_SCALER_PATH}
+            element={
+              <RouteContainer>
+                <ApplicationContainer>
+                  <Scaler />
                 </ApplicationContainer>
               </RouteContainer>
             }

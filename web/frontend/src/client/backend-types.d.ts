@@ -81,7 +81,7 @@ export type GetRuntimesPidServicesRequest = {
 /**
  * Default Response
  */
-export type GetRuntimesPidServicesResponseOK = { 'entrypoint': string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint': boolean; 'workers'?: number; 'url'?: string; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
+export type GetRuntimesPidServicesResponseOK = { 'entrypoint'?: string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint'?: boolean; 'workers'?: number; 'url'?: string | null; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
 export type GetRuntimesPidServicesResponses =
   FullResponse<GetRuntimesPidServicesResponseOK, 200>
 
@@ -128,6 +128,19 @@ export type PostRecordPidRequest = {
 export type PostRecordPidResponseOK = { 'path'?: string }
 export type PostRecordPidResponses =
   FullResponse<PostRecordPidResponseOK, 200>
+
+export type GetRuntimesPidScalerRequest = {
+  path: {
+    'pid': number;
+  }
+}
+
+/**
+ * Default Response
+ */
+export type GetRuntimesPidScalerResponseOK = { 'status': 'available' | 'unavailable' | 'unsupported'; 'version'?: number; 'now'?: number; 'processIntervalMs'?: number; 'maxTotalWorkers'?: number; 'memory'?: { 'used': number; 'limit': number }; 'applications': Array<{ 'id': string; 'targetCount': number; 'liveCount': number; 'minimum': number; 'maximum': number; 'initTimeoutMs': number; 'horizonMs': number; 'pending': Array<{ 'scaleAt': number; 'decisionAt': number; 'expectedCount': number }>; 'metrics': Record<string, { 'threshold'?: number; 'lastProcessedTs': number; 'level'?: number; 'trendPerSecond': number; 'history': Array<{ 'timestamp': number; 'value': number }> }>; 'workers': Array<{ 'id': string; 'startTime': number; 'metrics': Record<string, { 'lastSampleTs': number; 'lastValue': number; 'firstSampleTs': number; 'intervalMs': number; 'values': Array<number> }> }>; 'workerHistory': Array<{ 'timestamp': number; 'value': number }> }> }
+export type GetRuntimesPidScalerResponses =
+  FullResponse<GetRuntimesPidScalerResponseOK, 200>
 
 
 
@@ -180,6 +193,11 @@ export interface Backend {
    * @returns the API response
    */
   postRecordPid(req: PostRecordPidRequest): Promise<PostRecordPidResponses>;
+  /**
+   * @param req - request parameters object
+   * @returns the API response
+   */
+  getRuntimesPidScaler(req: GetRuntimesPidScalerRequest): Promise<GetRuntimesPidScalerResponses>;
 }
 type PlatformaticFrontendClient = Omit<Backend, 'setBaseUrl'>
 type BuildOptions = {

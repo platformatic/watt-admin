@@ -1,0 +1,79 @@
+.container {
+  @apply grow relative flex flex-col gap-y-4 p-4 min-w-0 min-h-0 overflow-y-auto;
+  flex-basis: 1rem;
+}
+/* BorderedBox grows by default; panels keep their natural height unless told otherwise. */
+.panel {
+  @apply flex flex-col gap-y-3 p-4 w-full rounded-[4px] min-w-0;
+  flex: none;
+}
+/* Charts share the height left in the main column. */
+.chartPanel {
+  flex: 1 1 0;
+  min-height: 220px;
+}
+.panelHeader {
+  @apply flex flex-wrap items-center justify-between gap-x-4 gap-y-1;
+}
+.warnings {
+  @apply flex flex-col gap-y-1 px-3 py-2.5 rounded border border-solid border-warning-yellow/50 bg-warning-yellow/10;
+}
+.layout {
+  @apply grid gap-3 flex-1 min-h-0;
+  grid-template-columns: minmax(200px, 1fr) minmax(360px, 2.5fr) minmax(240px, 1fr);
+}
+/* Side columns take the full height and scroll their own lists. */
+.sidebar {
+  @apply min-h-0 overflow-hidden;
+  flex: none;
+}
+.details {
+  @apply flex flex-col gap-y-3 min-w-0 min-h-0;
+}
+.stats {
+  @apply flex flex-wrap gap-x-4 gap-y-1;
+}
+.empty {
+  @apply py-6 text-center w-full;
+}
+.applicationList {
+  @apply flex flex-col gap-y-3 min-h-0 flex-1;
+}
+.search {
+  @apply w-full px-2 py-2 rounded border border-solid border-white/30 bg-transparent;
+}
+.search::placeholder {
+  @apply text-white/40;
+}
+.applicationItems {
+  @apply flex flex-col gap-y-2 min-h-0 overflow-y-auto;
+}
+.applicationItem {
+  @apply flex flex-col items-start gap-y-1.5 w-full p-3 rounded border-0 bg-rich-black text-left cursor-pointer;
+}
+.applicationItem:hover {
+  @apply bg-white/5;
+}
+.applicationItem[aria-pressed="true"] {
+  @apply bg-white/15;
+}
+.applicationTitle {
+  @apply flex items-center justify-between gap-x-2 w-full min-w-0;
+}
+.count {
+  @apply whitespace-nowrap shrink-0;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .layout > :last-child {
+    @apply col-start-2;
+  }
+}
+@media (max-width: 700px) {
+  .layout {
+    @apply flex flex-col;
+  }
+}

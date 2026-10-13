@@ -3,7 +3,8 @@ import {
   HOME_PATH,
   POD_SERVICES_PATH,
   POD_LOGS_PATH,
-  POD_FLAMEGRAPH_PATH
+  POD_FLAMEGRAPH_PATH,
+  POD_SCALER_PATH
 } from '../ui-constants'
 import styles from './HomeContainer.module.css'
 import SideBar from '../components/ui/SideBar'
@@ -55,6 +56,12 @@ function ApplicationContainer ({ children }: ApplicationContainerProps): React.R
           label: 'Metrics',
           iconName: 'NodeJSMetricsIcon',
           onClick: () => handleNavigation('Metrics', POD_SERVICES_PATH)
+        }, {
+          name: POD_SCALER_PATH,
+          label: 'Scaling',
+          iconName: 'ScalerDetailsIcon',
+          onClick: () => handleNavigation('Scaling', POD_SCALER_PATH),
+          disabled: getOfflineMode()
         }, {
           name: POD_LOGS_PATH,
           label: 'Logs',
