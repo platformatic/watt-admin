@@ -1,0 +1,36 @@
+.list {
+  @apply flex flex-col gap-y-2 w-full min-h-0 overflow-y-auto;
+}
+.empty {
+  @apply py-6 text-center w-full;
+}
+.worker {
+  @apply flex flex-col gap-y-2 p-3 rounded bg-rich-black;
+}
+.header {
+  @apply flex items-center justify-between gap-x-2;
+}
+.overloaded {
+  @apply w-[7px] h-[7px] rounded-full bg-error-red shrink-0;
+}
+.metrics {
+  @apply grid grid-cols-2 gap-x-3;
+}
+.metric {
+  @apply flex flex-col gap-y-1 min-w-0;
+}
+.metricTitle {
+  @apply flex items-center justify-between gap-x-1;
+}
+.sparkline {
+  @apply block w-full h-12;
+}
+.series {
+  fill: none;
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+.threshold {
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+}

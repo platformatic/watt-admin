@@ -1,4 +1,4 @@
-import { getRuntimes, getRuntimesPidHealth, getRuntimesPidMetrics, getRuntimesPidMetricsServiceId, getRuntimesPidMetricsServiceIdWorkerId, getRuntimesPidServices, getRuntimesPidOpenapiServiceId, postRuntimesPidRestart, setBaseUrl, postRecordPid } from './client/backend.mts'
+import { getRuntimes, getRuntimesPidHealth, getRuntimesPidMetrics, getRuntimesPidMetricsServiceId, getRuntimesPidMetricsServiceIdWorkerId, getRuntimesPidScaler, getRuntimesPidServices, getRuntimesPidOpenapiServiceId, postRuntimesPidRestart, setBaseUrl, postRecordPid } from './client/backend.mts'
 import { subtractSecondsFromDate } from './utilities/dates'
 import type { Mode } from './useAdminStore'
 import type { GetRuntimesPidMetricsResponseOK, GetRuntimesPidServicesResponseOK, GetRuntimesResponseOK, PostRecordPidRequest } from './client/backend-types'
@@ -96,6 +96,11 @@ export const getApiMetricsPodWorker = async (pid: number, serviceId: string, wor
   await getServiceHealth(pid, mode)
   const result = isLoadMode(mode) ? getDataLoaded().metrics.services[serviceId][workerId] : (await getRuntimesPidMetricsServiceIdWorkerId({ path: { pid, serviceId, workerId } })).body
   return result
+}
+
+export const getScaler = async (pid: number) => {
+  const { body } = await getRuntimesPidScaler({ path: { pid } })
+  return body
 }
 
 export const getOpenApi = async (pid: number, serviceId: string) => {

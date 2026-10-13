@@ -5,7 +5,7 @@ export const getServiceSelected = (service: ServiceData): boolean => 'selected' 
 
 export const getServiceWorkers = (service: ServiceData): number => 'workers' in service ? (service.workers ? service.workers : 0) : 0
 
-export const getServiceEntrypoint = (service: ServiceData): boolean => 'entrypoint' in service ? service.entrypoint : false
+export const getServiceEntrypoint = (service: ServiceData): boolean => 'entrypoint' in service ? service.entrypoint as boolean : false
 
 export const getOptionMetricsLabel = (input: { label: string }[]) => input.map(({ label }) => label)
 

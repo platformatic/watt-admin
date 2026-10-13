@@ -4,6 +4,7 @@ export const HOME_PATH = '/'
 export const POD_FLAMEGRAPH_PATH = '/flamegraph'
 export const POD_SERVICES_PATH = '/services'
 export const POD_LOGS_PATH = '/logs'
+export const POD_SCALER_PATH = '/scaler'
 
 export const STATUS_RUNNING = 'running'
 export const STATUS_STARTED = 'started'

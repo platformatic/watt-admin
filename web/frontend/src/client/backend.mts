@@ -317,6 +317,35 @@ const _postRecordPid = async (url: string, request: Types.PostRecordPidRequest):
 export const postRecordPid: Backend['postRecordPid'] = async (request: Types.PostRecordPidRequest): Promise<Types.PostRecordPidResponses> => {
   return await _postRecordPid(baseUrl, request)
 }
+const _getRuntimesPidScaler = async (url: string, request: Types.GetRuntimesPidScalerRequest): Promise<Types.GetRuntimesPidScalerResponses> => {
+  const headers: HeadersInit = {
+    ...defaultHeaders
+  }
+
+  const response = await fetch(`${url}/runtimes/${request.path['pid']}/scaler`, {
+    headers,
+    ...defaultFetchParams
+  })
+
+  const jsonResponses = [200]
+  if (jsonResponses.includes(response.status)) {
+    return {
+      statusCode: response.status as 200,
+      headers: headersToJSON(response.headers),
+      body: await response.json()
+    }
+  }
+  const responseType = response.headers.get('content-type')?.startsWith('application/json') ? 'json' : 'text'
+  return {
+    statusCode: response.status as 200,
+    headers: headersToJSON(response.headers),
+    body: await response[responseType]()
+  }
+}
+
+export const getRuntimesPidScaler: Backend['getRuntimesPidScaler'] = async (request: Types.GetRuntimesPidScalerRequest): Promise<Types.GetRuntimesPidScalerResponses> => {
+  return await _getRuntimesPidScaler(baseUrl, request)
+}
 type BuildOptions = {
   headers?: object
 }
@@ -334,6 +363,7 @@ export default function build (url: string, options?: BuildOptions) {
     getRuntimesPidServices: _getRuntimesPidServices.bind(url, ...arguments),
     getRuntimesPidOpenapiServiceId: _getRuntimesPidOpenapiServiceId.bind(url, ...arguments),
     postRuntimesPidRestart: _postRuntimesPidRestart.bind(url, ...arguments),
-    postRecordPid: _postRecordPid.bind(url, ...arguments)
+    postRecordPid: _postRecordPid.bind(url, ...arguments),
+    getRuntimesPidScaler: _getRuntimesPidScaler.bind(url, ...arguments)
   }
 }
