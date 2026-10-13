@@ -56,7 +56,8 @@ describe('metricView', () => {
       metrics: { elu: { threshold: 0.7, lastProcessedTs: 100000, level: 1.8, trendPerSecond: 0.05, history: [{ timestamp: 30000, value: 0.5 }, { timestamp: 100000, value: 0.9 }] } }
     })
     const view = metricView(app, 'elu', 101000)!
-    expect(view.history).toEqual([{ timestamp: 100000, value: 0.9 }])
+    // The point before the window is kept, so the line starts at the left edge.
+    expect(view.history).toEqual([{ timestamp: 30000, value: 0.5 }, { timestamp: 100000, value: 0.9 }])
     expect(view.current).toBe(0.9)
     expect(view.forecast[0].value).toBeCloseTo(1.85 / 3)
     expect(view.forecast[1]).toEqual({ timestamp: 108000, value: expect.closeTo(2.2 / 3) })

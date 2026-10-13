@@ -28,9 +28,16 @@ export function appendWorkerCount (points: ScalerPoint[], now: number, value: nu
   return next.slice(-MAX_POINTS)
 }
 
+// The last point before the window is kept: charts clip it at their left edge,
+// so the line starts at the edge instead of at the oldest point inside.
+function trimToWindow (points: ScalerPoint[], start: number): ScalerPoint[] {
+  const firstInside = points.findIndex(point => point.timestamp >= start)
+  return points.slice(firstInside === -1 ? -1 : Math.max(0, firstInside - 1))
+}
+
 // One point per processed run: the smoothed level per live worker.
 export function appendMetricLevel (points: ScalerPoint[], now: number, level: number | null, lastProcessedTs: number, liveCount: number): ScalerPoint[] {
-  const next = points.filter(point => point.timestamp >= now - SCALER_HISTORY_MS)
+  const next = trimToWindow(points, now - SCALER_HISTORY_MS)
   const isNewRun = lastProcessedTs > (next.at(-1)?.timestamp ?? 0)
   if (isNewRun && level !== null && Number.isFinite(level) && liveCount > 0) {
     next.push({ timestamp: lastProcessedTs, value: level / liveCount })

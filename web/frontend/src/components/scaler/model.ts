@@ -100,8 +100,10 @@ export function metricView (app: ScalerApplication, name: MetricName, now: numbe
 
   const max = MAX_VALUE[name]
   const clamp = (value: number): number => Math.max(0, Math.min(max, value))
+  // Keep the last point before the window, so the line starts at the chart's left edge.
+  const firstInside = metric.history.findIndex(point => point.timestamp >= now - WINDOW_MS)
   const history = metric.history
-    .filter(point => point.timestamp >= now - WINDOW_MS)
+    .slice(firstInside === -1 ? -1 : Math.max(0, firstInside - 1))
     .map(point => ({ timestamp: point.timestamp, value: clamp(point.value) }))
 
   const forecast: Point[] = []

@@ -43,8 +43,12 @@ test('metric levels add one point per processed run, per live worker', () => {
   // No level or no live workers is not a point.
   assert.strictEqual(appendMetricLevel(points, 30500, null, 30000, 2).length, 2)
   assert.strictEqual(appendMetricLevel(points, 30500, 1, 30000, 0).length, 2)
-  // Points older than the history window are dropped.
-  assert.deepStrictEqual(appendMetricLevel(points, 75000, 2, 74000, 2), [{ timestamp: 20000, value: 0.8 }, { timestamp: 74000, value: 1 }])
+  // Older points are dropped, except the last one before the window, which
+  // anchors the line at the chart's left edge.
+  assert.deepStrictEqual(appendMetricLevel(points, 75000, 2, 74000, 2), [{ timestamp: 10000, value: 0.6 }, { timestamp: 20000, value: 0.8 }, { timestamp: 74000, value: 1 }])
+  assert.deepStrictEqual(appendMetricLevel(points, 85000, 2, 84000, 2), [{ timestamp: 20000, value: 0.8 }, { timestamp: 84000, value: 1 }])
+  const anchored = appendMetricLevel([{ timestamp: 10000, value: 0.1 }, { timestamp: 20000, value: 0.2 }, { timestamp: 30000, value: 0.3 }], 85000, 2, 84000, 2)
+  assert.deepStrictEqual(anchored.map(point => point.timestamp), [20000, 30000, 84000])
 })
 
 test('scaler state follows availability and version', () => {
