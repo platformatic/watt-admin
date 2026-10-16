@@ -81,7 +81,7 @@ export type GetRuntimesPidServicesRequest = {
 /**
  * Default Response
  */
-export type GetRuntimesPidServicesResponseOK = { 'entrypoint': string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint': boolean; 'workers'?: number; 'url'?: string; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
+export type GetRuntimesPidServicesResponseOK = { 'entrypoint'?: string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint'?: boolean; 'workers'?: number; 'url'?: string | null; 'servingState'?: 'listening' | 'mesh-only' | 'background' | 'inactive'; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
 export type GetRuntimesPidServicesResponses =
   FullResponse<GetRuntimesPidServicesResponseOK, 200>
 

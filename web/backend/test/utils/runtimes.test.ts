@@ -6,22 +6,46 @@ import type { SelectableRuntime } from '../../schemas/index.ts'
 
 const mockRuntimes: Runtime[] = [
   {
+    cwd: '/app',
+    argv: [],
+    uptimeSeconds: 0,
+    execPath: process.execPath,
+    nodeVersion: process.version,
+    projectDir: '/app',
+    configPath: '/app/watt.config.js',
+    autoload: null,
+    platformaticVersion: '4.0.0',
     pid: 1234,
     packageName: 'my-app',
     packageVersion: '1.0.0',
-    url: 'http://localhost:3000'
-  } as Runtime,
+    urls: { 'api:0': 'http://localhost:3000' }
+  },
   {
+    cwd: '/admin',
+    argv: [],
+    uptimeSeconds: 0,
+    execPath: process.execPath,
+    nodeVersion: process.version,
+    projectDir: '/admin',
+    configPath: '/admin/watt.config.js',
+    autoload: null,
+    platformaticVersion: '4.0.0',
     pid: 5678,
     packageName: '@platformatic/watt-admin',
     packageVersion: '2.0.0',
-    url: 'http://localhost:3001'
-  } as Runtime
+    urls: { 'composer:0': 'http://localhost:3001' }
+  }
 ]
 
 test('getSelectableRuntimes should handle empty runtimes array', () => {
   const result = getSelectableRuntimes([], true)
   assert.strictEqual(result.length, 0)
+})
+
+test('getSelectableRuntimes uses observed worker URLs', () => {
+  const result = getSelectableRuntimes(mockRuntimes, true)
+  assert.strictEqual(result[0].url, 'http://localhost:3000')
+  assert.strictEqual(result[1].url, 'http://localhost:3001')
 })
 
 test('getSelectableRuntimes should exclude watt-admin when includeAdmin is false', () => {

@@ -1017,7 +1017,6 @@
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
-                    "entrypoint",
                     "production",
                     "applications"
                   ],
@@ -1041,7 +1040,6 @@
                               "status",
                               "version",
                               "localUrl",
-                              "entrypoint",
                               "dependencies"
                             ],
                             "properties": {
@@ -1067,7 +1065,17 @@
                                 "type": "number"
                               },
                               "url": {
-                                "type": "string"
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "servingState": {
+                                "type": "string",
+                                "enum": [
+                                  "listening",
+                                  "mesh-only",
+                                  "background",
+                                  "inactive"
+                                ]
                               },
                               "dependencies": {
                                 "type": "array",
@@ -1134,6 +1142,7 @@
     "/runtimes/{pid}/restart": {
       "post": {
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1162,6 +1171,7 @@
     "/record/{pid}": {
       "post": {
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1193,8 +1203,7 @@
                 ]
               }
             }
-          },
-          "required": true
+          }
         },
         "parameters": [
           {

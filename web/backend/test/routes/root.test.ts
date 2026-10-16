@@ -5,6 +5,11 @@ import { readFile, rm, readdir, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
+interface ServiceStatus {
+  id: string
+  servingState?: string
+}
+
 test('no runtime running', async (t) => {
   const server = await getServer(t)
   const res = await server.inject({
@@ -50,9 +55,9 @@ test('runtime is running', async (t) => {
   assert.strictEqual(services.statusCode, 200, 'services endpoint')
   const servicesJson = services.json()
   assert.strictEqual(servicesJson.production, true)
-  assert.strictEqual(servicesJson.entrypoint, 'composer')
+  assert.strictEqual(servicesJson.entrypoint, undefined)
   assert.strictEqual(typeof servicesJson.applications[0].localUrl, 'string')
-  assert.strictEqual(typeof servicesJson.applications[0].entrypoint, 'boolean')
+  assert.strictEqual(servicesJson.applications.find(({ id }: ServiceStatus) => id === 'composer').servingState, 'listening')
 
   const serviceOpenapi = await server.inject({
     url: `/runtimes/${runtimePid}/openapi/backend`
@@ -89,9 +94,9 @@ test('runtime is running', async (t) => {
   assert.strictEqual(recordEmpty.statusCode, 400)
 
   const recordStart = await server.inject({ url: `/record/${runtimePid}`, method: 'POST', body: { mode: 'start', profile: 'cpu' } })
+  assert.strictEqual(recordStart.statusCode, 200, recordStart.body)
   assert.strictEqual(server.loaded.type, 'cpu', 'cpu mode')
   assert.strictEqual(server.loaded.mode, 'start', 'start mode')
-  assert.strictEqual(recordStart.statusCode, 200)
 
   const recordStop = await server.inject({ url: `/record/${runtimePid}`, method: 'POST', body: { mode: 'stop', profile: 'cpu' } })
   assert.strictEqual(server.loaded.type, 'cpu', 'cpu mode')

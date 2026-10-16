@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path'
 const __dirname = import.meta.dirname
 
 async function clientOpenapi () {
-  const basePath = resolve(__dirname, join('..', 'platformatic.json'))
+  const basePath = resolve(__dirname, '..')
   const server = await create(basePath, {
     service: { openapi: true },
     watch: false,

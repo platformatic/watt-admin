@@ -86,6 +86,6 @@ test('metrics with runtime', async (t) => {
     url: `/runtimes/${pid}/metrics/composer`
   })
   const composerData = composer.json()
-  assert.equal(metrics.dataMem[0].rss, composerData.dataMem[0].rss, 'RSS metrics of the entrypoint')
-  assert.notEqual(metrics.dataMem[0].rss, response.dataMem[0].rss, 'RSS metrics of a generic service')
+  assert.equal(metrics.dataMem[0].rss, composerData.dataMem[0].rss, 'RSS metrics of the gateway')
+  assert.equal(metrics.dataMem[0].rss, response.dataMem[0].rss, 'Worker threads share the process RSS')
 })
