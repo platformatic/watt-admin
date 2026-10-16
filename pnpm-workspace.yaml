@@ -1,5 +1,6 @@
 allowBuilds:
   '@datadog/pprof': true
   esbuild: true
+  msgpackr-extract: false
   protobufjs: true
   vue-demi: true

@@ -2,6 +2,9 @@
   "type": "module",
   "name": "@platformatic/watt-admin",
   "version": "1.3.0",
+  "engines": {
+    "node": ">=24.20.0"
+  },
   "repository": {
     "url": "https://github.com/platformatic/watt-admin"
   },
@@ -29,13 +32,13 @@
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
     "@fastify/websocket": "^11.2.0",
     "@inquirer/prompts": "^8.0.0",
-    "@platformatic/control": "^3.36.0",
-    "@platformatic/gateway": "^3.36.0",
-    "@platformatic/runtime": "^3.36.0",
-    "@platformatic/service": "^3.36.0",
+    "@platformatic/control": "4.0.0-new-config.8",
+    "@platformatic/gateway": "4.0.0-new-config.8",
+    "@platformatic/runtime": "4.0.0-new-config.8",
+    "@platformatic/service": "4.0.0-new-config.8",
     "@platformatic/ui-components": "^0.20.0",
-    "@platformatic/vite": "^3.11.0",
-    "@platformatic/wattpm-pprof-capture": "^3.36.0",
+    "@platformatic/vite": "4.0.0-new-config.8",
+    "@platformatic/wattpm-pprof-capture": "4.0.0-new-config.8",
     "@scalar/api-reference-react": "^0.9.0",
     "@vitejs/plugin-react": "^5.0.4",
     "amaro": "^1.1.4",
@@ -56,7 +59,7 @@
     "use-error-boundary": "^2.0.6",
     "vite": "^7.1.9",
     "vite-plugin-singlefile": "^2.3.0",
-    "wattpm": "^3.36.0",
+    "wattpm": "4.0.0-new-config.8",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

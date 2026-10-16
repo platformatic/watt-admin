@@ -5,6 +5,10 @@ import { MAX_STORED_METRICS } from '../../utils/constants.ts'
 import { metricFixtures } from '../fixtures/metrics.ts'
 import type { RuntimeApplications } from '@platformatic/control'
 
+interface LegacyRuntimeApplications extends RuntimeApplications {
+  entrypoint: string
+}
+
 const loadMetricsModule = () => import(`../../utils/metrics.ts?v=${Date.now()}`)
 
 const getMockFastify = () => ({
@@ -16,13 +20,15 @@ const getMockFastify = () => ({
 }) as unknown as FastifyInstance
 
 class BaseRuntimeApiClient {
+  async close () {}
+
   async getRuntimes () {
     return [{ pid: 1234 }]
   }
 
-  async getRuntimeApplications () {
+  async getRuntimeApplications (): Promise<RuntimeApplications> {
     const status = 'ok'
-    const services: RuntimeApplications = {
+    const services: LegacyRuntimeApplications = {
       production: false,
       entrypoint: 'composer',
       applications: [
@@ -104,6 +110,69 @@ describe('Metrics Tests', () => {
     assert.ok(fastify.loaded.metrics[1234].services['singleWorker'].all)
     assert.strictEqual(Object.keys(fastify.loaded.metrics[1234].services['singleWorker']).length, 1,
       'Single worker service should only have "all" metrics and no worker-specific metrics')
+  })
+
+  it('getMetrics skips runtimes with disabled metrics and closes the client', async () => {
+    const close = mock.fn(async () => {})
+    class DisabledRuntimeClient extends BaseRuntimeApiClient {
+      async close () {
+        await close()
+      }
+
+      async getRuntimes () {
+        return [{ pid: 42 }, { pid: 1234 }]
+      }
+
+      async getRuntimeMetrics (pid?: number) {
+        if (pid === 42) {
+          throw Object.assign(new Error('Metrics are disabled'), { code: 'PLT_CTR_FAILED_TO_GET_RUNTIME_METRICS' })
+        }
+        return metricFixtures
+      }
+    }
+    mock.module('@platformatic/control', { namedExports: { RuntimeApiClient: DisabledRuntimeClient } })
+    const { getMetrics } = await loadMetricsModule()
+    const fastify = getMockFastify()
+
+    await getMetrics(fastify)
+
+    assert.ok(fastify.loaded.metrics[1234])
+    assert.strictEqual(fastify.loaded.metrics[42], undefined)
+    assert.strictEqual(close.mock.callCount(), 1)
+  })
+
+  it('getMetrics aggregates listening applications without a v3 entrypoint', async () => {
+    class V4Client extends BaseRuntimeApiClient {
+      async getRuntimeApplications (): Promise<RuntimeApplications> {
+        return {
+          production: false,
+          applications: ['composer', 'fastify2'].map(id => ({
+            id,
+            status: 'started',
+            type: 'service',
+            version: '4.0.0',
+            localUrl: `http://${id}.plt.local`,
+            url: 'http://127.0.0.1:3000',
+            urls: ['http://127.0.0.1:3000'],
+            servingState: 'listening' as const,
+            dependencies: [],
+            workers: 2
+          }))
+        }
+      }
+    }
+    mock.module('@platformatic/control', { namedExports: { RuntimeApiClient: V4Client } })
+    const { getMetrics } = await loadMetricsModule()
+    const fastify = getMockFastify()
+
+    await getMetrics(fastify)
+
+    const { aggregated, services } = fastify.loaded.metrics[1234]
+    assert.ok(aggregated.dataMem[0].rss > 0)
+    assert.strictEqual(aggregated.dataReq[0].count,
+      services.composer.all.dataReq[0].count + services.fastify2.all.dataReq[0].count)
+    assert.strictEqual(aggregated.dataLatency[0].p99,
+      Math.max(services.composer.all.dataLatency[0].p99, services.fastify2.all.dataLatency[0].p99))
   })
 
   it('getMetrics collects and aggregates metrics correctly', async () => {
