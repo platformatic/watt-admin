@@ -4,3 +4,7 @@ allowBuilds:
   msgpackr-extract: false
   protobufjs: true
   vue-demi: true
+
+minimumReleaseAgeExclude:
+  - '@platformatic/*'
+  - 'wattpm'
