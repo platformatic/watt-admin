@@ -103,6 +103,16 @@ describe('getServiceWorkers', () => {
 })
 
 describe('getServiceEntrypoint', () => {
+  test('should recognize listening applications in Watt v4', () => {
+    const service = { servingState: 'listening' } as ServiceData
+    expect(getServiceEntrypoint(service)).toBe(true)
+  })
+
+  test('should not mark mesh-only applications as listeners', () => {
+    const service = { servingState: 'mesh-only' } as ServiceData
+    expect(getServiceEntrypoint(service)).toBe(false)
+  })
+
   test('should return true when service has entrypoint property set to true', () => {
     const service = { entrypoint: true } as ServiceData
     expect(getServiceEntrypoint(service)).toBe(true)

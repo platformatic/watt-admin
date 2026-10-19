@@ -47,7 +47,7 @@ test.describe('Basic E2E tests', () => {
     await expect(page.getByText('composer')).toHaveCount(1)
     await expect(page.getByText('gateway')).toHaveCount(1)
     await expect(page.getByText('RUNNING')).toBeVisible()
-    await expect(page.getByText(/^\d+\.\d+\.\d+$/)).toBeVisible()
+    await expect(page.getByText(/^\d+\.\d+\.\d+(?:-[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?(?:\+[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?$/)).toBeVisible()
     await expect(page.getByText('http://127.0.0.1:5042')).toBeVisible()
 
     const metricCharts = page.getByTestId('metric-chart')
@@ -104,7 +104,7 @@ test.describe('Basic E2E tests', () => {
     await expect(page.getByText('Entrypoint Nodejs')).toHaveCount(1)
     await page.getByText('frontend').click()
     await expect(page.getByText('frontend CPU & ELU')).toHaveCount(1)
-    await page.getByText('(Entrypoint)').click()
+    await page.getByText('composer', { exact: true }).click()
     await expect(page.getByText('composer Latency')).toHaveCount(1)
     await expect(page.getByText('composer Requests')).toHaveCount(1)
     await expect(page.getByText('composer Nodejs')).toHaveCount(1)
@@ -132,7 +132,7 @@ test.describe('Basic E2E tests', () => {
     await closeScalarModal(page)
 
     // composer (Scalar)
-    await page.getByText('App Entrypoint').click()
+    await page.getByText('composer', { exact: true }).click()
     await page.getByText('Platformatic Gateway').waitFor()
     await page
       .getByRole('button', { name: 'Test Request(get /api/runtimes)' })

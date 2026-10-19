@@ -55,7 +55,7 @@ export type GetRuntimesRequest = {
 /**
  * Default Response
  */
-export type GetRuntimesResponseOK = Array<{ 'pid': number; 'cwd': string; 'argv': Array<string>; 'uptimeSeconds': number; 'execPath': string; 'nodeVersion': string; 'projectDir': string; 'packageName': string; 'packageVersion': string; 'url': string; 'platformaticVersion': string; 'selected': boolean }>
+export type GetRuntimesResponseOK = Array<{ 'pid': number; 'cwd': string; 'argv': Array<string>; 'uptimeSeconds': number; 'execPath': string; 'nodeVersion': string; 'projectDir': string; 'packageName': string; 'packageVersion': string; 'url': string; 'urls'?: Array<string>; 'platformaticVersion': string; 'selected': boolean }>
 export type GetRuntimesResponses =
   FullResponse<GetRuntimesResponseOK, 200>
 
@@ -81,7 +81,7 @@ export type GetRuntimesPidServicesRequest = {
 /**
  * Default Response
  */
-export type GetRuntimesPidServicesResponseOK = { 'entrypoint': string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint': boolean; 'workers'?: number; 'url'?: string; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
+export type GetRuntimesPidServicesResponseOK = { 'entrypoint'?: string; 'production': boolean; 'applications': Array<{ 'id': string; 'type': string; 'status': string; 'version': string; 'localUrl': string; 'entrypoint'?: boolean; 'workers'?: number; 'url'?: string | null; 'servingState'?: 'listening' | 'mesh-only' | 'background' | 'inactive'; 'dependencies': Array<string>; [key: string]: unknown } | { 'id': string; 'status': string }> }
 export type GetRuntimesPidServicesResponses =
   FullResponse<GetRuntimesPidServicesResponseOK, 200>
 

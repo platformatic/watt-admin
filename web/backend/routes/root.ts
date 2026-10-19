@@ -72,7 +72,7 @@ export default async function (fastify: FastifyInstance) {
         200: {
           type: 'object',
           additionalProperties: false,
-          required: ['entrypoint', 'production', 'applications'],
+          required: ['production', 'applications'],
           properties: {
             entrypoint: {
               type: 'string'
@@ -87,7 +87,7 @@ export default async function (fastify: FastifyInstance) {
                   {
                     additionalProperties: true,
                     type: 'object',
-                    required: ['id', 'type', 'status', 'version', 'localUrl', 'entrypoint', 'dependencies'],
+                    required: ['id', 'type', 'status', 'version', 'localUrl', 'dependencies'],
                     properties: {
                       id: {
                         type: 'string'
@@ -111,7 +111,12 @@ export default async function (fastify: FastifyInstance) {
                         type: 'number'
                       },
                       url: {
-                        type: 'string'
+                        type: 'string',
+                        nullable: true
+                      },
+                      servingState: {
+                        type: 'string',
+                        enum: ['listening', 'mesh-only', 'background', 'inactive']
                       },
                       dependencies: {
                         type: 'array',

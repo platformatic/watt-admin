@@ -201,6 +201,10 @@ export const selectableRuntimeSchema = {
     url: {
       type: 'string'
     },
+    urls: {
+      type: 'array',
+      items: { type: 'string' }
+    },
     platformaticVersion: {
       type: 'string'
     },

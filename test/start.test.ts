@@ -5,12 +5,17 @@ import { setImmediate as immediate } from 'node:timers/promises'
 
 interface MockServer {
   started: boolean
-  start(): Promise<string>
+  start(): Promise<Record<string, string>>
   close(): Promise<void>
 }
 
 interface MockClient {
   close(): Promise<void>
+  updateRuntimeMetricsConfig(pid: number, config: MetricsUpdate): Promise<unknown>
+}
+
+interface MetricsUpdate {
+  enabled: boolean
 }
 
 interface RequestOptions {
@@ -52,7 +57,7 @@ describe('start', () => {
     started: false,
     start: async function () {
       this.started = true
-      return 'http://localhost:3000'
+      return { 'composer:0': 'http://localhost:3000' }
     },
     close: async function () {
       this.started = false
@@ -64,8 +69,10 @@ describe('start', () => {
   let execAsyncMock: MockFunction<(command: string) => Promise<ExecResult>>
   let createMock: MockFunction<(configFile: string, env: any, options: any) => Promise<MockServer>>
   let parseArgsResult: ParseArgsResult
+  let importCounter = 0
 
   beforeEach(() => {
+    importCounter++
     mockServer.started = false
     delete process.env.SELECTED_RUNTIME
     delete process.env.WATT_ADMIN_PORT
@@ -75,7 +82,8 @@ describe('start', () => {
 
     // Create mock client
     mockClient = {
-      close: mock.fn(async () => {})
+      close: mock.fn(async () => {}),
+      updateRuntimeMetricsConfig: mock.fn(async () => ({ success: true }))
     }
 
     // Reset mocks
@@ -143,11 +151,36 @@ describe('start', () => {
     process.removeAllListeners('SIGINT')
   })
 
+  it('should enable metrics before starting the admin server', async () => {
+    const { start } = await import(`../lib/start.js?test=${importCounter}`)
+    const update = mock.fn(async () => {
+      assert.strictEqual(mockServer.started, false)
+      assert.strictEqual(createMock.mock.calls.length, 0)
+    })
+    mockClient.updateRuntimeMetricsConfig = update
+
+    await start(mockClient, '12345')
+
+    assert.deepStrictEqual(update.mock.calls[0].arguments, [12345, { enabled: true }])
+    assert.strictEqual(mockServer.started, true)
+  })
+
+  it('should not start the admin server when enabling metrics fails', async () => {
+    const { start } = await import(`../lib/start.js?test=${importCounter}`)
+    const failure = Object.assign(new Error('Metrics update failed'), { code: 'PLT_CTR_FAILED_TO_UPDATE_RUNTIME_METRICS' })
+    mockClient.updateRuntimeMetricsConfig = async () => { throw failure }
+
+    await assert.rejects(start(mockClient, '12345'), failure)
+
+    assert.strictEqual(createMock.mock.calls.length, 0)
+    assert.strictEqual(mockServer.started, false)
+  })
+
   it('should start the server with the selected runtime and handle record mode', async () => {
     // Test 1: Normal start without record mode
     parseArgsResult = { values: {} }
 
-    const { start } = await import('../lib/start.js')
+    const { start } = await import(`../lib/start.js?test=${importCounter}`)
 
     const testRuntime = 'test-runtime-123'
     await start(mockClient, testRuntime)
@@ -267,7 +300,7 @@ describe('start', () => {
     }) as typeof setTimeout
 
     try {
-      const { start } = await import('../lib/start.js')
+      const { start } = await import(`../lib/start.js?test=${importCounter}`)
       await start(mockClient, pid)
 
       // Verify SIGINT listener is registered

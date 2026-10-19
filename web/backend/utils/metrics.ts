@@ -1,4 +1,5 @@
 import { RuntimeApiClient } from '@platformatic/control'
+import type { Metric } from '@platformatic/control'
 import type { FastifyInstance } from 'fastify'
 import { requiredMetricKeys } from '../schemas/index.ts'
 import type { MemoryDataPoint, CpuDataPoint } from '../schemas/index.ts'
@@ -7,25 +8,42 @@ import { getReqRps } from './rps.ts'
 import { addMetricDataPoint, initMetricsObject, initMetricsResponse, initServiceMetrics, isKafkaMetricName, isNodejsMetricName, isUndiciMetricName, isWebsocketMetricName, kafkaMetricMap, nodejsMetricMap, undiciMetricMap, websocketMetricMap } from './metrics-helpers.ts'
 
 export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance): Promise<void> => {
+  const api = new RuntimeApiClient()
   try {
-    const api = new RuntimeApiClient()
     const runtimes = await api.getRuntimes()
     for (const { pid } of runtimes) {
       const date = new Date().toISOString()
       const aggregatedMetrics = initMetricsObject(date)
-      let aggregatedRss = 0
+      // A runtime with disabled metrics must not prevent collecting from the selected runtime.
+      let runtimeMetrics: Metric[]
+      try {
+        runtimeMetrics = await api.getRuntimeMetrics(pid, { format: 'json' })
+      } catch (error) {
+        log.warn({ err: error, pid }, 'Unable to get runtime metrics. Retry will start soon...')
+        continue
+      }
 
-      const runtimeMetrics = await api.getRuntimeMetrics(pid, { format: 'json' })
+      if (!Array.isArray(runtimeMetrics)) {
+        continue
+      }
+
+      const rss = runtimeMetrics.findLast(metric => metric.name === 'process_resident_memory_bytes')
+      const aggregatedRss = bytesToMB(rss?.values[0]?.value ?? 0)
       if (!metrics[pid]) {
         metrics[pid] = { services: {}, aggregated: initMetricsResponse() }
       }
 
-      const { applications, entrypoint } = await api.getRuntimeApplications(pid)
+      const runtimeApplications = await api.getRuntimeApplications(pid)
+      const { applications } = runtimeApplications
+      const entrypoint = 'entrypoint' in runtimeApplications ? runtimeApplications.entrypoint : undefined
       for (const service of applications) {
         const { id: serviceId } = service
         const workers = 'workers' in service && service?.workers ? service.workers : 1
         const areMultipleWorkersEnabled = workers > 1
-        const isEntrypointService = entrypoint === serviceId
+        // v4 has no single entrypoint: aggregate traffic from all listening applications.
+        const isEntrypointService = entrypoint === undefined
+          ? 'servingState' in service && service.servingState === 'listening'
+          : entrypoint === serviceId
         initServiceMetrics({ metrics, pid, serviceId, workers, areMultipleWorkersEnabled })
         const workerMetrics = initMetricsResponse(date, workers)
         const serviceMetrics = initMetricsObject(date)
@@ -42,12 +60,6 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
           if (metric.values.length > 0) {
             const [{ value, labels }] = metric.values
             const workerId = labels.workerId ?? 0
-
-            if (isEntrypointService) {
-              if (metric.name === 'process_resident_memory_bytes') {
-                aggregatedRss = bytesToMB(value)
-              }
-            }
 
             if (serviceId === labels.applicationId) {
               if (metric.name === 'nodejs_heap_size_total_bytes') {
@@ -88,7 +100,7 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
                         serviceMetrics.dataLatency.p90 = data
                       }
                       if (isEntrypointService) {
-                        aggregatedMetrics.dataLatency.p90 = serviceMetrics.dataLatency.p90
+                        aggregatedMetrics.dataLatency.p90 = Math.max(aggregatedMetrics.dataLatency.p90, serviceMetrics.dataLatency.p90)
                       }
                     }
                     if (metricValue.labels?.quantile === 0.95) {
@@ -99,7 +111,7 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
                         serviceMetrics.dataLatency.p95 = data
                       }
                       if (isEntrypointService) {
-                        aggregatedMetrics.dataLatency.p95 = serviceMetrics.dataLatency.p95
+                        aggregatedMetrics.dataLatency.p95 = Math.max(aggregatedMetrics.dataLatency.p95, serviceMetrics.dataLatency.p95)
                       }
                     }
                     if (metricValue.labels?.quantile === 0.99) {
@@ -110,7 +122,7 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
                         serviceMetrics.dataLatency.p99 = data
                       }
                       if (isEntrypointService) {
-                        aggregatedMetrics.dataLatency.p99 = serviceMetrics.dataLatency.p99
+                        aggregatedMetrics.dataLatency.p99 = Math.max(aggregatedMetrics.dataLatency.p99, serviceMetrics.dataLatency.p99)
                       }
                     }
                   }
@@ -135,11 +147,6 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
                   serviceMetrics.dataReq.count += count
                   const rps = getReqRps(serviceMetrics.dataReq.count, metrics[pid].services[serviceId].all.dataReq)
                   serviceMetrics.dataReq.rps = rps
-
-                  if (isEntrypointService) {
-                    aggregatedMetrics.dataReq.count = serviceMetrics.dataReq.count
-                    aggregatedMetrics.dataReq.rps = rps
-                  }
                 }
               }
 
@@ -185,6 +192,11 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
         serviceMetrics.dataMem.rss = aggregatedRss
         aggregatedMetrics.dataMem.rss = aggregatedRss
 
+        if (isEntrypointService) {
+          aggregatedMetrics.dataReq.count += serviceMetrics.dataReq.count
+          aggregatedMetrics.dataReq.rps += serviceMetrics.dataReq.rps
+        }
+
         if (areMultipleWorkersEnabled) {
           for (let i = 0; i < workers; i++) {
             workerMetrics.dataMem[i].rss = aggregatedRss
@@ -198,5 +210,7 @@ export const getMetrics = async ({ loaded: { metrics }, log }: FastifyInstance):
     }
   } catch (error) {
     log.warn(error, 'Unable to get runtime metrics. Retry will start soon...')
+  } finally {
+    await api.close()
   }
 }

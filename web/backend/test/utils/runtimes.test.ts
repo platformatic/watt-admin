@@ -6,22 +6,68 @@ import type { SelectableRuntime } from '../../schemas/index.ts'
 
 const mockRuntimes: Runtime[] = [
   {
+    cwd: '/app',
+    argv: [],
+    uptimeSeconds: 0,
+    execPath: process.execPath,
+    nodeVersion: process.version,
+    projectDir: '/app',
+    configPath: '/app/watt.config.js',
+    autoload: null,
+    platformaticVersion: '4.0.0',
     pid: 1234,
     packageName: 'my-app',
     packageVersion: '1.0.0',
-    url: 'http://localhost:3000'
-  } as Runtime,
+    urls: { 'api:0': 'http://localhost:3000' }
+  },
   {
+    cwd: '/admin',
+    argv: [],
+    uptimeSeconds: 0,
+    execPath: process.execPath,
+    nodeVersion: process.version,
+    projectDir: '/admin',
+    configPath: '/admin/watt.config.js',
+    autoload: null,
+    platformaticVersion: '4.0.0',
     pid: 5678,
     packageName: '@platformatic/watt-admin',
     packageVersion: '2.0.0',
-    url: 'http://localhost:3001'
-  } as Runtime
+    urls: { 'composer:0': 'http://localhost:3001' }
+  }
 ]
 
 test('getSelectableRuntimes should handle empty runtimes array', () => {
   const result = getSelectableRuntimes([], true)
   assert.strictEqual(result.length, 0)
+})
+
+test('getSelectableRuntimes uses observed worker URLs', () => {
+  const result = getSelectableRuntimes(mockRuntimes, true)
+  assert.strictEqual(result[0].url, 'http://localhost:3000')
+  assert.strictEqual(result[1].url, 'http://localhost:3001')
+})
+
+test('getSelectableRuntimes preserves all distinct listening URLs regardless of application order', () => {
+  const runtime: Runtime = {
+    ...mockRuntimes[0],
+    urls: {
+      'backend:0': 'http://localhost:3000',
+      'composer:0': 'http://127.0.0.1:5042',
+      'composer:1': 'http://127.0.0.1:5042',
+      'frontend:0': ''
+    }
+  }
+
+  const [result] = getSelectableRuntimes([runtime], true)
+  assert.deepStrictEqual(result.urls, ['http://localhost:3000', 'http://127.0.0.1:5042'])
+  assert.strictEqual(result.url, 'http://localhost:3000')
+})
+
+test('getSelectableRuntimes handles runtimes without listening URLs', () => {
+  const [result] = getSelectableRuntimes([{ ...mockRuntimes[0], urls: {} }], true)
+  assert.deepStrictEqual(result.urls, [])
+  assert.strictEqual(result.url, '')
 })
 
 test('getSelectableRuntimes should exclude watt-admin when includeAdmin is false', () => {

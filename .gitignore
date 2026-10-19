@@ -140,3 +140,6 @@ web/backend/openapi.json
 
 # profiles
 watt-admin-*.html
+
+# SSRT
+.plt

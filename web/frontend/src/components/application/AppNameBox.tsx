@@ -17,6 +17,7 @@ export interface ApiApplication {
   pltVersion?: string;
   lastStarted: string | Date;
   url: string;
+  urls?: string[];
 }
 
 interface AppNameBoxProps {
@@ -72,6 +73,7 @@ function AppNameBox ({
 
   if (!apiApplication || !runtimePid) return null
   const outdatedVersion = latestVersion !== apiApplication?.pltVersion
+  const urls = apiApplication.urls ?? (apiApplication.url ? [apiApplication.url] : [])
 
   return (
     <>
@@ -172,9 +174,15 @@ function AppNameBox ({
                             </>)
                           : (<span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>-</span>)}
                         <span className={`${typographyStyles.desktopBodySmallest} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}> &nbsp; | &nbsp; </span>
-                        <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>URL:</span>
-                        <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite}`}>{apiApplication.url} </span>
-                        <PlatformaticIcon iconName='ExpandIcon' color={WHITE} size={SMALL} onClick={() => window.open(apiApplication.url, '_blank')} internalOverHandling disabled={apiApplication.url === ''} />
+                        <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite} ${typographyStyles.opacity70}`}>URLs:</span>
+                        <div className={commonStyles.tinyFlexBlock}>
+                          {urls.map(url => (
+                            <div key={url} className={`${commonStyles.tinyFlexRow} ${commonStyles.itemsCenter}`}>
+                              <span className={`${typographyStyles.desktopBodySmall} ${typographyStyles.textWhite}`}>{url} </span>
+                              <PlatformaticIcon iconName='ExpandIcon' color={WHITE} size={SMALL} onClick={() => window.open(url, '_blank')} internalOverHandling />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </>
                     )}

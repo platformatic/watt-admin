@@ -35,22 +35,18 @@ export async function loadMetrics (server: FastifyInstance): Promise<void> {
 }
 
 export async function getServer (t: TestContext) {
-  const basePath = resolve(__dirname, join('..', 'platformatic.json'))
+  const basePath = resolve(__dirname, '..')
   const server = await create(basePath, {
     watch: false,
-    server: {
-      logger: {
-        level: 'fatal'
-      }
-    },
+    server: { logger: { level: 'fatal' } },
     plugins: {
       paths: [
         {
-          path: '../plugins',
+          path: './plugins',
           encapsulate: false
         },
         {
-          path: '../routes'
+          path: './routes'
         }
       ]
     }
@@ -70,9 +66,11 @@ export async function startWatt (t: TestContext): Promise<string> {
   return new Promise((resolve, reject) => {
     const onData = (data: Buffer) => {
       const input = data.toString()
-      if (input.includes('Platformatic is now listening at ')) {
+      // v4 reports every listener; only the gateway exposes the dashboard API.
+      const match = input.match(/Platformatic is now listening at http:\/\/[^:]+:(\d+) for worker \d+ of the application \\?"composer/)
+      if (match) {
         removeListeners()
-        resolve(input.match(/http:\/\/[^:]+:(\d+)/)?.[1] || '0')
+        resolve(match[1])
       }
     }
 

@@ -68,6 +68,10 @@ describe('CLI Integration', () => {
       }
     })
 
+    mock.module('../lib/start.js', {
+      namedExports: { start: async (client: RuntimeApiClient) => client }
+    })
+
     mock.module('util', {
       namedExports: {
         ...util,
