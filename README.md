@@ -75,7 +75,7 @@ If only one runtime is running, it will be selected automatically.
 
 With Watt v4, Watt Admin enables metrics on the selected runtime before starting the dashboard, without restarting workers or replacing existing metrics options. This requires a Watt version that supports `PATCH /api/v1/metrics`. Changes are in-memory only and are not reverted when the dashboard closes.
 
-The currently pinned `4.0.0-new-config.8` packages do not yet include this API or `RuntimeApiClient.updateRuntimeMetricsConfig()`. Until a release containing [platformatic/platformatic#5238](https://github.com/platformatic/platformatic/pull/5238) is available, integration testing requires locally linking the Watt packages built from that PR. Update the pinned versions and lockfile before merging.
+The Watt packages are pinned to `4.0.0-alpha.2`.
 
 ### Custom Port
 
