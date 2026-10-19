@@ -42,10 +42,10 @@ export const getApiApplication = async (mode: Mode) => {
   const runtimes = isLoadMode(mode) ? getDataLoaded().runtimes : (await getRuntimes({ query: { includeAdmin: false } })).body
 
   for (const runtime of runtimes) {
-    const { platformaticVersion: pltVersion, packageName: name, pid: id, uptimeSeconds, url, selected } = runtime
+    const { platformaticVersion: pltVersion, packageName: name, pid: id, uptimeSeconds, url, urls, selected } = runtime
     if (!selected) continue
     const lastStarted = subtractSecondsFromDate(new Date(), uptimeSeconds)
-    return { id, url, name, pltVersion, lastStarted }
+    return { id, url, urls: urls ?? (url ? [url] : []), name, pltVersion, lastStarted }
   }
 
   throw new Error('No available runtime')

@@ -55,7 +55,7 @@ export type GetRuntimesRequest = {
 /**
  * Default Response
  */
-export type GetRuntimesResponseOK = Array<{ 'pid': number; 'cwd': string; 'argv': Array<string>; 'uptimeSeconds': number; 'execPath': string; 'nodeVersion': string; 'projectDir': string; 'packageName': string; 'packageVersion': string; 'url': string; 'platformaticVersion': string; 'selected': boolean }>
+export type GetRuntimesResponseOK = Array<{ 'pid': number; 'cwd': string; 'argv': Array<string>; 'uptimeSeconds': number; 'execPath': string; 'nodeVersion': string; 'projectDir': string; 'packageName': string; 'packageVersion': string; 'url': string; 'urls'?: Array<string>; 'platformaticVersion': string; 'selected': boolean }>
 export type GetRuntimesResponses =
   FullResponse<GetRuntimesResponseOK, 200>
 

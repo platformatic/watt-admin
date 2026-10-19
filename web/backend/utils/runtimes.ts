@@ -13,8 +13,9 @@ export const getSelectableRuntimes = (runtimes: Runtime[], includeAdmin: boolean
       selected = process.env.SELECTED_RUNTIME === runtime.pid.toString()
     }
 
-    const url = Object.values(runtime.urls ?? {})[0] ?? ''
-    selectableRuntimes.push({ ...runtime, packageName: runtime.packageName || '', packageVersion: runtime.packageVersion || '', url, selected })
+    const urls = [...new Set(Object.values(runtime.urls ?? {}).filter(Boolean))]
+    const url = urls[0] ?? ''
+    selectableRuntimes.push({ ...runtime, packageName: runtime.packageName || '', packageVersion: runtime.packageVersion || '', url, urls, selected })
   }
   return selectableRuntimes
 }
