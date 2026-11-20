@@ -67,7 +67,7 @@
     "@types/react-dom": "^19.2.1",
     "@types/split2": "^4.2.3",
     "@types/ws": "^8.18.1",
-    "eslint": "^9.37.0",
+    "eslint": "^10.0.0",
     "fastify-tsconfig": "^3.0.0",
     "glob": "^13.0.1",
     "massimo-cli": "^1.0.1",
